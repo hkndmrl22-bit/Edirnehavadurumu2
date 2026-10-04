@@ -17,7 +17,7 @@ public class MainActivity extends Activity{
  void ui(){
   ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(12),dp(8),dp(12),dp(22));root.setBackgroundColor(Color.rgb(7,24,45));sc.addView(root);setContentView(sc);
   LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);
-  ImageView im=new ImageView(this);im.setImageResource(R.drawable.edirne_logo_real_jpg);im.setScaleType(ImageView.ScaleType.CENTER_INSIDE);im.setAdjustViewBounds(true);h.addView(im,new LinearLayout.LayoutParams(dp(92),dp(92)));
+  ImageView im=new ImageView(this);im.setImageResource(R.drawable.edirne_logo_real);im.setScaleType(ImageView.ScaleType.CENTER_INSIDE);im.setAdjustViewBounds(true);h.addView(im,new LinearLayout.LayoutParams(dp(92),dp(92)));
   LinearLayout tx=new LinearLayout(this);tx.setOrientation(LinearLayout.VERTICAL);tx.addView(tv("Edirne Hava Durumu",22,-1,true));tx.addView(tv("/ edirnehavadurumu",14,Color.LTGRAY,false));tx.addView(tv("MGM verileri • Güncel tahminler",12,Color.LTGRAY,false));h.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
   Button r=new Button(this);r.setText("↻ Yenile");r.setOnClickListener(v->load());h.addView(r);root.addView(h);
   status=tv("MGM verileri yükleniyor…",14,Color.LTGRAY,false);root.addView(status);progress=new ProgressBar(this);progress.setIndeterminate(true);root.addView(progress);
