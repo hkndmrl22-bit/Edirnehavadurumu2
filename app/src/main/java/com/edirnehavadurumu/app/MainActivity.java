@@ -1,342 +1,58 @@
 package com.edirnehavadurumu.app;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.os.Handler;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
-import android.view.Gravity;
-import android.view.View;
-import android.content.Intent;
-import android.net.Uri;
-import android.widget.*;
-import android.graphics.drawable.Drawable;
+import android.app.*;import android.os.*;import android.graphics.*;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import org.jsoup.*;import org.jsoup.nodes.*;import org.jsoup.select.*;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-public class MainActivity extends Activity {
-    private static final String MGM_HOURLY = "https://www.mgm.gov.tr/tahmin/saatlik.aspx?m=EDIRNE";
-    private static final String MGM_5DAY = "https://www.mgm.gov.tr/tahmin/il-ve-ilceler.aspx?il=EDIRNE";
-    private static final String MGM_DAILY = "https://www.mgm.gov.tr/tahmin/gunluk-tahmin.aspx?b=1";
-
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final Handler main = new Handler();
-    private LinearLayout root, hourlyContainer, fiveContainer, districtContainer;
-    private TextView status, updated;
-    private ProgressBar progress;
-
-    private final String[] DISTRICTS = {"Edirne","Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
-
-    @Override public void onCreate(Bundle b) {
-        super.onCreate(b);
-        buildUi();
-        loadMgm();
-    }
-
-    private int dp(float v) {
-        return (int)(v * getResources().getDisplayMetrics().density + .5f);
-    }
-
-    private TextView tv(String text, float sp, int color, boolean bold) {
-        TextView t = new TextView(this);
-        t.setText(text);
-        t.setTextSize(sp);
-        t.setTextColor(color);
-        t.setTypeface(Typeface.DEFAULT, bold ? Typeface.BOLD : Typeface.NORMAL);
-        t.setPadding(dp(5), dp(4), dp(5), dp(4));
-        return t;
-    }
-
-    private GradientDrawable bg(int color, int radius) {
-        GradientDrawable g = new GradientDrawable();
-        g.setColor(color);
-        g.setCornerRadius(dp(radius));
-        return g;
-    }
-
-    private void sectionTitle(LinearLayout parent, String text) {
-        TextView h = tv(text, 19, Color.WHITE, true);
-        h.setPadding(dp(2),dp(16),dp(2),dp(8));
-        parent.addView(h);
-    }
-
-    private void buildUi() {
-        ScrollView scroll = new ScrollView(this);
-        root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(14),dp(10),dp(14),dp(22));
-        root.setBackgroundColor(Color.rgb(7,24,45));
-        scroll.addView(root);
-        setContentView(scroll);
-
-        LinearLayout head = new LinearLayout(this);
-        head.setGravity(Gravity.CENTER_VERTICAL);
-
-        ImageView logo = new ImageView(this);
-        logo.setImageResource(R.drawable.edirne_logo);
-        logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        head.addView(logo,new LinearLayout.LayoutParams(dp(92),dp(92)));
-
-        LinearLayout titles = new LinearLayout(this);
-        titles.setOrientation(LinearLayout.VERTICAL);
-        titles.setPadding(dp(10),0,dp(4),0);
-        titles.addView(tv("Edirne Hava Durumu",23,Color.WHITE,true));
-        titles.addView(tv("/ edirnehavadurumu",14,Color.LTGRAY,false));
-        titles.addView(tv("MGM verileri • Güncel tahminler",12,Color.LTGRAY,false));
-        head.addView(titles,new LinearLayout.LayoutParams(0,-2,1));
-
-        Button refresh = new Button(this);
-        refresh.setText("↻ Yenile");
-        refresh.setOnClickListener(v -> loadMgm());
-        head.addView(refresh);
-        root.addView(head);
-
-        status = tv("MGM verileri yükleniyor…",14,Color.LTGRAY,false);
-        root.addView(status);
-        progress = new ProgressBar(this);
-        progress.setIndeterminate(true);
-        root.addView(progress);
-
-        sectionTitle(root,"📅 5 Günlük Tahmin");
-        fiveContainer = new LinearLayout(this);
-        fiveContainer.setOrientation(LinearLayout.VERTICAL);
-        root.addView(fiveContainer);
-
-        sectionTitle(root,"📍 Edirne İlçeleri");
-        districtContainer = new LinearLayout(this);
-        districtContainer.setOrientation(LinearLayout.VERTICAL);
-        root.addView(districtContainer);
-
-        sectionTitle(root,"🕒 Saatlik Tahmin • Edirne Merkez");
-        hourlyContainer = new LinearLayout(this);
-        hourlyContainer.setOrientation(LinearLayout.VERTICAL);
-        root.addView(hourlyContainer);
-
-        updated = tv("",12,Color.LTGRAY,false);
-        root.addView(updated);
-        root.addView(tv("Veri kaynağı: Meteoroloji Genel Müdürlüğü (MGM)",12,Color.LTGRAY,false));
-        TextView followTitle=tv("Bizi takip edin",15,Color.WHITE,true); followTitle.setGravity(Gravity.CENTER); root.addView(followTitle);
-        LinearLayout socials = new LinearLayout(this);
-        socials.setGravity(Gravity.CENTER);
-        socials.setPadding(0,dp(6),0,dp(6));
-
-        ImageButton facebook = new ImageButton(this);
-        facebook.setImageResource(com.edirnehavadurumu.app.R.drawable.ic_facebook);
-        facebook.setBackgroundColor(Color.TRANSPARENT);
-        facebook.setContentDescription("Facebook - edirnehavadurumu");
-        facebook.setPadding(dp(4),dp(4),dp(4),dp(4));
-        facebook.setOnClickListener(v -> openSocial("https://www.facebook.com/edirnehavadurumu"));
-        socials.addView(facebook,new LinearLayout.LayoutParams(dp(62),dp(62)));
-
-        ImageButton instagram = new ImageButton(this);
-        instagram.setImageResource(com.edirnehavadurumu.app.R.drawable.ic_instagram);
-        instagram.setBackgroundColor(Color.TRANSPARENT);
-        instagram.setContentDescription("Instagram - edirnehavadurumu");
-        instagram.setPadding(dp(4),dp(4),dp(4),dp(4));
-        instagram.setOnClickListener(v -> openSocial("https://www.instagram.com/edirnehavadurumu/"));
-        socials.addView(instagram,new LinearLayout.LayoutParams(dp(62),dp(62)));
-
-        root.addView(socials,new LinearLayout.LayoutParams(-1,-2));
-        TextView socialHint=tv("Facebook ve Instagram: @edirnehavadurumu",12,Color.LTGRAY,false); socialHint.setGravity(Gravity.CENTER); root.addView(socialHint);
-    }
-
-    private void loadMgm() {
-        status.setText("MGM verileri alınıyor…");
-        progress.setVisibility(View.VISIBLE);
-        executor.execute(() -> {
-            try {
-                Document hourly = null, five = null, daily = null;
-                try { hourly = Jsoup.connect(MGM_HOURLY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(); } catch(Exception ignored) {}
-                try { five = Jsoup.connect(MGM_5DAY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(); } catch(Exception ignored) {}
-                try { daily = Jsoup.connect(MGM_DAILY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(); } catch(Exception ignored) {}
-                if(hourly == null && five == null && daily == null) throw new Exception("MGM kaynaklarına erişilemedi");
-
-                List<String> hours=hourly==null?new ArrayList<>():row(hourly,"Saat");
-                List<String> temps=hourly==null?new ArrayList<>():row(hourly,"Sıcaklık");
-                List<String> feels=hourly==null?new ArrayList<>():row(hourly,"Hissedilen Sıcaklık");
-                List<String> humidity=hourly==null?new ArrayList<>():row(hourly,"Nem");
-                List<String> wind=hourly==null?new ArrayList<>():row(hourly,"Rüzgar Yön ve Hızı");
-                List<String> gust=hourly==null?new ArrayList<>():row(hourly,"Rüzgar Hamlesi");
-                List<WeatherItem> items=new ArrayList<>();
-                for(int i=0;i<Math.min(hours.size(),temps.size());i++)
-                    items.add(new WeatherItem(val(hours,i),val(temps,i),val(feels,i),val(humidity,i),val(wind,i),val(gust,i)));
-
-                List<FiveDay> days=five==null?new ArrayList<>():parseFiveDay(five);
-                List<District> districts=daily==null?new ArrayList<>():parseDistricts(daily);
-
-                main.post(() -> {
-                    progress.setVisibility(View.GONE);
-                    renderHourly(items);
-                    renderFive(days);
-                    renderDistricts(districts);
-                    status.setText("MGM verileri başarıyla güncellendi.");
-                    updated.setText("Kaynak: MGM • Edirne il ve ilçe tahminleri");
-                });
-            } catch(Exception e) {
-                main.post(() -> {
-                    progress.setVisibility(View.GONE);
-                    status.setText("MGM verisi alınamadı. İnternet bağlantınızı kontrol edip Yenile'ye basın.");
-                    Toast.makeText(this,"MGM bağlantısı başarısız",Toast.LENGTH_SHORT).show();
-                });
-            }
-        });
-    }
-
-    private List<String> row(Document doc,String label) {
-        List<String> out=new ArrayList<>();
-        for(Element tr:doc.select("tr")) {
-            Elements cells=tr.select("th,td");
-            if(cells.size()==0) continue;
-            String first=cells.get(0).text().trim();
-            if(first.toLowerCase(Locale.ROOT).contains(label.toLowerCase(Locale.ROOT))) {
-                for(int i=1;i<cells.size();i++) out.add(cells.get(i).text().trim());
-                break;
-            }
-        }
-        return out;
-    }
-
-    private List<FiveDay> parseFiveDay(Document doc) {
-        List<FiveDay> out=new ArrayList<>();
-        for(Element tr:doc.select("tr")) {
-            Elements c=tr.select("th,td");
-            if(c.size()<4) continue;
-            String date=c.get(0).text().trim();
-            if(date.matches(".*\\d{1,2}.*")) {
-                String event=c.size()>1?c.get(1).text().trim():"-";
-                String min="",max="";
-                for(int i=2;i<c.size();i++) {
-                    String x=c.get(i).text().trim();
-                    if(x.matches("-?\\d+.*")) {
-                        if(min.isEmpty()) min=x; else if(max.isEmpty()) {max=x; break;}
-                    }
-                }
-                if(!min.isEmpty() && !max.isEmpty() && out.size()<5) out.add(new FiveDay(date,event,min,max));
-            }
-        }
-        return out;
-    }
-
-    private List<District> parseDistricts(Document doc) {
-        List<District> out=new ArrayList<>();
-        Set<String> wanted=new HashSet<>(Arrays.asList(DISTRICTS));
-        for(Element tr:doc.select("tr")) {
-            Elements c=tr.select("th,td");
-            if(c.size()<3) continue;
-            String name=c.get(0).text().trim();
-            String matched=null;
-            for(String d:DISTRICTS) if(name.equalsIgnoreCase(d) || name.toLowerCase(Locale.ROOT).startsWith(d.toLowerCase(Locale.ROOT)+" ")) matched=d;
-            if(matched==null || containsDistrict(out,matched)) continue;
-            String event=c.get(1).text().trim();
-            String min="",max="";
-            for(int i=2;i<c.size();i++) {
-                String x=c.get(i).text().trim();
-                if(x.matches("-?\\d+")) {
-                    if(min.isEmpty()) min=x; else {max=x; break;}
-                }
-            }
-            if(!min.isEmpty() && !max.isEmpty()) out.add(new District(matched,event,min,max));
-        }
-        return out;
-    }
-
-    private boolean containsDistrict(List<District> list,String name) {
-        for(District d:list) if(d.name.equals(name)) return true;
-        return false;
-    }
-
-    private String val(List<String> l,int i){return i<l.size()?l.get(i):"-";}
-
-    private void renderFive(List<FiveDay> days) {
-        fiveContainer.removeAllViews();
-        if(days.isEmpty()) {
-            fiveContainer.addView(tv("5 günlük MGM tahmini şu anda okunamadı. Yenile ile tekrar deneyin.",13,Color.LTGRAY,false));
-            return;
-        }
-        for(FiveDay d:days) {
-            LinearLayout card=new LinearLayout(this);
-            card.setGravity(Gravity.CENTER_VERTICAL);
-            card.setPadding(dp(10),dp(8),dp(10),dp(8));
-            card.setBackground(bg(Color.rgb(20,48,78),14));
-            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2); cp.setMargins(0,dp(3),0,dp(3));
-            card.addView(tv(d.date,14,Color.WHITE,true),new LinearLayout.LayoutParams(dp(105),-2));
-            TextView ev=tv(d.event,13,Color.LTGRAY,false);
-            card.addView(ev,new LinearLayout.LayoutParams(0,-2,1));
-            card.addView(tv(d.min+"° / "+d.max+"°",17,Color.rgb(255,193,7),true));
-            fiveContainer.addView(card,cp);
-        }
-    }
-
-    private void renderDistricts(List<District> ds) {
-        districtContainer.removeAllViews();
-        if(ds.isEmpty()) {
-            districtContainer.addView(tv("Edirne ilçeleri için MGM verisi şu anda okunamadı. Yenile ile tekrar deneyin.",13,Color.LTGRAY,false));
-            return;
-        }
-        for(District d:ds) {
-            LinearLayout card=new LinearLayout(this);
-            card.setGravity(Gravity.CENTER_VERTICAL);
-            card.setPadding(dp(10),dp(7),dp(10),dp(7));
-            card.setBackground(bg(Color.rgb(17,42,69),12));
-            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2); cp.setMargins(0,dp(2),0,dp(2));
-            card.addView(tv(d.name,15,Color.WHITE,true),new LinearLayout.LayoutParams(dp(105),-2));
-            card.addView(tv(d.event,12,Color.LTGRAY,false),new LinearLayout.LayoutParams(0,-2,1));
-            card.addView(tv(d.min+"°  –  "+d.max+"°",15,Color.rgb(255,193,7),true));
-            districtContainer.addView(card,cp);
-        }
-    }
-
-    private void renderHourly(List<WeatherItem> items) {
-        hourlyContainer.removeAllViews();
-        if(items.isEmpty()) {
-            hourlyContainer.addView(tv("Saatlik MGM verisi şu anda okunamadı. Yenile ile tekrar deneyin.",13,Color.LTGRAY,false));
-            return;
-        }
-        for(WeatherItem w:items) {
-            LinearLayout r=new LinearLayout(this);
-            r.setGravity(Gravity.CENTER_VERTICAL);
-            r.setPadding(0,dp(5),0,dp(5));
-            r.addView(tv(w.hour,14,Color.WHITE,true),new LinearLayout.LayoutParams(dp(55),-2));
-            r.addView(tv(w.temp+"°C",21,Color.rgb(255,193,7),true),new LinearLayout.LayoutParams(dp(78),-2));
-            LinearLayout details=new LinearLayout(this); details.setOrientation(LinearLayout.VERTICAL);
-            details.addView(tv("Hissedilen: "+w.feel+"°C",12,Color.LTGRAY,false));
-            details.addView(tv("Nem: %"+w.humidity+" • Rüzgar: "+w.wind,12,Color.LTGRAY,false));
-            details.addView(tv("Hamle: "+w.gust,12,Color.LTGRAY,false));
-            r.addView(details,new LinearLayout.LayoutParams(0,-2,1));
-            hourlyContainer.addView(r);
-            View line=new View(this); line.setBackgroundColor(Color.rgb(55,78,104));
-            hourlyContainer.addView(line,new LinearLayout.LayoutParams(-1,dp(1)));
-        }
-    }
-
-    private void openSocial(String url) {
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-        } catch(Exception e) {
-            Toast.makeText(this, "Bağlantı açılamadı", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override protected void onDestroy(){executor.shutdownNow();super.onDestroy();}
-
-    private static class WeatherItem {
-        final String hour,temp,feel,humidity,wind,gust;
-        WeatherItem(String h,String t,String f,String hu,String w,String g){hour=h;temp=t;feel=f;humidity=hu;wind=w;gust=g;}
-    }
-    private static class FiveDay {
-        final String date,event,min,max;
-        FiveDay(String d,String e,String mi,String ma){date=d;event=e;min=mi;max=ma;}
-    }
-    private static class District {
-        final String name,event,min,max;
-        District(String n,String e,String mi,String ma){name=n;event=e;min=mi;max=ma;}
-    }
+public class MainActivity extends Activity{
+ static final String H="https://www.mgm.gov.tr/tahmin/saatlik.aspx?m=EDIRNE", F="https://www.mgm.gov.tr/kurumici/5gunalfabetik.aspx";
+ ExecutorService ex=Executors.newSingleThreadExecutor(); Handler main=new Handler(); LinearLayout root,five,dist,hour; TextView status,updated;
+ String[] D={"Edirne","Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
+ int dp(float x){return(int)(x*getResources().getDisplayMetrics().density+.5f);}
+ TextView tv(String s,float z,int c,boolean b){TextView t=new TextView(this);t.setText(s);t.setTextSize(z);t.setTextColor(c);t.setTypeface(Typeface.DEFAULT,b?1:0);t.setPadding(dp(5),dp(3),dp(5),dp(3));return t;}
+ GradientDrawable bg(int c,int r){GradientDrawable g=new GradientDrawable();g.setColor(c);g.setCornerRadius(dp(r));return g;}
+ void title(String s){TextView t=tv(s,19,-1,true);t.setPadding(dp(2),dp(15),dp(2),dp(7));root.addView(t);}
+ @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();}
+ void ui(){
+  ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(12),dp(8),dp(12),dp(22));root.setBackgroundColor(Color.rgb(7,24,45));sc.addView(root);setContentView(sc);
+  LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);ImageView im=new ImageView(this);im.setImageResource(R.drawable.edirne_logo_real);im.setScaleType(ImageView.ScaleType.CENTER_INSIDE);h.addView(im,new LinearLayout.LayoutParams(dp(82),dp(82)));
+  LinearLayout tx=new LinearLayout(this);tx.setOrientation(LinearLayout.VERTICAL);tx.addView(tv("Edirne Hava Durumu",22,-1,true));tx.addView(tv("/ edirnehavadurumu",14,Color.LTGRAY,false));tx.addView(tv("MGM verileri • Güncel tahminler",12,Color.LTGRAY,false));h.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
+  Button r=new Button(this);r.setText("↻ Yenile");r.setOnClickListener(v->load());h.addView(r);root.addView(h);
+  status=tv("MGM verileri yükleniyor…",14,Color.LTGRAY,false);root.addView(status);ProgressBar p=new ProgressBar(this);p.setIndeterminate(true);root.addView(p);progress=p;
+  title("📅 Edirne Merkez • 5 Günlük Tahmin");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
+  title("📍 Edirne İlçeleri • 5 Günlük Tahmin");dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
+  title("🕒 Saatlik Tahmin • Edirne Merkez");hour=new LinearLayout(this);hour.setOrientation(LinearLayout.VERTICAL);root.addView(hour);
+  updated=tv("",12,Color.LTGRAY,false);root.addView(updated);root.addView(tv("Veri kaynağı: Meteoroloji Genel Müdürlüğü (MGM)",12,Color.LTGRAY,false));
+  TextView f=tv("Bizi takip edin",15,-1,true);f.setGravity(17);root.addView(f);LinearLayout s=new LinearLayout(this);s.setGravity(17);
+  ImageButton fb=new ImageButton(this);fb.setImageResource(R.drawable.ic_facebook);fb.setBackgroundColor(Color.TRANSPARENT);fb.setOnClickListener(v->open("https://www.facebook.com/edirnehavadurumu"));s.addView(fb,new LinearLayout.LayoutParams(dp(58),dp(58)));
+  ImageButton ig=new ImageButton(this);ig.setImageResource(R.drawable.ic_instagram);ig.setBackgroundColor(Color.TRANSPARENT);ig.setOnClickListener(v->open("https://www.instagram.com/edirnehavadurumu/"));s.addView(ig,new LinearLayout.LayoutParams(dp(58),dp(58)));root.addView(s);TextView sh=tv("Facebook ve Instagram: @edirnehavadurumu",12,Color.LTGRAY,false);sh.setGravity(17);root.addView(sh);
+ }
+ ProgressBar progress;
+ void load(){status.setText("MGM verileri alınıyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
+   Document hd=Jsoup.connect(H).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(),fd=Jsoup.connect(F).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
+   List<String> hs=row(hd,"Saat"),ts=row(hd,"Sıcaklık"),fs=row(hd,"Hissedilen Sıcaklık"),ns=row(hd,"Nem"),ws=row(hd,"Rüzgar Yön ve Hızı"),gs=row(hd,"Rüzgar Hamlesi");
+   ArrayList<W> wl=new ArrayList<>();for(int i=0;i<Math.min(hs.size(),ts.size());i++)wl.add(new W(v(hs,i),v(ts,i),v(fs,i),v(ns,i),v(ws,i),v(gs,i)));
+   Data data=parse(fd);main.post(()->{progress.setVisibility(View.GONE);renderCenter(data.get("EDIRNE"));renderDistricts(data);renderHour(wl);status.setText("MGM verileri başarıyla güncellendi.");updated.setText("Kaynak: MGM • 5 günlük ve saatlik tahminler");});
+  }catch(Exception e){main.post(()->{progress.setVisibility(View.GONE);status.setText("MGM verisi alınamadı. Yenile'ye basın.");Toast.makeText(this,"MGM bağlantısı başarısız",0).show();});}});}
+ List<String> row(Document d,String label){ArrayList<String> o=new ArrayList<>();for(Element tr:d.select("tr")){Elements c=tr.select(">th,>td");if(c.size()>0&&c.get(0).text().toLowerCase(new Locale("tr")).contains(label.toLowerCase(new Locale("tr")))){for(int i=1;i<c.size();i++)o.add(c.get(i).text().trim());break;}}return o;}
+ String v(List<String>x,int i){return i<x.size()?x.get(i):"-";}
+ Data parse(Document d){Data a=new Data();ArrayList<String> dates=new ArrayList<>();for(Element tr:d.select("tr")){Elements c=tr.select(">th,>td");if(c.size()>=6&&c.get(0).text().trim().equalsIgnoreCase("Merkez")){for(int i=1;i<c.size();i++)dates.add(c.get(i).text().trim());break;}}
+  if(dates.size()<5){Calendar q=Calendar.getInstance();String[]m={"Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"};for(int i=0;i<5;i++){dates.add(q.get(Calendar.DAY_OF_MONTH)+" "+m[q.get(Calendar.MONTH)]);q.add(Calendar.DAY_OF_MONTH,1);}}
+  HashSet<String>w=new HashSet<>();for(String x:D)w.add(n(x));
+  for(Element tr:d.select("tr")){Elements c=tr.select(">th,>td");if(c.size()<11)continue;String raw=c.get(0).text().trim(),name=clean(raw);if(!w.contains(n(name)))continue;Loc l=new Loc(name);for(int k=0;k<5;k++){int b=1+k*3;if(b+2>=c.size())break;String e=c.get(b).select("img").attr("alt").trim();if(e.isEmpty())e=c.get(b).text().trim();String mi=c.get(b+1).text().trim(),ma=c.get(b+2).text().trim();if(mi.matches("-?\\d+.*")&&ma.matches("-?\\d+.*"))l.a.add(new Day(dates.get(k),e,mi,ma));}if(l.a.size()==5)a.put(n(name),l);}return a;}
+ String clean(String s){s=s.replace('_',' ');int p=s.indexOf(" (");if(p>0)s=s.substring(0,p);for(String d:D)if(s.equalsIgnoreCase(d))return d;return s;}
+ String n(String s){return s.toLowerCase(new Locale("tr")).replace("ı","i").replace("ş","s").replace("ğ","g").replace("ü","u").replace("ö","o").replace("ç","c").trim();}
+ void renderCenter(Loc l){five.removeAllViews();if(l==null){five.addView(tv("Edirne Merkez 5 günlük tahmin okunamadı.",13,Color.LTGRAY,false));return;}for(Day x:l.a)five.addView(card(x,false));}
+ void renderDistricts(Data a){dist.removeAllViews();for(String name:D){Loc l=a.get(n(name));if(l==null)continue;TextView z=tv("▾ "+name,16,-1,true);z.setPadding(dp(5),dp(10),dp(5),dp(3));dist.addView(z);for(Day x:l.a)dist.addView(card(x,true));}}
+ View card(Day x,boolean small){LinearLayout c=new LinearLayout(this);c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(8),dp(7),dp(8),dp(7));c.setBackground(bg(Color.rgb(20,48,78),12));LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.setMargins(0,dp(2),0,dp(2));c.setLayoutParams(cp);
+  LinearLayout da=new LinearLayout(this);da.setOrientation(LinearLayout.VERTICAL);da.addView(tv(x.date,small?12:13,-1,true));c.addView(da,new LinearLayout.LayoutParams(dp(small?98:112),-2));
+  TextView ic=tv(icon(x.e),small?21:24,-1,false);ic.setGravity(17);c.addView(ic,new LinearLayout.LayoutParams(dp(38),-2));
+  TextView ev=tv(x.e,small?11:12,Color.LTGRAY,false);c.addView(ev,new LinearLayout.LayoutParams(0,-2,1));
+  LinearLayout tt=new LinearLayout(this);tt.addView(tv("↓ "+x.mi+"°",small?15:16,Color.rgb(80,190,255),true));tt.addView(tv(" ↑ "+x.ma+"°",small?15:16,Color.rgb(255,130,70),true));c.addView(tt);return c;}
+ String icon(String e){String x=e.toLowerCase(new Locale("tr"));if(x.contains("gök")||x.contains("şimşek"))return"⛈️";if(x.contains("kar"))return"🌨️";if(x.contains("sağanak")||x.contains("yağış"))return"🌧️";if(x.contains("sis"))return"🌫️";if(x.contains("rüzgar"))return"🌬️";if(x.contains("çok bulutlu")||x.contains("kapalı"))return"☁️";if(x.contains("parçalı"))return"⛅";if(x.contains("az bulutlu"))return"🌤️";return"☀️";}
+ void renderHour(List<W>a){hour.removeAllViews();for(W x:a){LinearLayout r=new LinearLayout(this);r.setGravity(Gravity.CENTER_VERTICAL);r.addView(tv(x.h,13,-1,true),new LinearLayout.LayoutParams(dp(62),-2));r.addView(tv(icon(x.event)+" "+x.t+"°C",18,Color.rgb(255,193,7),true),new LinearLayout.LayoutParams(dp(118),-2));LinearLayout q=new LinearLayout(this);q.setOrientation(LinearLayout.VERTICAL);q.addView(tv(x.event,11,Color.LTGRAY,false));q.addView(tv("Hissedilen: "+x.f+"°C • Nem: %"+x.n,11,Color.LTGRAY,false));q.addView(tv("Rüzgar: "+x.w+" • Hamle: "+x.g,11,Color.LTGRAY,false));r.addView(q,new LinearLayout.LayoutParams(0,-2,1));hour.addView(r);View line=new View(this);line.setBackgroundColor(Color.rgb(55,78,104));hour.addView(line,new LinearLayout.LayoutParams(-1,dp(1)));}}
+ void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception e){}}
+ @Override protected void onDestroy(){ex.shutdownNow();super.onDestroy();}
+ static class W{String h,t,f,n,w,g,event="-";W(String a,String b,String c,String d,String e,String z){h=a;t=b;f=c;n=d;w=e;g=z;}}
+ static class Day{String date,e,mi,ma;Day(String d,String x,String a,String b){date=d;e=x;mi=a;ma=b;}}
+ static class Loc{String name;ArrayList<Day>a=new ArrayList<>();Loc(String n){name=n;}}
+ static class Data extends HashMap<String,Loc>{}
 }
