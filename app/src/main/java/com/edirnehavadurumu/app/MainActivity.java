@@ -79,7 +79,7 @@ public class MainActivity extends Activity{
  String num(JSONObject j,String k){
    if(!j.has(k)||j.isNull(k))return"";
    String s=String.valueOf(j.opt(k)); if(s.equals("-9999"))return"";
-   try{double d=Double.parseDouble(s.replace(",","."));if(d==Math.rint(d))return String.valueOf((int)d);return String.format(Locale.US,"%.1f",d).replace(".0","");}catch(Exception e){return cleanTemp(s);}
+   try{double d=Double.parseDouble(s.replace(",","."));if(d==Math.rint(d))return String.valueOf((int)d);return String.format(Locale.US,"%.1f",d).replace(".0","");}catch(Exception e){java.util.regex.Matcher m=java.util.regex.Pattern.compile("-?\\d+(?:[.,]\\d+)?").matcher(s);return m.find()?m.group().replace(",","." ): "";}
  }
  String condition(String c){
    if(c==null)c="";c=c.toUpperCase(Locale.ROOT);
