@@ -122,7 +122,8 @@ public class MainActivity extends Activity {
 
         updated = tv("",12,Color.LTGRAY,false);
         root.addView(updated);
-        root.addView(tv("Veri kaynağı: Meteoroloji Genel Müdürlüğü (MGM)",12,Color.LTGRAY,false));\n        root.addView(tv("Bizi takip edin",14,Color.WHITE,true));
+        root.addView(tv("Veri kaynağı: Meteoroloji Genel Müdürlüğü (MGM)",12,Color.LTGRAY,false));
+        root.addView(tv("Bizi takip edin",14,Color.WHITE,true));
         LinearLayout socials = new LinearLayout(this);
         socials.setGravity(Gravity.CENTER);
         socials.setPadding(0,dp(6),0,dp(6));
