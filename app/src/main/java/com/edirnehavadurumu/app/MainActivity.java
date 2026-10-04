@@ -36,7 +36,6 @@ public class MainActivity extends Activity{
    Document hd=Jsoup.connect(HOURLY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
    Document hc=Jsoup.connect(DETAIL).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
    final Loc center=detail(hc,"Edirne Merkez",true);
-   if(center.days.size()<5) center.days=daysFromHourly(hd);
    ArrayList<Loc> all=new ArrayList<>();all.add(center);
    for(int i=1;i<D.length;i++){Loc l=detail(Jsoup.connect(DETAIL+java.net.URLEncoder.encode(Q[i],"UTF-8")).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(),D[i],false);all.add(l);}
    main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderCenter(center);renderDistricts(all);status.setText("MGM verileri başarıyla güncellendi.");updated.setText("Kaynak: MGM • Son veri saati: "+(center.nowTime.isEmpty()?"—":center.nowTime));});
