@@ -35,7 +35,7 @@ public class MainActivity extends Activity{
  void load(){status.setText("MGM verileri alınıyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
    Document hd=Jsoup.connect(HOURLY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
    Document hc=Jsoup.connect(DETAIL).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
-   final Loc center=detail(hc,"Edirne Merkez",true);
+   final Loc center=detail(hc,"Edirne Merkez",true); Current centerCur=parseCurrent(hd); if(centerCur!=null){center.now=centerCur.temp+"°C";center.nowTime=centerCur.time;center.nowEvent=centerCur.event;}
    ArrayList<Loc> all=new ArrayList<>();all.add(center);
    for(int i=1;i<D.length;i++){Loc l=detail(Jsoup.connect(DETAIL+java.net.URLEncoder.encode(Q[i],"UTF-8")).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(),D[i],false);all.add(l);}
    main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderCenter(center);renderDistricts(all);status.setText("MGM verileri başarıyla güncellendi.");updated.setText("Kaynak: MGM • Son veri saati: "+(center.nowTime.isEmpty()?"—":center.nowTime));});
@@ -63,7 +63,7 @@ public class MainActivity extends Activity{
    int nowHour=Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
    Current best=null,first=null;
    for(Element tr:d.select("tr")){
-     Elements c=tr.select(">th,>td");
+     Elements c=tr.select("th,td");
      if(c.size()<3) continue;
      String time=c.get(0).text().trim();
      java.util.regex.Matcher m=java.util.regex.Pattern.compile("^(\\d{1,2})\\.00\\s*-\\s*(\\d{1,2})\\.00").matcher(time);
@@ -86,7 +86,7 @@ public class MainActivity extends Activity{
    for(Loc l:a){
      LinearLayout c=new LinearLayout(this);c.setOrientation(LinearLayout.VERTICAL);c.setGravity(17);c.setPadding(dp(8),dp(8),dp(8),dp(8));c.setBackground(bg(Color.rgb(20,48,78),14));
      LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(132),dp(142));p.setMargins(0,0,dp(7),0);c.setLayoutParams(p);
-     c.addView(tv(l.name,14,-1,true));String e=l.nowEvent;c.addView(tv(icon(e),26,-1,false));c.addView(tv(l.now.isEmpty()?"—":l.now,20,Color.rgb(255,193,7),true));c.addView(tv(e.isEmpty()?"MGM":e,10,Color.LTGRAY,false));c.addView(tv(l.nowTime.isEmpty()?"Son veri saati: —":"Son veri: "+l.nowTime,10,Color.LTGRAY,false));current.addView(c);
+     c.addView(tv(l.name,14,-1,true));String e=l.nowEvent;c.addView(tv(icon(e,l.nowTime),26,-1,false));c.addView(tv(l.now.isEmpty()?"—":l.now,20,Color.rgb(255,193,7),true));c.addView(tv(e.isEmpty()?"MGM":e,10,Color.LTGRAY,false));c.addView(tv(l.nowTime.isEmpty()?"Son veri saati: —":"Son veri: "+l.nowTime,10,Color.LTGRAY,false));current.addView(c);
    }
  }
  void renderCenter(Loc l){five.removeAllViews();if(l.days.size()==0){five.addView(tv("Edirne Merkez 5 günlük tahmin okunamadı.",13,Color.LTGRAY,false));return;}for(Day x:l.days)five.addView(card(x,false));}
@@ -101,7 +101,7 @@ public class MainActivity extends Activity{
    }
  }
  View card(Day x,boolean small){LinearLayout c=new LinearLayout(this);c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(8),dp(7),dp(8),dp(7));c.setBackground(bg(Color.rgb(20,48,78),12));LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.setMargins(0,dp(2),0,dp(2));c.setLayoutParams(cp);c.addView(tv(x.date,small?12:13,-1,true),new LinearLayout.LayoutParams(dp(small?118:125),-2));c.addView(tv(icon(x.e),small?21:24,-1,false),new LinearLayout.LayoutParams(dp(38),-2));c.addView(tv(x.e,small?11:12,Color.LTGRAY,false),new LinearLayout.LayoutParams(0,-2,1));LinearLayout tt=new LinearLayout(this);tt.setOrientation(LinearLayout.VERTICAL);tt.addView(tv("↓ "+x.mi+"°",small?15:16,Color.rgb(80,190,255),true));tt.addView(tv("↑ "+x.ma+"°",small?15:16,Color.rgb(255,130,70),true));c.addView(tt);return c;}
- String icon(String e){String x=e.toLowerCase(new Locale("tr"));if(x.contains("gök")||x.contains("şimşek"))return"⛈️";if(x.contains("kar"))return"🌨️";if(x.contains("sağanak")||x.contains("yağış")||x.contains("yağmur"))return"🌧️";if(x.contains("sis"))return"🌫️";if(x.contains("rüzgar"))return"🌬️";if(x.contains("çok bulutlu")||x.contains("kapalı"))return"☁️";if(x.contains("parçalı"))return"⛅";if(x.contains("az bulutlu"))return"🌤️";return"☀️";}
+ String icon(String e){return icon(e,"");}\n String icon(String e,String time){String x=e.toLowerCase(new Locale("tr"));if(x.contains("gök")||x.contains("şimşek"))return"⛈️";if(x.contains("kar"))return"🌨️";if(x.contains("sağanak")||x.contains("yağış")||x.contains("yağmur"))return"🌧️";if(x.contains("sis"))return"🌫️";if(x.contains("rüzgar"))return"🌬️";if(x.contains("çok bulutlu")||x.contains("kapalı"))return"☁️";if(x.contains("parçalı"))return"⛅";if(x.contains("az bulutlu"))return"🌤️";if(x.contains("açık")){int h=-1;try{if(time!=null&&time.length()>=2)h=Integer.parseInt(time.substring(0,2));}catch(Exception z){}if(h>=0&&(h>=20||h<6))return"🌙";return"☀️";}return"☀️";}
  void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception e){}}
  @Override protected void onDestroy(){ex.shutdownNow();super.onDestroy();}
  static class Day{String date,e,mi,ma;Day(String d,String x,String a,String b){date=d;e=x;mi=a;ma=b;}}
