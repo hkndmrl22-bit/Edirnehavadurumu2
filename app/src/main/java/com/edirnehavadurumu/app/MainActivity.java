@@ -28,8 +28,8 @@ public class MainActivity extends Activity{
  ProgressBar progress;
  void load(){status.setText("MGM verileri alınıyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
    Document hd=Jsoup.connect(H).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(),fd=Jsoup.connect(F).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
-   List<String> hs=row(hd,"Saat"),ts=row(hd,"Sıcaklık"),fs=row(hd,"Hissedilen Sıcaklık"),ns=row(hd,"Nem"),ws=row(hd,"Rüzgar Yön ve Hızı"),gs=row(hd,"Rüzgar Hamlesi");
-   ArrayList<W> wl=new ArrayList<>();for(int i=0;i<Math.min(hs.size(),ts.size());i++)wl.add(new W(v(hs,i),v(ts,i),v(fs,i),v(ns,i),v(ws,i),v(gs,i)));
+   List<String> hs=row(hd,"Saat"),ev=row(hd,"Beklenen Hadise"),ts=row(hd,"Sıcaklık"),fs=row(hd,"Hissedilen Sıcaklık"),ns=row(hd,"Nem"),ws=row(hd,"Rüzgar Yön ve Hızı"),gs=row(hd,"Rüzgar Hamlesi");
+   ArrayList<W> wl=new ArrayList<>();for(int i=0;i<Math.min(hs.size(),ts.size());i++)wl.add(new W(v(hs,i),v(ts,i),v(fs,i),v(ns,i),v(ws,i),v(gs,i),v(ev,i)));
    Data data=parse(fd);main.post(()->{progress.setVisibility(View.GONE);renderCenter(data.get("EDIRNE"));renderDistricts(data);renderHour(wl);status.setText("MGM verileri başarıyla güncellendi.");updated.setText("Kaynak: MGM • 5 günlük ve saatlik tahminler");});
   }catch(Exception e){main.post(()->{progress.setVisibility(View.GONE);status.setText("MGM verisi alınamadı. Yenile'ye basın.");Toast.makeText(this,"MGM bağlantısı başarısız",0).show();});}});}
  List<String> row(Document d,String label){ArrayList<String> o=new ArrayList<>();for(Element tr:d.select("tr")){Elements c=tr.select(">th,>td");if(c.size()>0&&c.get(0).text().toLowerCase(new Locale("tr")).contains(label.toLowerCase(new Locale("tr")))){for(int i=1;i<c.size();i++)o.add(c.get(i).text().trim());break;}}return o;}
@@ -51,7 +51,7 @@ public class MainActivity extends Activity{
  void renderHour(List<W>a){hour.removeAllViews();for(W x:a){LinearLayout r=new LinearLayout(this);r.setGravity(Gravity.CENTER_VERTICAL);r.addView(tv(x.h,13,-1,true),new LinearLayout.LayoutParams(dp(62),-2));r.addView(tv(icon(x.event)+" "+x.t+"°C",18,Color.rgb(255,193,7),true),new LinearLayout.LayoutParams(dp(118),-2));LinearLayout q=new LinearLayout(this);q.setOrientation(LinearLayout.VERTICAL);q.addView(tv(x.event,11,Color.LTGRAY,false));q.addView(tv("Hissedilen: "+x.f+"°C • Nem: %"+x.n,11,Color.LTGRAY,false));q.addView(tv("Rüzgar: "+x.w+" • Hamle: "+x.g,11,Color.LTGRAY,false));r.addView(q,new LinearLayout.LayoutParams(0,-2,1));hour.addView(r);View line=new View(this);line.setBackgroundColor(Color.rgb(55,78,104));hour.addView(line,new LinearLayout.LayoutParams(-1,dp(1)));}}
  void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception e){}}
  @Override protected void onDestroy(){ex.shutdownNow();super.onDestroy();}
- static class W{String h,t,f,n,w,g,event="-";W(String a,String b,String c,String d,String e,String z){h=a;t=b;f=c;n=d;w=e;g=z;}}
+ static class W{String h,t,f,n,w,g,event="-";W(String a,String b,String c,String d,String e,String z,String y){h=a;t=b;f=c;n=d;w=e;g=z;event=y;}}
  static class Day{String date,e,mi,ma;Day(String d,String x,String a,String b){date=d;e=x;mi=a;ma=b;}}
  static class Loc{String name;ArrayList<Day>a=new ArrayList<>();Loc(String n){name=n;}}
  static class Data extends HashMap<String,Loc>{}
