@@ -8,6 +8,8 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
+import android.content.Intent;
+import android.net.Uri;
 import android.widget.*;
 import android.graphics.drawable.Drawable;
 
@@ -120,7 +122,29 @@ public class MainActivity extends Activity {
 
         updated = tv("",12,Color.LTGRAY,false);
         root.addView(updated);
-        root.addView(tv("Veri kaynağı: Meteoroloji Genel Müdürlüğü (MGM)",12,Color.LTGRAY,false));
+        root.addView(tv("Veri kaynağı: Meteoroloji Genel Müdürlüğü (MGM)",12,Color.LTGRAY,false));\n        root.addView(tv("Bizi takip edin",14,Color.WHITE,true));
+        LinearLayout socials = new LinearLayout(this);
+        socials.setGravity(Gravity.CENTER);
+        socials.setPadding(0,dp(6),0,dp(6));
+
+        ImageButton facebook = new ImageButton(this);
+        facebook.setImageResource(com.edirnehavadurumu.app.R.drawable.ic_facebook);
+        facebook.setBackgroundColor(Color.TRANSPARENT);
+        facebook.setContentDescription("Facebook - edirnehavadurumu");
+        facebook.setPadding(dp(6),dp(6),dp(6),dp(6));
+        facebook.setOnClickListener(v -> openSocial("https://www.facebook.com/edirnehavadurumu"));
+        socials.addView(facebook,new LinearLayout.LayoutParams(dp(62),dp(62)));
+
+        ImageButton instagram = new ImageButton(this);
+        instagram.setImageResource(com.edirnehavadurumu.app.R.drawable.ic_instagram);
+        instagram.setBackgroundColor(Color.TRANSPARENT);
+        instagram.setContentDescription("Instagram - edirnehavadurumu");
+        instagram.setPadding(dp(6),dp(6),dp(6),dp(6));
+        instagram.setOnClickListener(v -> openSocial("https://www.instagram.com/edirnehavadurumu/"));
+        socials.addView(instagram,new LinearLayout.LayoutParams(dp(62),dp(62)));
+
+        root.addView(socials,new LinearLayout.LayoutParams(-1,-2));
+        root.addView(tv("Facebook  •  Instagram",12,Color.LTGRAY,false));
     }
 
     private void loadMgm() {
@@ -287,6 +311,14 @@ public class MainActivity extends Activity {
             hourlyContainer.addView(r);
             View line=new View(this); line.setBackgroundColor(Color.rgb(55,78,104));
             hourlyContainer.addView(line,new LinearLayout.LayoutParams(-1,dp(1)));
+        }
+    }
+
+    private void openSocial(String url) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        } catch(Exception e) {
+            Toast.makeText(this, "Bağlantı açılamadı", Toast.LENGTH_SHORT).show();
         }
     }
 
