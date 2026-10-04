@@ -1,10 +1,9 @@
 package com.edirnehavadurumu.app;
 
-import android.app.*;import android.os.*;import android.graphics.*;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import org.jsoup.*;import org.jsoup.nodes.*;import org.jsoup.select.*;
+import android.app.*;import android.os.*;import android.graphics.*;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import java.text.*;import org.json.*;import org.jsoup.*;
 
 public class MainActivity extends Activity{
- static final String HOURLY="https://www.mgm.gov.tr/tahmin/saatlik.aspx?m=EDIRNE";
- static final String DETAIL="https://www.mgm.gov.tr/tahmin/il-ve-ilceler.aspx?il=Edirne&ilce=";
+ static final String API="https://servis.mgm.gov.tr/web/";
  ExecutorService ex=Executors.newSingleThreadExecutor(); Handler main=new Handler();
  LinearLayout root,current,five,dist; TextView status,updated; ProgressBar progress;
  String[] D={"Edirne Merkez","Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
@@ -33,53 +32,68 @@ public class MainActivity extends Activity{
   ImageButton ig=new ImageButton(this);ig.setImageResource(R.drawable.ic_instagram);ig.setBackgroundColor(Color.TRANSPARENT);ig.setOnClickListener(v->open("https://www.instagram.com/edirnehavadurumu/"));s.addView(ig,new LinearLayout.LayoutParams(dp(58),dp(58)));root.addView(s);
  }
  void load(){status.setText("MGM verileri alınıyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
-   Document hd=Jsoup.connect(HOURLY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
-   Document hc=Jsoup.connect(DETAIL).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
-   final Loc center=detail(hc,"Edirne Merkez",true); Current centerCur=parseCurrent(hd); if(centerCur!=null){center.now=centerCur.temp+"°C";center.nowTime=centerCur.time;center.nowEvent=centerCur.event;}
-   ArrayList<Loc> all=new ArrayList<>();all.add(center);
-   for(int i=1;i<D.length;i++){Loc l=detail(Jsoup.connect(DETAIL+java.net.URLEncoder.encode(Q[i],"UTF-8")).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(),D[i],false);all.add(l);}
-   main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderCenter(center);renderDistricts(all);status.setText("MGM verileri başarıyla güncellendi.");updated.setText("Kaynak: MGM • Son veri saati: "+(center.nowTime.isEmpty()?"—":center.nowTime));});
+   ArrayList<Loc> all=new ArrayList<>();
+   for(int i=0;i<D.length;i++) all.add(apiLocation(D[i],i==0?"merkez":Q[i].toLowerCase(Locale.ROOT)));
+   Loc center=all.get(0);
+   main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderCenter(center);renderDistricts(all);status.setText("MGM verileri başarıyla güncellendi.");updated.setText("Kaynak: MGM • Son ölçüm: "+(center.nowTime.isEmpty()?"—":center.nowTime));});
   }catch(Exception e){main.post(()->{progress.setVisibility(View.GONE);status.setText("MGM verisi alınamadı. Yenile'ye basın.");Toast.makeText(this,"MGM bağlantısı başarısız",0).show();});}});
  }
- Loc detail(Document d,String name,boolean center){
+ Loc apiLocation(String name,String district)throws Exception{
+   String q="il=edirne&ilce="+java.net.URLEncoder.encode(district,"UTF-8");
+   JSONArray stations=new JSONArray(apiGet(API+"merkezler?"+q));
+   if(stations.length()==0) throw new Exception("MGM istasyon bulunamadı: "+name);
+   JSONObject st=stations.getJSONObject(0);
+   int merkezId=st.optInt("merkezId",0);
+   int istNo=st.optInt("gunlukTahminIstNo",0);
+   if(merkezId==0) merkezId=istNo;
+   if(istNo==0) istNo=merkezId;
    Loc l=new Loc(name);
-   for(Element tr:d.select("tr")){
-     Elements c=tr.select("th,td");
-     if(c.size()<4) continue;
-     String date=c.get(0).text().trim();
-     String event=c.get(1).text().trim();
-     String mi=cleanTemp(c.get(2).text());
-     String ma=cleanTemp(c.get(3).text());
-     if(date.matches("\\d{1,2}\\s+.+") && !mi.isEmpty() && !ma.isEmpty()){
-       l.days.add(new Day(date,event,mi,ma));
-       if(l.days.size()==5) break;
+   JSONArray curA=new JSONArray(apiGet(API+"sondurumlar?merkezid="+merkezId));
+   if(curA.length()>0){
+     JSONObject c=curA.getJSONObject(0);
+     String temp=num(c,"sicaklik"), code=c.optString("hadiseKodu","");
+     l.now=temp.isEmpty()?"":temp+"°C";
+     l.nowEvent=condition(code);
+     l.nowTime=formatUtc(c.optString("veriZamani",""));
+   }
+   JSONArray dayA=new JSONArray(apiGet(API+"tahminler/gunluk?istno="+istNo));
+   if(dayA.length()>0){
+     JSONObject j=dayA.getJSONObject(0);
+     for(int i=1;i<=5;i++){
+       String lo=num(j,"enDusukGun"+i), hi=num(j,"enYuksekGun"+i);
+       String code=j.optString("hadiseGun"+i,"");
+       String date=formatDay(j.optString("tarihGun"+i,""));
+       if(!lo.isEmpty()&&!hi.isEmpty()) l.days.add(new Day(date,condition(code),lo,hi));
      }
    }
-   Current cur=parseCurrent(d);
-   if(cur!=null){l.now=cur.temp+"°C";l.nowTime=cur.time;l.nowEvent=cur.event;}
    return l;
  }
- Current parseCurrent(Document d){
-   int nowHour=Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-   Current best=null,first=null;
-   for(Element tr:d.select("tr")){
-     Elements c=tr.select("th,td");
-     if(c.size()<3) continue;
-     String time=c.get(0).text().trim();
-     java.util.regex.Matcher m=java.util.regex.Pattern.compile("^(\\d{1,2})\\.00\\s*-\\s*(\\d{1,2})\\.00").matcher(time);
-     if(!m.find()) continue;
-     String temp=cleanTemp(c.get(2).text());
-     if(temp.isEmpty()) continue;
-     int h=Integer.parseInt(m.group(1));
-     Current x=new Current(time.substring(0,5),temp,c.get(1).text().trim());
-     if(first==null) first=x;
-     if(h<=nowHour && (best==null || h>Integer.parseInt(best.time.substring(0,2)))) best=x;
-   }
-   return best!=null?best:first;
+ String apiGet(String u)throws Exception{
+   return Jsoup.connect(u).ignoreContentType(true).timeout(20000)
+     .userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu")
+     .header("Accept","application/json, text/plain, */*")
+     .header("Origin","https://www.mgm.gov.tr")
+     .header("Referer","https://www.mgm.gov.tr/")
+     .execute().body();
  }
- String cleanTemp(String s){
-   java.util.regex.Matcher m=java.util.regex.Pattern.compile("-?\\d+(?:[.,]\\d+)?").matcher(s.replace(",",".")); 
-   return m.find()?m.group().replace(".0",""): "";
+ String num(JSONObject j,String k){
+   if(!j.has(k)||j.isNull(k))return"";
+   String s=String.valueOf(j.opt(k)); if(s.equals("-9999"))return"";
+   try{double d=Double.parseDouble(s.replace(",","."));if(d==Math.rint(d))return String.valueOf((int)d);return String.format(Locale.US,"%.1f",d).replace(".0","");}catch(Exception e){return cleanTemp(s);}
+ }
+ String condition(String c){
+   if(c==null)c="";c=c.toUpperCase(Locale.ROOT);
+   String[] k={"PB","GSY","HSY","SY","A","AB","CB","D","HY","HKY","MSY","KKY","GKR","SCK","PUS","Y","K","DY","R","KKR","SGK","SIS","KY","KSY","YKY","KF","KGY"};
+   String[] v={"Parçalı Bulutlu","Gökgürültülü Sağanak Yağışlı","Hafif Sağanak Yağışlı","Sağanak Yağışlı","Açık","Az Bulutlu","Çok Bulutlu","Duman","Hafif Yağmurlu","Hafif Kar Yağışlı","Yer Yer Sağanak Yağışlı","Karla Karışık Yağmurlu","Güneyli Kuvvetli Rüzgar","Sıcak","PUS","Yağmurlu","Kar Yağışlı","Dolu","Rüzgarlı","Kuzeyli Kuvvetli Rüzgar","Soğuk","Sis","Kuvvetli Yağmurlu","Kuvvetli Sağanak Yağışlı","Yoğun Kar Yağışlı","Toz veya Kum Fırtınası","Kuvvetli Gökgürültülü Sağanak Yağışlı"};
+   for(int i=0;i<k.length;i++)if(k[i].equals(c))return v[i];return c;
+ }
+ String formatUtc(String s){
+   if(s==null||s.isEmpty())return"";
+   try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat out=new SimpleDateFormat("dd.MM.yyyy HH:mm",new Locale("tr","TR"));out.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return out.format(d);}catch(Exception e){return s;}
+ }
+ String formatDay(String s){
+   if(s==null||s.isEmpty())return"";
+   try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat out=new SimpleDateFormat("dd MMM",new Locale("tr","TR"));out.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return out.format(d);}catch(Exception e){return s.length()>=10?s.substring(8,10)+"."+s.substring(5,7):s;}
  }
  void renderCurrent(ArrayList<Loc>a){
    current.removeAllViews();
@@ -102,7 +116,7 @@ public class MainActivity extends Activity{
  }
  View card(Day x,boolean small){LinearLayout c=new LinearLayout(this);c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(8),dp(7),dp(8),dp(7));c.setBackground(bg(Color.rgb(20,48,78),12));LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.setMargins(0,dp(2),0,dp(2));c.setLayoutParams(cp);c.addView(tv(x.date,small?12:13,-1,true),new LinearLayout.LayoutParams(dp(small?118:125),-2));c.addView(tv(icon(x.e),small?21:24,-1,false),new LinearLayout.LayoutParams(dp(38),-2));c.addView(tv(x.e,small?11:12,Color.LTGRAY,false),new LinearLayout.LayoutParams(0,-2,1));LinearLayout tt=new LinearLayout(this);tt.setOrientation(LinearLayout.VERTICAL);tt.addView(tv("↓ "+x.mi+"°",small?15:16,Color.rgb(80,190,255),true));tt.addView(tv("↑ "+x.ma+"°",small?15:16,Color.rgb(255,130,70),true));c.addView(tt);return c;}
  String icon(String e){return icon(e,"");}
- String icon(String e,String time){String x=e.toLowerCase(new Locale("tr"));if(x.contains("gök")||x.contains("şimşek"))return"⛈️";if(x.contains("kar"))return"🌨️";if(x.contains("sağanak")||x.contains("yağış")||x.contains("yağmur"))return"🌧️";if(x.contains("sis"))return"🌫️";if(x.contains("rüzgar"))return"🌬️";if(x.contains("çok bulutlu")||x.contains("kapalı"))return"☁️";if(x.contains("parçalı"))return"⛅";if(x.contains("az bulutlu"))return"🌤️";if(x.contains("açık")){int h=-1;try{if(time!=null&&time.length()>=2)h=Integer.parseInt(time.substring(0,2));}catch(Exception z){}if(h>=0&&(h>=20||h<6))return"🌙";return"☀️";}return"☀️";}
+ String icon(String e,String time){String x=e.toLowerCase(new Locale("tr"));if(x.contains("gök")||x.contains("şimşek"))return"⛈️";if(x.contains("kar"))return"🌨️";if(x.contains("sağanak")||x.contains("yağış")||x.contains("yağmur"))return"🌧️";if(x.contains("sis"))return"🌫️";if(x.contains("rüzgar"))return"🌬️";if(x.contains("çok bulutlu")||x.contains("kapalı"))return"☁️";if(x.contains("parçalı"))return"⛅";if(x.contains("az bulutlu"))return"🌤️";if(x.contains("açık")){int h=-1;try{if(time!=null&&time.length()>=13)h=Integer.parseInt(time.substring(11,13));}catch(Exception z){}if(h>=0&&(h>=20||h<6))return"🌙";return"☀️";}return"☀️";}
  void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception e){}}
  @Override protected void onDestroy(){ex.shutdownNow();super.onDestroy();}
  static class Day{String date,e,mi,ma;Day(String d,String x,String a,String b){date=d;e=x;mi=a;ma=b;}}
