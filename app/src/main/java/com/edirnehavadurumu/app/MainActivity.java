@@ -44,7 +44,7 @@ public class MainActivity extends Activity{
  Loc detail(Document d,String name,boolean center){
    Loc l=new Loc(name);
    for(Element tr:d.select("tr")){
-     Elements c=tr.select(">th,>td");
+     Elements c=tr.select("th,td");
      if(c.size()<4) continue;
      String date=c.get(0).text().trim();
      String event=c.get(1).text().trim();
