@@ -81,9 +81,9 @@ public class MainActivity extends Activity {
         head.setGravity(Gravity.CENTER_VERTICAL);
 
         ImageView logo = new ImageView(this);
-        logo.setImageResource(getResources().getIdentifier("edirne_logo","drawable",getPackageName()));
+        logo.setImageResource(R.drawable.edirne_logo);
         logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        head.addView(logo,new LinearLayout.LayoutParams(dp(78),dp(78)));
+        head.addView(logo,new LinearLayout.LayoutParams(dp(92),dp(92)));
 
         LinearLayout titles = new LinearLayout(this);
         titles.setOrientation(LinearLayout.VERTICAL);
@@ -123,7 +123,7 @@ public class MainActivity extends Activity {
         updated = tv("",12,Color.LTGRAY,false);
         root.addView(updated);
         root.addView(tv("Veri kaynağı: Meteoroloji Genel Müdürlüğü (MGM)",12,Color.LTGRAY,false));
-        root.addView(tv("Bizi takip edin",14,Color.WHITE,true));
+        TextView followTitle=tv("Bizi takip edin",15,Color.WHITE,true); followTitle.setGravity(Gravity.CENTER); root.addView(followTitle);
         LinearLayout socials = new LinearLayout(this);
         socials.setGravity(Gravity.CENTER);
         socials.setPadding(0,dp(6),0,dp(6));
@@ -132,7 +132,7 @@ public class MainActivity extends Activity {
         facebook.setImageResource(com.edirnehavadurumu.app.R.drawable.ic_facebook);
         facebook.setBackgroundColor(Color.TRANSPARENT);
         facebook.setContentDescription("Facebook - edirnehavadurumu");
-        facebook.setPadding(dp(6),dp(6),dp(6),dp(6));
+        facebook.setPadding(dp(4),dp(4),dp(4),dp(4));
         facebook.setOnClickListener(v -> openSocial("https://www.facebook.com/edirnehavadurumu"));
         socials.addView(facebook,new LinearLayout.LayoutParams(dp(62),dp(62)));
 
@@ -140,12 +140,12 @@ public class MainActivity extends Activity {
         instagram.setImageResource(com.edirnehavadurumu.app.R.drawable.ic_instagram);
         instagram.setBackgroundColor(Color.TRANSPARENT);
         instagram.setContentDescription("Instagram - edirnehavadurumu");
-        instagram.setPadding(dp(6),dp(6),dp(6),dp(6));
+        instagram.setPadding(dp(4),dp(4),dp(4),dp(4));
         instagram.setOnClickListener(v -> openSocial("https://www.instagram.com/edirnehavadurumu/"));
         socials.addView(instagram,new LinearLayout.LayoutParams(dp(62),dp(62)));
 
         root.addView(socials,new LinearLayout.LayoutParams(-1,-2));
-        root.addView(tv("Facebook  •  Instagram",12,Color.LTGRAY,false));
+        TextView socialHint=tv("Facebook ve Instagram: @edirnehavadurumu",12,Color.LTGRAY,false); socialHint.setGravity(Gravity.CENTER); root.addView(socialHint);
     }
 
     private void loadMgm() {
