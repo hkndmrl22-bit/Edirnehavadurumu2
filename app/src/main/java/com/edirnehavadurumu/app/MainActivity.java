@@ -153,22 +153,24 @@ public class MainActivity extends Activity {
         progress.setVisibility(View.VISIBLE);
         executor.execute(() -> {
             try {
-                Document hourly = Jsoup.connect(MGM_HOURLY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
-                Document five = Jsoup.connect(MGM_5DAY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
-                Document daily = Jsoup.connect(MGM_DAILY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get();
+                Document hourly = null, five = null, daily = null;
+                try { hourly = Jsoup.connect(MGM_HOURLY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(); } catch(Exception ignored) {}
+                try { five = Jsoup.connect(MGM_5DAY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(); } catch(Exception ignored) {}
+                try { daily = Jsoup.connect(MGM_DAILY).userAgent("Mozilla/5.0 EdirneHavaDurumu").timeout(20000).get(); } catch(Exception ignored) {}
+                if(hourly == null && five == null && daily == null) throw new Exception("MGM kaynaklarına erişilemedi");
 
-                List<String> hours=row(hourly,"Saat");
-                List<String> temps=row(hourly,"Sıcaklık");
-                List<String> feels=row(hourly,"Hissedilen Sıcaklık");
-                List<String> humidity=row(hourly,"Nem");
-                List<String> wind=row(hourly,"Rüzgar Yön ve Hızı");
-                List<String> gust=row(hourly,"Rüzgar Hamlesi");
+                List<String> hours=hourly==null?new ArrayList<>():row(hourly,"Saat");
+                List<String> temps=hourly==null?new ArrayList<>():row(hourly,"Sıcaklık");
+                List<String> feels=hourly==null?new ArrayList<>():row(hourly,"Hissedilen Sıcaklık");
+                List<String> humidity=hourly==null?new ArrayList<>():row(hourly,"Nem");
+                List<String> wind=hourly==null?new ArrayList<>():row(hourly,"Rüzgar Yön ve Hızı");
+                List<String> gust=hourly==null?new ArrayList<>():row(hourly,"Rüzgar Hamlesi");
                 List<WeatherItem> items=new ArrayList<>();
                 for(int i=0;i<Math.min(hours.size(),temps.size());i++)
                     items.add(new WeatherItem(val(hours,i),val(temps,i),val(feels,i),val(humidity,i),val(wind,i),val(gust,i)));
 
-                List<FiveDay> days=parseFiveDay(five);
-                List<District> districts=parseDistricts(daily);
+                List<FiveDay> days=five==null?new ArrayList<>():parseFiveDay(five);
+                List<District> districts=daily==null?new ArrayList<>():parseDistricts(daily);
 
                 main.post(() -> {
                     progress.setVisibility(View.GONE);
@@ -256,7 +258,7 @@ public class MainActivity extends Activity {
     private void renderFive(List<FiveDay> days) {
         fiveContainer.removeAllViews();
         if(days.isEmpty()) {
-            fiveContainer.addView(tv("5 günlük MGM tablosu okunamadı.",13,Color.LTGRAY,false));
+            fiveContainer.addView(tv("5 günlük MGM tahmini şu anda okunamadı. Yenile ile tekrar deneyin.",13,Color.LTGRAY,false));
             return;
         }
         for(FiveDay d:days) {
@@ -276,7 +278,7 @@ public class MainActivity extends Activity {
     private void renderDistricts(List<District> ds) {
         districtContainer.removeAllViews();
         if(ds.isEmpty()) {
-            districtContainer.addView(tv("İlçe tahminleri okunamadı.",13,Color.LTGRAY,false));
+            districtContainer.addView(tv("Edirne ilçeleri için MGM verisi şu anda okunamadı. Yenile ile tekrar deneyin.",13,Color.LTGRAY,false));
             return;
         }
         for(District d:ds) {
@@ -295,7 +297,7 @@ public class MainActivity extends Activity {
     private void renderHourly(List<WeatherItem> items) {
         hourlyContainer.removeAllViews();
         if(items.isEmpty()) {
-            hourlyContainer.addView(tv("Saatlik MGM verisi bulunamadı.",13,Color.LTGRAY,false));
+            hourlyContainer.addView(tv("Saatlik MGM verisi şu anda okunamadı. Yenile ile tekrar deneyin.",13,Color.LTGRAY,false));
             return;
         }
         for(WeatherItem w:items) {
