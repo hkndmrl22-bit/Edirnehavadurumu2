@@ -32,7 +32,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
   title("🕒  SAATLİK TAHMİN • EDİRNE MERKEZ");
   HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);hourly=new LinearLayout(this);hourly.setOrientation(LinearLayout.HORIZONTAL);hscroll.addView(hourly);root.addView(hscroll);
   title("📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
-  title("📊  AYRINTILAR"); details=new LinearLayout(this);details.setOrientation(LinearLayout.VERTICAL);root.addView(details); title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
+  title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
   updated=tv("",11,Color.rgb(135,160,185),false);updated.setPadding(dp(3),dp(10),dp(3),dp(4));root.addView(updated);
   TextView ftr=tv("TAKİPTE KAL, HAVADAN HABERDAR OL!",13,Color.WHITE,true);ftr.setGravity(17);ftr.setPadding(0,dp(12),0,dp(4));root.addView(ftr);
   LinearLayout s=new LinearLayout(this);s.setGravity(17);s.setPadding(0,dp(4),0,dp(4));
@@ -44,7 +44,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
    ArrayList<Loc> all=new ArrayList<>();
    for(int i=0;i<D.length;i++) all.add(apiLocation(D[i],i==0?"merkez":Q[i].toLowerCase(Locale.ROOT)));
    Loc center=all.get(0);
-   main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderHourly(center);renderCenter(center);renderDetails(center);renderDistricts(all);status.setText("Veriler güncellendi. • "+currentTime());});
+   main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderHourly(center);renderCenter(center);renderDistricts(all);status.setText("Veriler güncellendi. • "+currentTime());});
   }catch(Exception e){main.post(()->{progress.setVisibility(View.GONE);status.setText("Veriler alınamadı. Yenile'ye basın.");Toast.makeText(this,"Bağlantı başarısız",0).show();});}});
  }
  Loc apiLocation(String name,String district)throws Exception{
@@ -137,7 +137,8 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
      TextView mt=tv(l.nowTime.isEmpty()?"Saat: —":"Saat: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);
      TextView wx=tv("💨 "+val(l.wind,"—")+" km/sa",10,Color.rgb(180,205,225),false);wx.setGravity(17);card.addView(wx);
      TextView wd=tv("🧭 "+val(l.windDir,"—"),10,Color.rgb(180,205,225),false);wd.setGravity(17);card.addView(wd);
-     TextView hx=tv("💧 "+val(l.humidity,"—")+"%   •   📈 "+val(l.pressure,"—")+" hPa",10,Color.rgb(180,205,225),false);hx.setGravity(17);card.addView(hx);current.addView(card);
+     TextView hx=tv("💧 Nem "+val(l.humidity,"—")+"%   •   📈 "+val(l.pressure,"—")+" hPa",10,Color.rgb(180,205,225),false);hx.setGravity(17);card.addView(hx);
+     TextView fx=tv("🌡️ Hissedilen "+val(l.feels,"—")+"°C   •   💨 Hamle "+val(l.gust,"—")+" km/sa",10,Color.rgb(180,205,225),false);fx.setGravity(17);card.addView(fx);current.addView(card);
    }
  }
  void renderHourly(Loc l){
