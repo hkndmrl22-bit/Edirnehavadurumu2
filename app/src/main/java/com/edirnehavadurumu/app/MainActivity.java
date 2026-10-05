@@ -43,14 +43,17 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
  }
  void checkForUpdate(){
   ex.execute(()->{try{
+    android.content.pm.PackageInfo pi=getPackageManager().getPackageInfo(getPackageName(),0);
+    int localCode=pi.versionCode;
+    String localName=pi.versionName;
     String u="https://edirnehavadurumu.pages.dev/version.json?v="+System.currentTimeMillis();
-    String body=Jsoup.connect(u).ignoreContentType(true).timeout(10000).userAgent("EdirneHavaDurumu/"+BuildConfig.VERSION_NAME).execute().body();
+    String body=Jsoup.connect(u).ignoreContentType(true).timeout(10000).userAgent("EdirneHavaDurumu/"+localName).execute().body();
     JSONObject j=new JSONObject(body);
-    int remoteCode=j.optInt("versionCode",BuildConfig.VERSION_CODE);
+    int remoteCode=j.optInt("versionCode",localCode);
     String remoteName=j.optString("versionName","");
     String notes=j.optString("notes","Yeni sürüm yayınlandı.");
     String apk=j.optString("apkUrl","https://edirnehavadurumu.pages.dev/EdirneHavaDurumu.apk");
-    if(remoteCode>BuildConfig.VERSION_CODE) main.post(()->{
+    if(remoteCode>localCode) main.post(()->{
       new AlertDialog.Builder(this).setTitle("🎉 Yeni sürüm mevcut")
         .setMessage("Edirne Hava Durumu uygulamasının yeni sürümü ("+remoteName+") yayınlandı.\\n\\n"+notes)
         .setNegativeButton("Daha sonra",null)
