@@ -46,7 +46,8 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
     android.content.pm.PackageInfo pi=getPackageManager().getPackageInfo(getPackageName(),0);
     int localCode=pi.versionCode;
     String localName=pi.versionName;
-    String u="https://edirnehavadurumu.pages.dev/version.json?v="+System.currentTimeMillis();
+    android.util.Log.d("EdirneUpdate","Yerel sürüm: "+localCode+" / "+localName);
+    String u="https://edirnehavadurumu.pages.dev/version.json";
     String body=Jsoup.connect(u).ignoreContentType(true).timeout(10000).userAgent("EdirneHavaDurumu/"+localName).execute().body();
     JSONObject j=new JSONObject(body);
     int remoteCode=j.optInt("versionCode",localCode);
@@ -59,7 +60,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
         .setNegativeButton("Daha sonra",null)
         .setPositiveButton("GÜNCELLE", (d,w)->open(apk)).show();
     });
-  }catch(Exception ignored){}
+  }catch(Exception e){ main.post(()->Toast.makeText(this,"Güncelleme kontrolü başarısız",Toast.LENGTH_SHORT).show()); }
   });
  }
  void load(){status.setText("Veriler güncelleniyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
