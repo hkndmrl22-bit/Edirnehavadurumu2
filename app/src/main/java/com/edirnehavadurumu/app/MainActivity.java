@@ -6,14 +6,14 @@ public class MainActivity extends Activity{
  static final String API="https://servis.mgm.gov.tr/web/";
  static final String MGM_HOURLY="https://www.mgm.gov.tr/tahmin/saatlik.aspx?m=EDIRNE";
  ExecutorService ex=Executors.newSingleThreadExecutor(); Handler main=new Handler();
- LinearLayout root,current,five,dist,details; TextView status,updated; ProgressBar progress;
+ LinearLayout root,current,five,dist,details; TextView status,updated; ProgressBar progress; Handler timer=new Handler(); Runnable refresh5m=()->{load();timer.postDelayed(refresh5m,300000);};
  String[] D={"Edirne Merkez","Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
  String[] Q={"","ENEZ","HAVSA","IPSALA","KESAN","LALAPASA","MERIC","SULOGLU","UZUNKOPRU"};
  int dp(float x){return(int)(x*getResources().getDisplayMetrics().density+.5f);}
  TextView tv(String s,float z,int c,boolean b){TextView t=new TextView(this);t.setText(s);t.setTextSize(z);t.setTextColor(c);t.setTypeface(Typeface.DEFAULT,b?1:0);t.setPadding(dp(5),dp(3),dp(5),dp(3));return t;}
  GradientDrawable bg(int c,int r){GradientDrawable g=new GradientDrawable();g.setColor(c);g.setCornerRadius(dp(r));return g;}
  void title(String s){TextView t=tv(s,19,-1,true);t.setPadding(dp(2),dp(15),dp(2),dp(7));root.addView(t);}
- @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();}
+ @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();timer.postDelayed(refresh5m,300000);}
  void ui(){
   ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
   root.setPadding(dp(14),dp(8),dp(14),dp(26));root.setBackgroundColor(Color.rgb(5,20,38));sc.setFillViewport(true);sc.addView(root);setContentView(sc);
@@ -35,7 +35,7 @@ public class MainActivity extends Activity{
   TextView ftr=tv("TAKİPTE KAL, HAVADAN HABERDAR OL!",13,Color.WHITE,true);ftr.setGravity(17);ftr.setPadding(0,dp(12),0,dp(4));root.addView(ftr);
   LinearLayout s=new LinearLayout(this);s.setGravity(17);s.setPadding(0,dp(4),0,dp(4));
   ImageButton fb=new ImageButton(this);fb.setImageResource(R.drawable.ic_facebook);fb.setBackgroundColor(Color.TRANSPARENT);fb.setScaleType(ImageView.ScaleType.CENTER_INSIDE);fb.setOnClickListener(v->open("https://www.facebook.com/edirnehavadurumu"));s.addView(fb,new LinearLayout.LayoutParams(dp(58),dp(58)));
-  ImageButton ig=new ImageButton(this);ig.setImageResource(R.drawable.ic_instagram);ig.setBackgroundColor(Color.TRANSPARENT);ig.setScaleType(ImageView.ScaleType.CENTER_INSIDE);ig.setOnClickListener(v->open("https://www.instagram.com/edirnehavadurumu/"));LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(dp(58),dp(58));ip.setMargins(dp(12),0,0,0);s.addView(ig,ip);root.addView(s);
+  ImageButton ig=new ImageButton(this);ig.setImageResource(R.drawable.ic_instagram);ig.setBackgroundColor(Color.TRANSPARENT);ig.setScaleType(ImageView.ScaleType.CENTER_INSIDE);ig.setOnClickListener(v->open("https://www.instagram.com/edirnehavadurumu/"));LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(dp(58),dp(58));ip.setMargins(dp(12),0,0,0);s.addView(ig,ip); TextView xb=tv("𝕏",21,Color.WHITE,true);xb.setGravity(17);xb.setOnClickListener(v->open("https://x.com/edirnehavadurumu"));LinearLayout.LayoutParams xp=new LinearLayout.LayoutParams(dp(58),dp(58));xp.setMargins(dp(12),0,0,0);s.addView(xb,xp); TextView yt=tv("▶",20,Color.WHITE,true);yt.setGravity(17);yt.setOnClickListener(v->open("https://www.youtube.com/@edirnehavadurumu"));LinearLayout.LayoutParams yp=new LinearLayout.LayoutParams(dp(58),dp(58));yp.setMargins(dp(12),0,0,0);s.addView(yt,yp);root.addView(s);
   TextView design=tv("Design by Edirnehavadurumugroup • 2026",10,Color.rgb(115,140,165),false);design.setGravity(17);design.setPadding(0,dp(3),0,dp(10));root.addView(design);
  }
  void load(){status.setText("Veriler güncelleniyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
@@ -144,7 +144,7 @@ public class MainActivity extends Activity{
  String icon(String e){return icon(e,"");}
  String icon(String e,String time){String x=e.toLowerCase(new Locale("tr"));if(x.contains("gök")||x.contains("şimşek"))return"⛈️";if(x.contains("kar"))return"🌨️";if(x.contains("sağanak")||x.contains("yağış")||x.contains("yağmur"))return"🌧️";if(x.contains("sis"))return"🌫️";if(x.contains("rüzgar"))return"🌬️";if(x.contains("çok bulutlu")||x.contains("kapalı"))return"☁️";if(x.contains("parçalı"))return"⛅";if(x.contains("az bulutlu"))return"🌤️";if(x.contains("açık")){int h=-1;try{if(time!=null&&time.length()>=13)h=Integer.parseInt(time.substring(11,13));}catch(Exception z){}if(h>=0&&(h>=20||h<6))return"🌙";return"☀️";}return"☀️";}
  void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception e){}}
- @Override protected void onDestroy(){ex.shutdownNow();super.onDestroy();}
+ @Override protected void onDestroy(){timer.removeCallbacks(refresh5m);ex.shutdownNow();super.onDestroy();}
  static class Day{String date,e,mi,ma;Day(String d,String x,String a,String b){date=d;e=x;mi=a;ma=b;}}
  static class Loc{String name,now="",nowTime="",nowEvent="",humidity="",pressure="",wind="",gust="",feels="",windDir="";ArrayList<Day>days=new ArrayList<>();ArrayList<Hour>hours=new ArrayList<>();Loc(String n){name=n;}}
  static class Current{String time,temp,event;Current(String t,String v,String e){time=t;temp=v;event=e;}}
