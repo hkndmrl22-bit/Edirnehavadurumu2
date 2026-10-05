@@ -28,7 +28,7 @@ public class MainActivity extends Activity{
   status=tv("Veriler güncelleniyor…",12,Color.rgb(170,195,215),false);status.setPadding(dp(3),dp(8),dp(3),dp(2));root.addView(status);
   progress=new ProgressBar(this);progress.setIndeterminate(true);progress.setVisibility(View.VISIBLE);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
   title("🌡️  SON DURUMLAR");HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
-  title("📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
+  title("🕒  SAATLİK + 📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
   title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
   updated=tv("",11,Color.rgb(135,160,185),false);updated.setPadding(dp(3),dp(10),dp(3),dp(4));root.addView(updated);
   TextView ftr=tv("TAKİPTE KAL, HAVADAN HABERDAR OL!",13,Color.WHITE,true);ftr.setGravity(17);ftr.setPadding(0,dp(12),0,dp(4));root.addView(ftr);
