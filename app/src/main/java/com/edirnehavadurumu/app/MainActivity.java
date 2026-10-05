@@ -23,7 +23,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
   ht.addView(tv("EDİRNE HAVA DURUMU",20,Color.WHITE,true));ht.addView(tv("EDİRNE YEREL HAVA TAHMİN UYGULAMASI",12,Color.rgb(175,205,230),false));
   
   hero.addView(ht,new LinearLayout.LayoutParams(0,-2,1));root.addView(hero);
-  TextView version=tv("Sürüm "+getPackageManager().getPackageInfo(getPackageName(),0).versionName,11,Color.rgb(150,180,205),false);version.setGravity(17);root.addView(version);
+  TextView version=tv("Sürüm 7.0",11,Color.rgb(150,180,205),false);version.setGravity(17);root.addView(version);
   TextView update=tv("↻  GÜNCELLEMEYİ KONTROL ET",13,Color.WHITE,true);update.setGravity(17);update.setPadding(dp(12),dp(11),dp(12),dp(11));update.setBackground(bg(Color.rgb(28,105,155),18));update.setOnClickListener(v->checkForUpdate(true));root.addView(update,new LinearLayout.LayoutParams(-1,-2));
   LinearLayout refresh=new LinearLayout(this);refresh.setGravity(Gravity.CENTER_VERTICAL);refresh.setPadding(dp(12),dp(9),dp(12),dp(9));refresh.setBackground(bg(Color.rgb(16,43,70),14));
   LinearLayout rt=new LinearLayout(this);rt.setOrientation(LinearLayout.VERTICAL);rt.addView(tv("Verileri yenile",14,Color.WHITE,true));rt.addView(tv("Anlık hava durumunu güncelle",11,Color.rgb(175,195,215),false));refresh.addView(rt,new LinearLayout.LayoutParams(0,-2,1));
