@@ -1,12 +1,13 @@
 package com.edirnehavadurumu.app;
 
-import android.app.*;import android.os.*;import android.graphics.*;import android.util.Base64;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import java.text.*;import org.json.*;import org.jsoup.*;
+import android.app.*;import android.os.*;import android.content.pm.PackageManager;import android.graphics.*;import android.util.Base64;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import java.text.*;import org.json.*;import org.jsoup.*;
 
 public class MainActivity extends Activity{
  static final String API="https://servis.mgm.gov.tr/web/";
  static final String MGM_HOURLY="https://www.mgm.gov.tr/tahmin/saatlik.aspx?m=EDIRNE";
  ExecutorService ex=Executors.newSingleThreadExecutor(); Handler main=new Handler();
- LinearLayout root,current,five,dist,details; TextView status,updated; ProgressBar progress; Handler timer=new Handler(); boolean notifyOn=false; Runnable refresh5m=()->{load();timer.postDelayed(refresh5m,300000);};
+ LinearLayout root,current,five,dist,details; TextView status,updated; ProgressBar progress; Handler timer=new Handler(); boolean notifyOn=false;
+Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(this,300000);}};
  String[] D={"Edirne Merkez","Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
  String[] Q={"","ENEZ","HAVSA","IPSALA","KESAN","LALAPASA","MERIC","SULOGLU","UZUNKOPRU"};
  int dp(float x){return(int)(x*getResources().getDisplayMetrics().density+.5f);}
