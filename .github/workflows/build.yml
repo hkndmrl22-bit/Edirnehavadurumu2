@@ -9,22 +9,19 @@ permissions:
   contents: write
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
-
       - name: Prepare signing keystore
         env:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.EDIRNE_SIGNING_KEYSTORE_BASE64 }}
@@ -32,8 +29,8 @@ jobs:
           test -n "$SIGNING_KEYSTORE_BASE64" || { echo "EDIRNE_SIGNING_KEYSTORE_BASE64 secret eksik."; exit 1; }
           mkdir -p signing
           echo "$SIGNING_KEYSTORE_BASE64" | base64 --decode > signing/release.keystore
+          test -s signing/release.keystore || { echo "Keystore olusturulamadi."; exit 1; }
           chmod 600 signing/release.keystore
-
       - name: Build signed release APK
         env:
           SIGNING_KEYSTORE_PATH: ${{ github.workspace }}/signing/release.keystore
@@ -45,13 +42,11 @@ jobs:
           test -n "$SIGNING_KEY_ALIAS" || { echo "EDIRNE_SIGNING_KEY_ALIAS secret eksik."; exit 1; }
           test -n "$SIGNING_KEY_PASSWORD" || { echo "EDIRNE_SIGNING_KEY_PASSWORD secret eksik."; exit 1; }
           gradle assembleRelease --stacktrace
-
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: EdirneHavaDurumu-release
           path: app/build/outputs/apk/release/*.apk
-
       - name: Publish APK to site
         run: |
           cp app/build/outputs/apk/release/app-release.apk docs/EdirneHavaDurumu.apk
@@ -65,7 +60,6 @@ jobs:
           git diff --cached --quiet || git commit -m "10.0 imzali APK yayinla"
           git pull --rebase origin main
           git push
-
       - name: Clean signing material
         if: always()
         run: rm -rf signing
