@@ -149,5 +149,6 @@ public class MainActivity extends Activity{
  @Override protected void onDestroy(){timer.removeCallbacks(refresh5m);ex.shutdownNow();super.onDestroy();}
  static class Day{String date,e,mi,ma;Day(String d,String x,String a,String b){date=d;e=x;mi=a;ma=b;}}
  static class Loc{String name,now="",nowTime="",nowEvent="",humidity="",pressure="",wind="",gust="",feels="",windDir="";ArrayList<Day>days=new ArrayList<>();ArrayList<Hour>hours=new ArrayList<>();Loc(String n){name=n;}}
+ static class Hour{String time,temp,event,wind;Hour(String a,String b,String c,String d){time=a;temp=b;event=c;wind=d;}}
  static class Current{String time,temp,event;Current(String t,String v,String e){time=t;temp=v;event=e;}}
 }
