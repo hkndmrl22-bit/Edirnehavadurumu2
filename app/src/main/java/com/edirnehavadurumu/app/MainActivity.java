@@ -15,9 +15,12 @@ public class MainActivity extends Activity{
  @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();}
  void ui(){
   ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(12),dp(8),dp(12),dp(22));root.setBackgroundColor(Color.rgb(7,24,45));sc.addView(root);setContentView(sc);
-  LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);
-  ImageView im=new ImageView(this);im.setImageResource(R.drawable.edirne_logo_real);im.setScaleType(ImageView.ScaleType.CENTER_INSIDE);im.setAdjustViewBounds(true);h.addView(im,new LinearLayout.LayoutParams(dp(92),dp(92)));
-  LinearLayout tx=new LinearLayout(this);tx.setOrientation(LinearLayout.VERTICAL);tx.addView(tv("Edirne Hava Durumu",22,-1,true));tx.addView(tv("/ edirnehavadurumu",14,Color.LTGRAY,false));tx.addView(tv("Güncel tahminler",12,Color.LTGRAY,false));h.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
+  LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);h.setPadding(0,dp(8),0,dp(8));
+  LinearLayout tx=new LinearLayout(this);tx.setOrientation(LinearLayout.VERTICAL);tx.setPadding(dp(2),0,dp(8),0);
+  tx.addView(tv("Edirne Hava Durumu",25,-1,true));
+  tx.addView(tv("Yerel Tahmin Uygulaması",17,Color.rgb(180,210,235),true));
+  tx.addView(tv("/ edirnehavadurumu",14,Color.LTGRAY,false));
+  h.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
   Button r=new Button(this);r.setText("↻ Yenile");r.setOnClickListener(v->load());h.addView(r);root.addView(h);
   status=tv("Veriler güncelleniyor…",14,Color.LTGRAY,false);root.addView(status);progress=new ProgressBar(this);progress.setIndeterminate(true);root.addView(progress);
   title("🌡️ Edirne Merkez ve İlçeler • Son Durum");
@@ -27,9 +30,11 @@ public class MainActivity extends Activity{
   TextView hint=tv("Bir ilçeye dokunun, 5 günlük tahminini açın.",12,Color.LTGRAY,false);root.addView(hint);
   dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
   updated=tv("",12,Color.LTGRAY,false);root.addView(updated);
-  TextView f=tv("Bizi takip edin",15,-1,true);f.setGravity(17);root.addView(f);LinearLayout s=new LinearLayout(this);s.setGravity(17);
-  ImageButton fb=new ImageButton(this);fb.setImageResource(R.drawable.ic_facebook);fb.setBackgroundColor(Color.TRANSPARENT);fb.setOnClickListener(v->open("https://www.facebook.com/edirnehavadurumu"));s.addView(fb,new LinearLayout.LayoutParams(dp(58),dp(58)));
-  ImageButton ig=new ImageButton(this);ig.setImageResource(R.drawable.ic_instagram);ig.setBackgroundColor(Color.TRANSPARENT);ig.setOnClickListener(v->open("https://www.instagram.com/edirnehavadurumu/"));s.addView(ig,new LinearLayout.LayoutParams(dp(58),dp(58)));root.addView(s);
+  TextView f=tv("Bizi takip edin",16,-1,true);f.setGravity(17);f.setPadding(0,dp(12),0,dp(4));root.addView(f);
+  LinearLayout s=new LinearLayout(this);s.setGravity(17);s.setPadding(0,dp(4),0,dp(8));
+  ImageButton fb=new ImageButton(this);fb.setImageResource(R.drawable.ic_facebook);fb.setBackgroundColor(Color.TRANSPARENT);fb.setPadding(dp(2),dp(2),dp(2),dp(2));fb.setScaleType(ImageView.ScaleType.CENTER_INSIDE);fb.setOnClickListener(v->open("https://www.facebook.com/edirnehavadurumu"));s.addView(fb,new LinearLayout.LayoutParams(dp(76),dp(76)));
+  ImageButton ig=new ImageButton(this);ig.setImageResource(R.drawable.ic_instagram);ig.setBackgroundColor(Color.TRANSPARENT);ig.setPadding(dp(2),dp(2),dp(2),dp(2));ig.setScaleType(ImageView.ScaleType.CENTER_INSIDE);ig.setOnClickListener(v->open("https://www.instagram.com/edirnehavadurumu/"));LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(dp(76),dp(76));ip.setMargins(dp(14),0,0,0);s.addView(ig,ip);root.addView(s);
+  TextView design=tv("Design by Edirnehavadurumugroup 2026",12,Color.rgb(155,175,195),false);design.setGravity(17);design.setPadding(0,dp(4),0,dp(12));root.addView(design);
  }
  void load(){status.setText("Veriler güncelleniyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
    ArrayList<Loc> all=new ArrayList<>();
