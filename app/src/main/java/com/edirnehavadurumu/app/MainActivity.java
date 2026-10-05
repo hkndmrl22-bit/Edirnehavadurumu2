@@ -73,6 +73,7 @@ public class MainActivity extends Activity{
        if(!lo.isEmpty()&&!hi.isEmpty()) l.days.add(new Day(date,condition(code),lo,hi));
      }
    }
+   try{JSONArray ha=new JSONArray(apiGet(API+"tahminler/saatlik?istno="+istNo));if(ha.length()>0){JSONArray ta=ha.getJSONObject(0).optJSONArray("tahmin");if(ta!=null)for(int z=0;z<ta.length()&&z<12;z++){JSONObject h=ta.getJSONObject(z);l.hours.add(new Hour(timeOnly(formatUtc(h.optString("tarih",""))),num(h,"sicaklik"),condition(h.optString("hadise","")),num(h,"ruzgarHizi")));}}}catch(Exception ignored){}
    return l;
  }
  String apiGet(String u)throws Exception{
@@ -120,7 +121,8 @@ public class MainActivity extends Activity{
      TextView mt=tv(l.nowTime.isEmpty()?"Ölçüm: —":"Ölçüm: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);current.addView(card);
    }
  }
- void renderDetails(Loc l){details.removeAllViews();String[] x={"💧 Nem: "+val(l.humidity,"—")+"%","🌡️ Hissedilen: "+val(l.feels,"—")+"°C","💨 Rüzgâr: "+val(l.wind,"—")+" km/sa  •  "+val(l.windDir,"—"),"💨 Rüzgâr hamlesi: "+val(l.gust,"—")+" km/sa","📈 Basınç: "+val(l.pressure,"—")+" hPa"};for(String q:x){TextView t=tv(q,13,Color.WHITE,false);t.setPadding(dp(12),dp(9),dp(12),dp(9));t.setBackground(bg(Color.rgb(15,48,79),12));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.setMargins(0,dp(2),0,dp(2));details.addView(t,p);}}
+ void renderHourly(Loc l){if(l.hours.size()==0)return;TextView h=tv("Saatlik: ",12,Color.WHITE,true);details.addView(h);for(Hour x:l.hours){TextView t=tv(x.time+"  "+x.temp+"°  "+x.event+"  💨"+x.wind+" km/sa",12,Color.WHITE,false);t.setPadding(dp(10),dp(8),dp(10),dp(8));t.setBackground(bg(Color.rgb(15,48,79),12));details.addView(t);}}
+ void renderDetails(Loc l){details.removeAllViews();renderHourly(l);String[] x={"💧 Nem: "+val(l.humidity,"—")+"%","🌡️ Hissedilen: "+val(l.feels,"—")+"°C","💨 Rüzgâr: "+val(l.wind,"—")+" km/sa  •  "+val(l.windDir,"—"),"💨 Rüzgâr hamlesi: "+val(l.gust,"—")+" km/sa","📈 Basınç: "+val(l.pressure,"—")+" hPa"};for(String q:x){TextView t=tv(q,13,Color.WHITE,false);t.setPadding(dp(12),dp(9),dp(12),dp(9));t.setBackground(bg(Color.rgb(15,48,79),12));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.setMargins(0,dp(2),0,dp(2));details.addView(t,p);}}
  String val(String x,String d){return x==null||x.isEmpty()?d:x;}
  void renderCenter(Loc l){five.removeAllViews();if(l.days.size()==0){five.addView(tv("Edirne Merkez 5 günlük tahmin okunamadı.",13,Color.LTGRAY,false));return;}for(Day x:l.days)five.addView(card(x,false));}
  void renderDistricts(ArrayList<Loc>a){
@@ -144,6 +146,6 @@ public class MainActivity extends Activity{
  void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception e){}}
  @Override protected void onDestroy(){ex.shutdownNow();super.onDestroy();}
  static class Day{String date,e,mi,ma;Day(String d,String x,String a,String b){date=d;e=x;mi=a;ma=b;}}
- static class Loc{String name,now="",nowTime="",nowEvent="",humidity="",pressure="",wind="",gust="",feels="",windDir="";ArrayList<Day>days=new ArrayList<>();Loc(String n){name=n;}}
+ static class Loc{String name,now="",nowTime="",nowEvent="",humidity="",pressure="",wind="",gust="",feels="",windDir="";ArrayList<Day>days=new ArrayList<>();ArrayList<Hour>hours=new ArrayList<>();Loc(String n){name=n;}}
  static class Current{String time,temp,event;Current(String t,String v,String e){time=t;temp=v;event=e;}}
 }
