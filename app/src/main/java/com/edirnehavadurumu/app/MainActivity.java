@@ -26,6 +26,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
   LinearLayout refresh=new LinearLayout(this);refresh.setGravity(Gravity.CENTER_VERTICAL);refresh.setPadding(dp(12),dp(9),dp(12),dp(9));refresh.setBackground(bg(Color.rgb(16,43,70),14));
   LinearLayout rt=new LinearLayout(this);rt.setOrientation(LinearLayout.VERTICAL);rt.addView(tv("Verileri yenile",14,Color.WHITE,true));rt.addView(tv("Anlık hava durumunu güncelle",11,Color.rgb(175,195,215),false));refresh.addView(rt,new LinearLayout.LayoutParams(0,-2,1));
   TextView rb=tv("↻  YENİLE",13,Color.WHITE,true);rb.setGravity(17);rb.setPadding(dp(12),dp(9),dp(12),dp(9));rb.setBackground(bg(Color.rgb(28,105,155),18));refresh.addView(rb,new LinearLayout.LayoutParams(dp(105),-2));rb.setOnClickListener(v->load());root.addView(refresh);
+  title("🌡️  SON DURUMLAR");
   status=tv("Veriler güncelleniyor…",12,Color.rgb(170,195,215),false);status.setPadding(dp(3),dp(8),dp(3),dp(2));root.addView(status);
   progress=new ProgressBar(this);progress.setIndeterminate(true);progress.setVisibility(View.VISIBLE);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
   HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
