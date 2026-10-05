@@ -28,7 +28,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
   TextView rb=tv("↻  YENİLE",13,Color.WHITE,true);rb.setGravity(17);rb.setPadding(dp(12),dp(9),dp(12),dp(9));rb.setBackground(bg(Color.rgb(28,105,155),18));refresh.addView(rb,new LinearLayout.LayoutParams(dp(105),-2));rb.setOnClickListener(v->load());root.addView(refresh);
   status=tv("Veriler güncelleniyor…",12,Color.rgb(170,195,215),false);status.setPadding(dp(3),dp(8),dp(3),dp(2));root.addView(status);
   progress=new ProgressBar(this);progress.setIndeterminate(true);progress.setVisibility(View.VISIBLE);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
-  title("🌡️  SON DURUMLAR");HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
+  HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
   title("🕒  SAATLİK TAHMİN • EDİRNE MERKEZ");
   HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);hourly=new LinearLayout(this);hourly.setOrientation(LinearLayout.HORIZONTAL);hscroll.addView(hourly);root.addView(hscroll);
   title("📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
@@ -134,9 +134,10 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
      TextView nm=tv(l.name,14,Color.WHITE,true);nm.setGravity(17);card.addView(nm);card.addView(tv(icon(l.nowEvent,l.nowTime),30,Color.WHITE,false));
      TextView temp=tv(l.now.isEmpty()?"—":l.now,25,Color.rgb(255,196,55),true);temp.setGravity(17);card.addView(temp);
      TextView ev=tv(l.nowEvent.isEmpty()?"—":l.nowEvent,10,Color.rgb(205,220,235),false);ev.setGravity(17);card.addView(ev);
-     TextView mt=tv(l.nowTime.isEmpty()?"Ölçüm: —":"Ölçüm: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);
-     TextView wx=tv("💨 "+val(l.wind,"—")+" km/sa  "+windDirection(l.windDir),10,Color.rgb(180,205,225),false);wx.setGravity(17);card.addView(wx);
-     TextView hx=tv("💧 Nem "+val(l.humidity,"—")+"%   •   📈 "+val(l.pressure,"—")+" hPa",10,Color.rgb(180,205,225),false);hx.setGravity(17);card.addView(hx);current.addView(card);
+     TextView mt=tv(l.nowTime.isEmpty()?"Saat: —":"Saat: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);
+     TextView wx=tv("💨 "+val(l.wind,"—")+" km/sa",10,Color.rgb(180,205,225),false);wx.setGravity(17);card.addView(wx);
+     TextView wd=tv("🧭 "+val(l.windDir,"—"),10,Color.rgb(180,205,225),false);wd.setGravity(17);card.addView(wd);
+     TextView hx=tv("💧 "+val(l.humidity,"—")+"%   •   📈 "+val(l.pressure,"—")+" hPa",10,Color.rgb(180,205,225),false);hx.setGravity(17);card.addView(hx);current.addView(card);
    }
  }
  void renderHourly(Loc l){
