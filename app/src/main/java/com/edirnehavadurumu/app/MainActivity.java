@@ -20,7 +20,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
   LinearLayout hero=new LinearLayout(this);hero.setOrientation(LinearLayout.HORIZONTAL);hero.setGravity(Gravity.CENTER_VERTICAL);hero.setPadding(dp(4),dp(8),dp(4),dp(10));
   ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_app);logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);hero.addView(logo,new LinearLayout.LayoutParams(dp(88),dp(88)));
   LinearLayout ht=new LinearLayout(this);ht.setOrientation(LinearLayout.VERTICAL);ht.setPadding(dp(10),0,dp(6),0);
-  ht.addView(tv("EDİRNE HAVA DURUMU",20,Color.WHITE,true));ht.addView(tv("Edirne ve ilçelerinde anlık hava durumu",12,Color.rgb(175,205,230),false));
+  ht.addView(tv("EDİRNE HAVA DURUMU",20,Color.WHITE,true));ht.addView(tv("EDİRNE YEREL HAVA TAHMİN UYGULAMASI",12,Color.rgb(175,205,230),false));
   
   hero.addView(ht,new LinearLayout.LayoutParams(0,-2,1));root.addView(hero);
   LinearLayout refresh=new LinearLayout(this);refresh.setGravity(Gravity.CENTER_VERTICAL);refresh.setPadding(dp(12),dp(9),dp(12),dp(9));refresh.setBackground(bg(Color.rgb(16,43,70),14));
