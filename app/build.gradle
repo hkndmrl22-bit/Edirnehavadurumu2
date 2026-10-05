@@ -3,12 +3,33 @@ plugins { id 'com.android.application' }
 android {
     namespace 'com.edirnehavadurumu.app'
     compileSdk 35
+
     defaultConfig {
         applicationId 'com.edirnehavadurumu.app'
         minSdk 23
         targetSdk 35
-        versionCode 9
-        versionName '9.0'
+        versionCode 10
+        versionName '10.0'
+    }
+
+    signingConfigs {
+        release {
+            def signingStoreFile = System.getenv('SIGNING_KEYSTORE_PATH')
+            if (signingStoreFile == null || signingStoreFile.isBlank()) {
+                throw new GradleException('SIGNING_KEYSTORE_PATH tanimli degil. GitHub Actions signing secret ayarlanmalidir.')
+            }
+            storeFile file(signingStoreFile)
+            storePassword System.getenv('SIGNING_STORE_PASSWORD')
+            keyAlias System.getenv('SIGNING_KEY_ALIAS')
+            keyPassword System.getenv('SIGNING_KEY_PASSWORD')
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+        }
     }
 }
 
