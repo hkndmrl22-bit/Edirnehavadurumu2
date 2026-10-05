@@ -17,8 +17,12 @@ public class MainActivity extends Activity{
   ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(12),dp(8),dp(12),dp(22));root.setBackgroundColor(Color.rgb(7,24,45));sc.addView(root);setContentView(sc);
   LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);h.setPadding(0,dp(8),0,dp(8));
   LinearLayout tx=new LinearLayout(this);tx.setOrientation(LinearLayout.VERTICAL);tx.setPadding(dp(2),0,dp(8),0);
-  tx.addView(tv("Edirne Hava Durumu",25,-1,true));
-  tx.addView(tv("Yerel Tahmin Uygulaması",17,Color.rgb(180,210,235),true));
+  ImageView logo=new ImageView(this);
+  logo.setImageResource(R.drawable.edirne_logo_real);
+  logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+  logo.setAdjustViewBounds(true);
+  tx.addView(logo,new LinearLayout.LayoutParams(dp(92),dp(92)));
+  tx.addView(tv("Yerel Hava Tahmin Uygulaması",17,Color.rgb(180,210,235),true));
   h.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
   Button r=new Button(this);r.setText("VERİLERİ ANLIK YENİLE");r.setOnClickListener(v->load());h.addView(r);root.addView(h);
   status=tv("Veriler güncelleniyor…",14,Color.LTGRAY,false);root.addView(status);progress=new ProgressBar(this);progress.setIndeterminate(true);root.addView(progress);
