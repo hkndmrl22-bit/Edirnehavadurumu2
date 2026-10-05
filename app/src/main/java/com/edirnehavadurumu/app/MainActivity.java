@@ -19,15 +19,15 @@ public class MainActivity extends Activity{
   LinearLayout hero=new LinearLayout(this);hero.setOrientation(LinearLayout.HORIZONTAL);hero.setGravity(Gravity.CENTER_VERTICAL);hero.setPadding(dp(4),dp(8),dp(4),dp(10));
   ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_app);logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);hero.addView(logo,new LinearLayout.LayoutParams(dp(88),dp(88)));
   LinearLayout ht=new LinearLayout(this);ht.setOrientation(LinearLayout.VERTICAL);ht.setPadding(dp(10),0,dp(6),0);
-  ht.addView(tv("EDİRNE HAVA DURUMU",20,Color.WHITE,true));ht.addView(tv("MGM verileri • İl geneli anlık tahmin",12,Color.rgb(175,205,230),false));
-  TextView badge=tv("● MGM VERİSİ",11,Color.rgb(150,230,180),true);badge.setPadding(dp(8),dp(5),dp(8),dp(5));badge.setBackground(bg(Color.rgb(17,55,53),18));LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-2,-2);bp.setMargins(0,dp(7),0,0);ht.addView(badge,bp);
+  ht.addView(tv("EDİRNE HAVA DURUMU",20,Color.WHITE,true));ht.addView(tv("Edirne ve ilçelerinde anlık hava durumu",12,Color.rgb(175,205,230),false));
+  
   hero.addView(ht,new LinearLayout.LayoutParams(0,-2,1));root.addView(hero);
   LinearLayout refresh=new LinearLayout(this);refresh.setGravity(Gravity.CENTER_VERTICAL);refresh.setPadding(dp(12),dp(9),dp(12),dp(9));refresh.setBackground(bg(Color.rgb(16,43,70),14));
-  LinearLayout rt=new LinearLayout(this);rt.setOrientation(LinearLayout.VERTICAL);rt.addView(tv("Verileri yenile",14,Color.WHITE,true));rt.addView(tv("MGM'den en güncel ölçüm ve tahminleri al",11,Color.rgb(175,195,215),false));refresh.addView(rt,new LinearLayout.LayoutParams(0,-2,1));
+  LinearLayout rt=new LinearLayout(this);rt.setOrientation(LinearLayout.VERTICAL);rt.addView(tv("Verileri yenile",14,Color.WHITE,true));rt.addView(tv("Anlık hava durumunu güncelle",11,Color.rgb(175,195,215),false));refresh.addView(rt,new LinearLayout.LayoutParams(0,-2,1));
   TextView rb=tv("↻  YENİLE",13,Color.WHITE,true);rb.setGravity(17);rb.setPadding(dp(12),dp(9),dp(12),dp(9));rb.setBackground(bg(Color.rgb(28,105,155),18));refresh.addView(rb,new LinearLayout.LayoutParams(dp(105),-2));rb.setOnClickListener(v->load());root.addView(refresh);
   status=tv("Veriler güncelleniyor…",12,Color.rgb(170,195,215),false);status.setPadding(dp(3),dp(8),dp(3),dp(2));root.addView(status);
   progress=new ProgressBar(this);progress.setIndeterminate(true);progress.setVisibility(View.VISIBLE);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
-  title("🌡️  ŞİMDİ EDİRNE");HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
+  title("🌡️  SON DURUMLAR");HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
   title("📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
   title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
   updated=tv("",11,Color.rgb(135,160,185),false);updated.setPadding(dp(3),dp(10),dp(3),dp(4));root.addView(updated);
