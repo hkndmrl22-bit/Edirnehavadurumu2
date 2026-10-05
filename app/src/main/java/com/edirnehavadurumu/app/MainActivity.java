@@ -54,7 +54,7 @@ public class MainActivity extends Activity{
      String temp=num(c,"sicaklik"), code=c.optString("hadiseKodu","");
      l.now=temp.isEmpty()?"":temp+"°C";
      l.nowEvent=condition(code);
-     l.nowTime=formatUtc(c.optString("veriZamani",""));
+     l.nowTime=measurementTime(c);
    }
    JSONArray dayA=new JSONArray(apiGet(API+"tahminler/gunluk?istno="+istNo));
    if(dayA.length()>0){
@@ -91,7 +91,12 @@ public class MainActivity extends Activity{
    if(s==null||s.isEmpty())return"";
    try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat out=new SimpleDateFormat("dd.MM.yyyy HH:mm",new Locale("tr","TR"));out.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return out.format(d);}catch(Exception e){return s;}
  }
- String timeOnly(String s){if(s==null||s.isEmpty())return"";int p=s.lastIndexOf(" ");return p>=0&&p+1<s.length()?s.substring(p+1):s;}
+ String measurementTime(JSONObject c){
+   String[] keys={"veriZamani","sonVeriZamani","olcumZamani","olcmeZamani","tarihSaat","dateTime","denizVeriZamani"};
+   for(String k:keys){String s=c.optString(k,"");if(s!=null&&!s.isEmpty()&&!s.equals("-9999")){String t=formatUtc(s);String h=timeOnly(t);if(h.matches("\\d{2}:\\d{2}"))return h;}}
+   return "";
+ }
+ String timeOnly(String s){if(s==null||s.isEmpty())return"";java.util.regex.Matcher m=java.util.regex.Pattern.compile("(\\d{2}:\\d{2})(?::\\d{2})?").matcher(s);return m.find()?m.group(1):"";}
  String formatDay(String s){
    if(s==null||s.isEmpty())return"";
    try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat out=new SimpleDateFormat("dd MMM",new Locale("tr","TR"));out.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return out.format(d);}catch(Exception e){return s.length()>=10?s.substring(8,10)+"."+s.substring(5,7):s;}
@@ -100,8 +105,8 @@ public class MainActivity extends Activity{
    current.removeAllViews();
    for(Loc l:a){
      LinearLayout c=new LinearLayout(this);c.setOrientation(LinearLayout.VERTICAL);c.setGravity(17);c.setPadding(dp(8),dp(8),dp(8),dp(8));c.setBackground(bg(Color.rgb(20,48,78),14));
-     LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(132),dp(142));p.setMargins(0,0,dp(7),0);c.setLayoutParams(p);
-     c.addView(tv(l.name,14,-1,true));String e=l.nowEvent;c.addView(tv(icon(e,l.nowTime),26,-1,false));c.addView(tv(l.now.isEmpty()?"—":l.now,20,Color.rgb(255,193,7),true));c.addView(tv(e.isEmpty()?"—":e,10,Color.LTGRAY,false));c.addView(tv(l.nowTime.isEmpty()?"Ölçüm saati: —":"Ölçüm saati: "+timeOnly(l.nowTime),10,Color.LTGRAY,false));current.addView(c);
+     LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(142),dp(160));p.setMargins(0,0,dp(7),0);c.setLayoutParams(p);
+     c.addView(tv(l.name,14,-1,true));String e=l.nowEvent;c.addView(tv(icon(e,l.nowTime),26,-1,false));c.addView(tv(l.now.isEmpty()?"—":l.now,20,Color.rgb(255,193,7),true));c.addView(tv(e.isEmpty()?"—":e,10,Color.LTGRAY,false));c.addView(tv(l.nowTime.isEmpty()?"Ölçüm: —":"Ölçüm: "+timeOnly(l.nowTime),11,Color.LTGRAY,false));current.addView(c);
    }
  }
  void renderCenter(Loc l){five.removeAllViews();if(l.days.size()==0){five.addView(tv("Edirne Merkez 5 günlük tahmin okunamadı.",13,Color.LTGRAY,false));return;}for(Day x:l.days)five.addView(card(x,false));}
