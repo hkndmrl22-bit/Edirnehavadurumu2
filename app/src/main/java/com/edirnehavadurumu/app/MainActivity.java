@@ -138,8 +138,9 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
      TextView mt=tv(l.nowTime.isEmpty()?"Saat: —":"Saat: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);
      TextView wx=tv("💨 "+val(l.wind,"—")+" km/sa",10,Color.rgb(180,205,225),false);wx.setGravity(17);card.addView(wx);
      TextView wd=tv("🧭 "+val(l.windDir,"—"),10,Color.rgb(180,205,225),false);wd.setGravity(17);card.addView(wd);
-     TextView hx=tv("💧 Nem "+val(l.humidity,"—")+"%   •   📈 "+val(l.pressure,"—")+" hPa",10,Color.rgb(180,205,225),false);hx.setGravity(17);card.addView(hx);
-     TextView fx=tv("🌡️ Hissedilen "+val(l.feels,"—")+"°C   •   💨 Hamle "+val(l.gust,"—")+" km/sa",10,Color.rgb(180,205,225),false);fx.setGravity(17);card.addView(fx);current.addView(card);
+     TextView hx=tv("💧 Nem: "+val(l.humidity,"—")+"%",11,Color.rgb(190,215,235),false);hx.setGravity(17);card.addView(hx);
+     TextView px=tv("📈 Basınç: "+val(l.pressure,"—")+" hPa",11,Color.rgb(190,215,235),true);px.setGravity(17);card.addView(px);
+     TextView fx=tv("🌡️ Hissedilen: "+val(l.feels,"—")+"°C",11,Color.rgb(190,215,235),false);fx.setGravity(17);card.addView(fx);current.addView(card);
    }
  }
  void renderHourly(Loc l){
