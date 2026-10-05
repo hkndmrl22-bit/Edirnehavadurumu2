@@ -49,7 +49,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
     int localCode=pi.versionCode;
     String localName=pi.versionName;
     android.util.Log.d("EdirneUpdate","Yerel sürüm: "+localCode+" / "+localName);
-    String u="https://edirnehavadurumu.pages.dev/version.json";
+    String u="https://raw.githubusercontent.com/hkndmrl22-bit/Edirnehavadurumu2/main/docs/version.json?ts="+System.currentTimeMillis();
     String body=Jsoup.connect(u).ignoreContentType(true).timeout(10000).userAgent("EdirneHavaDurumu/"+localName).execute().body();
     JSONObject j=new JSONObject(body);
     int remoteCode=j.optInt("versionCode",localCode);
