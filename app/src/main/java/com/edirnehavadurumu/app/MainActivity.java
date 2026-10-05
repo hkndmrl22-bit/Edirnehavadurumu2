@@ -57,6 +57,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
         .setPositiveButton("GÜNCELLE", (d,w)->open(apk)).show();
     });
   }catch(Exception ignored){}
+  });
  }
  void load(){status.setText("Veriler güncelleniyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
    ArrayList<Loc> all=new ArrayList<>();
