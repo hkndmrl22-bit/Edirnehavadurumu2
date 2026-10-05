@@ -13,7 +13,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
  TextView tv(String s,float z,int c,boolean b){TextView t=new TextView(this);t.setText(s);t.setTextSize(z);t.setTextColor(c);t.setTypeface(Typeface.DEFAULT,b?1:0);t.setPadding(dp(5),dp(3),dp(5),dp(3));return t;}
  GradientDrawable bg(int c,int r){GradientDrawable g=new GradientDrawable();g.setColor(c);g.setCornerRadius(dp(r));return g;}
  void title(String s){TextView t=tv(s,19,-1,true);t.setPadding(dp(2),dp(15),dp(2),dp(7));root.addView(t);}
- @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();timer.postDelayed(refresh5m,300000);checkForUpdate(false);}
+ @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();timer.postDelayed(refresh5m,300000);}
  void ui(){
   ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
   root.setPadding(dp(14),dp(8),dp(14),dp(26));root.setBackgroundColor(Color.rgb(5,20,38));sc.setFillViewport(true);sc.addView(root);setContentView(sc);
@@ -24,7 +24,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
   
   hero.addView(ht,new LinearLayout.LayoutParams(0,-2,1));root.addView(hero);
   TextView version=tv("Sürüm 7.0",11,Color.rgb(150,180,205),false);version.setGravity(17);root.addView(version);
-  TextView update=tv("↻  GÜNCELLEMEYİ KONTROL ET",13,Color.WHITE,true);update.setGravity(17);update.setPadding(dp(12),dp(11),dp(12),dp(11));update.setBackground(bg(Color.rgb(28,105,155),18));update.setOnClickListener(v->checkForUpdate(true));root.addView(update,new LinearLayout.LayoutParams(-1,-2));
+  TextView update=tv("⬇  YENİ SÜRÜMÜ İNDİR",13,Color.WHITE,true);update.setGravity(17);update.setPadding(dp(12),dp(11),dp(12),dp(11));update.setBackground(bg(Color.rgb(28,105,155),18));update.setOnClickListener(v->open("https://edirnehavadurumu.pages.dev/EdirneHavaDurumu.apk"));root.addView(update,new LinearLayout.LayoutParams(-1,-2));
   LinearLayout refresh=new LinearLayout(this);refresh.setGravity(Gravity.CENTER_VERTICAL);refresh.setPadding(dp(12),dp(9),dp(12),dp(9));refresh.setBackground(bg(Color.rgb(16,43,70),14));
   LinearLayout rt=new LinearLayout(this);rt.setOrientation(LinearLayout.VERTICAL);rt.addView(tv("Verileri yenile",14,Color.WHITE,true));rt.addView(tv("Anlık hava durumunu güncelle",11,Color.rgb(175,195,215),false));refresh.addView(rt,new LinearLayout.LayoutParams(0,-2,1));
   TextView rb=tv("↻  YENİLE",13,Color.WHITE,true);rb.setGravity(17);rb.setPadding(dp(12),dp(9),dp(12),dp(9));rb.setBackground(bg(Color.rgb(28,105,155),18));refresh.addView(rb,new LinearLayout.LayoutParams(dp(105),-2));rb.setOnClickListener(v->load());root.addView(refresh);
