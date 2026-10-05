@@ -19,7 +19,6 @@ public class MainActivity extends Activity{
   LinearLayout tx=new LinearLayout(this);tx.setOrientation(LinearLayout.VERTICAL);tx.setPadding(dp(2),0,dp(8),0);
   tx.addView(tv("Edirne Hava Durumu",25,-1,true));
   tx.addView(tv("Yerel Tahmin Uygulaması",17,Color.rgb(180,210,235),true));
-  tx.addView(tv("/ edirnehavadurumu",14,Color.LTGRAY,false));
   h.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
   Button r=new Button(this);r.setText("↻ Yenile");r.setOnClickListener(v->load());h.addView(r);root.addView(h);
   status=tv("Veriler güncelleniyor…",14,Color.LTGRAY,false);root.addView(status);progress=new ProgressBar(this);progress.setIndeterminate(true);root.addView(progress);
