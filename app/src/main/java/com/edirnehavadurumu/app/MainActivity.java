@@ -62,7 +62,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
    JSONArray curA=new JSONArray(apiGet(API+"sondurumlar?merkezid="+merkezId));
    if(curA.length()>0){
      JSONObject c=curA.getJSONObject(0);
-     String temp=num(c,"sicaklik"), code=c.optString("hadiseKodu",""); l.humidity=num(c,"nem"); l.pressure=num(c,"basinc"); l.wind=num(c,"ruzgarHiz"); l.gust=num(c,"ruzgarHamle"); l.feels=num(c,"hissedilenSicaklik"); l.windDir=c.optString("ruzgarYon","");
+     String temp=num(c,"sicaklik"), code=c.optString("hadiseKodu",""); l.humidity=num(c,"nem"); l.pressure=pressure(c); l.wind=num(c,"ruzgarHiz"); l.gust=num(c,"ruzgarHamle"); l.feels=num(c,"hissedilenSicaklik"); l.windDir=c.optString("ruzgarYon","");
      l.now=temp.isEmpty()?"":temp+"°C";
      l.nowEvent=condition(code);
      l.nowTime=measurementTime(c);
@@ -106,7 +106,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
    String s=String.valueOf(j.opt(k)); if(s.equals("-9999"))return"";
    try{double d=Double.parseDouble(s.replace(",","."));if(d==Math.rint(d))return String.valueOf((int)d);return String.format(Locale.US,"%.1f",d).replace(".0","");}catch(Exception e){java.util.regex.Matcher m=java.util.regex.Pattern.compile("-?\\d+(?:[.,]\\d+)?").matcher(s);return m.find()?m.group().replace(",","." ): "";}
  }
- String condition(String c){
+ String pressure(JSONObject j){\n   String v=num(j,"basinc"); if(!v.isEmpty())return v;\n   String[] keys={"basınç","pressure","basincHpa","basincDegeri","istasyonBasinc","denizSeviyesineIndirgenmisBasinc"};\n   for(String k:keys){v=num(j,k);if(!v.isEmpty())return v;}\n   java.util.Iterator<String> it=j.keys(); while(it.hasNext()){String k=it.next();String n=k.toLowerCase(Locale.ROOT); if(n.contains("basinc")||n.contains("basınc")){v=num(j,k);if(!v.isEmpty())return v;}}\n   return "";\n }\n String condition(String c){
    if(c==null)c="";c=c.toUpperCase(Locale.ROOT);
    String[] k={"PB","GSY","HSY","SY","A","AB","CB","D","HY","HKY","MSY","KKY","GKR","SCK","PUS","Y","K","DY","R","KKR","SGK","SIS","KY","KSY","YKY","KF","KGY"};
    String[] v={"Parçalı Bulutlu","Gökgürültülü Sağanak Yağışlı","Hafif Sağanak Yağışlı","Sağanak Yağışlı","Açık","Az Bulutlu","Çok Bulutlu","Duman","Hafif Yağmurlu","Hafif Kar Yağışlı","Yer Yer Sağanak Yağışlı","Karla Karışık Yağmurlu","Güneyli Kuvvetli Rüzgar","Sıcak","PUS","Yağmurlu","Kar Yağışlı","Dolu","Rüzgarlı","Kuzeyli Kuvvetli Rüzgar","Soğuk","Sis","Kuvvetli Yağmurlu","Kuvvetli Sağanak Yağışlı","Yoğun Kar Yağışlı","Toz veya Kum Fırtınası","Kuvvetli Gökgürültülü Sağanak Yağışlı"};
