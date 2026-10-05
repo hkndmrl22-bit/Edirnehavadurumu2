@@ -13,7 +13,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
  TextView tv(String s,float z,int c,boolean b){TextView t=new TextView(this);t.setText(s);t.setTextSize(z);t.setTextColor(c);t.setTypeface(Typeface.DEFAULT,b?1:0);t.setPadding(dp(5),dp(3),dp(5),dp(3));return t;}
  GradientDrawable bg(int c,int r){GradientDrawable g=new GradientDrawable();g.setColor(c);g.setCornerRadius(dp(r));return g;}
  void title(String s){TextView t=tv(s,19,-1,true);t.setPadding(dp(2),dp(15),dp(2),dp(7));root.addView(t);}
- @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();timer.postDelayed(refresh5m,300000);}
+ @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
  void ui(){
   ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
   root.setPadding(dp(14),dp(8),dp(14),dp(26));root.setBackgroundColor(Color.rgb(5,20,38));sc.setFillViewport(true);sc.addView(root);setContentView(sc);
@@ -40,6 +40,23 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
   ImageButton fb=new ImageButton(this);fb.setImageResource(R.drawable.ic_facebook);fb.setBackgroundColor(Color.TRANSPARENT);fb.setScaleType(ImageView.ScaleType.CENTER_INSIDE);fb.setOnClickListener(v->open("https://www.facebook.com/edirnehavadurumu"));s.addView(fb,new LinearLayout.LayoutParams(dp(58),dp(58)));
   ImageButton ig=new ImageButton(this);ig.setImageResource(R.drawable.ic_instagram);ig.setBackgroundColor(Color.TRANSPARENT);ig.setScaleType(ImageView.ScaleType.CENTER_INSIDE);ig.setOnClickListener(v->open("https://www.instagram.com/edirnehavadurumu/"));LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(dp(58),dp(58));ip.setMargins(dp(12),0,0,0);s.addView(ig,ip); TextView xb=tv("𝕏",21,Color.WHITE,true);xb.setGravity(17);xb.setOnClickListener(v->open("https://x.com/edirnehavadurumu"));LinearLayout.LayoutParams xp=new LinearLayout.LayoutParams(dp(58),dp(58));xp.setMargins(dp(12),0,0,0);s.addView(xb,xp); TextView yt=tv("▶",20,Color.WHITE,true);yt.setGravity(17);yt.setOnClickListener(v->open("https://www.youtube.com/@edirnehavadurumu"));LinearLayout.LayoutParams yp=new LinearLayout.LayoutParams(dp(58),dp(58));yp.setMargins(dp(12),0,0,0);s.addView(yt,yp);root.addView(s);
   TextView design=tv("Design by Edirnehavadurumugroup • 2026",10,Color.rgb(115,140,165),false);design.setGravity(17);design.setPadding(0,dp(3),0,dp(10));root.addView(design);
+ }
+ void checkForUpdate(){
+  ex.execute(()->{try{
+    String u="https://edirnehavadurumu.pages.dev/version.json?v="+System.currentTimeMillis();
+    String body=Jsoup.connect(u).ignoreContentType(true).timeout(10000).userAgent("EdirneHavaDurumu/"+BuildConfig.VERSION_NAME).execute().body();
+    JSONObject j=new JSONObject(body);
+    int remoteCode=j.optInt("versionCode",BuildConfig.VERSION_CODE);
+    String remoteName=j.optString("versionName","");
+    String notes=j.optString("notes","Yeni sürüm yayınlandı.");
+    String apk=j.optString("apkUrl","https://edirnehavadurumu.pages.dev/EdirneHavaDurumu.apk");
+    if(remoteCode>BuildConfig.VERSION_CODE) main.post(()->{
+      new AlertDialog.Builder(this).setTitle("🎉 Yeni sürüm mevcut")
+        .setMessage("Edirne Hava Durumu uygulamasının yeni sürümü ("+remoteName+") yayınlandı.\\n\\n"+notes)
+        .setNegativeButton("Daha sonra",null)
+        .setPositiveButton("GÜNCELLE", (d,w)->open(apk)).show();
+    });
+  }catch(Exception ignored){}
  }
  void load(){status.setText("Veriler güncelleniyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
    ArrayList<Loc> all=new ArrayList<>();
