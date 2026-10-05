@@ -14,29 +14,28 @@ public class MainActivity extends Activity{
  void title(String s){TextView t=tv(s,19,-1,true);t.setPadding(dp(2),dp(15),dp(2),dp(7));root.addView(t);}
  @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();}
  void ui(){
-  ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(12),dp(8),dp(12),dp(22));root.setBackgroundColor(Color.rgb(7,24,45));sc.addView(root);setContentView(sc);
-  LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);h.setPadding(0,dp(8),0,dp(8));
-  LinearLayout tx=new LinearLayout(this);tx.setOrientation(LinearLayout.VERTICAL);tx.setPadding(dp(2),0,dp(8),0);
-  ImageView logo=new ImageView(this);
-  logo.setImageResource(R.drawable.edirne_logo_app);
-  logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-  tx.addView(logo,new LinearLayout.LayoutParams(dp(92),dp(92)));
-  tx.addView(tv("Yerel Hava Tahmin Uygulaması",17,Color.rgb(180,210,235),true));
-  h.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
-  Button r=new Button(this);r.setText("VERİLERİ ANLIK YENİLE");r.setOnClickListener(v->load());h.addView(r);root.addView(h);
-  status=tv("Veriler güncelleniyor…",14,Color.LTGRAY,false);root.addView(status);progress=new ProgressBar(this);progress.setIndeterminate(true);root.addView(progress);
-  title("🌡️ Edirne Merkez ve İlçeler • Son Durum");
-  HorizontalScrollView hs=new HorizontalScrollView(this);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
-  title("📅 Edirne Merkez • 5 Günlük Tahmin");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
-  title("📍 İlçeler • 5 Günlük Tahmin");
-  TextView hint=tv("Bir ilçeye dokunun, 5 günlük tahminini açın.",12,Color.LTGRAY,false);root.addView(hint);
-  dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
-  updated=tv("",12,Color.LTGRAY,false);root.addView(updated);
-  TextView f=tv("Bizi takip edin",16,-1,true);f.setGravity(17);f.setPadding(0,dp(12),0,dp(4));root.addView(f);
-  LinearLayout s=new LinearLayout(this);s.setGravity(17);s.setPadding(0,dp(4),0,dp(8));
-  ImageButton fb=new ImageButton(this);fb.setImageResource(R.drawable.ic_facebook);fb.setBackgroundColor(Color.TRANSPARENT);fb.setPadding(dp(2),dp(2),dp(2),dp(2));fb.setScaleType(ImageView.ScaleType.CENTER_INSIDE);fb.setOnClickListener(v->open("https://www.facebook.com/edirnehavadurumu"));s.addView(fb,new LinearLayout.LayoutParams(dp(76),dp(76)));
-  ImageButton ig=new ImageButton(this);ig.setImageResource(R.drawable.ic_instagram);ig.setBackgroundColor(Color.TRANSPARENT);ig.setPadding(dp(2),dp(2),dp(2),dp(2));ig.setScaleType(ImageView.ScaleType.CENTER_INSIDE);ig.setOnClickListener(v->open("https://www.instagram.com/edirnehavadurumu/"));LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(dp(76),dp(76));ip.setMargins(dp(14),0,0,0);s.addView(ig,ip);root.addView(s);
-  TextView design=tv("Design by Edirnehavadurumugroup 2026",12,Color.rgb(155,175,195),false);design.setGravity(17);design.setPadding(0,dp(4),0,dp(12));root.addView(design);
+  ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
+  root.setPadding(dp(14),dp(8),dp(14),dp(26));root.setBackgroundColor(Color.rgb(5,20,38));sc.setFillViewport(true);sc.addView(root);setContentView(sc);
+  LinearLayout hero=new LinearLayout(this);hero.setOrientation(LinearLayout.HORIZONTAL);hero.setGravity(Gravity.CENTER_VERTICAL);hero.setPadding(dp(4),dp(8),dp(4),dp(10));
+  ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_app);logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);hero.addView(logo,new LinearLayout.LayoutParams(dp(88),dp(88)));
+  LinearLayout ht=new LinearLayout(this);ht.setOrientation(LinearLayout.VERTICAL);ht.setPadding(dp(10),0,dp(6),0);
+  ht.addView(tv("EDİRNE HAVA DURUMU",20,Color.WHITE,true));ht.addView(tv("MGM verileri • İl geneli anlık tahmin",12,Color.rgb(175,205,230),false));
+  TextView badge=tv("● MGM VERİSİ",11,Color.rgb(150,230,180),true);badge.setPadding(dp(8),dp(5),dp(8),dp(5));badge.setBackground(bg(Color.rgb(17,55,53),18));LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-2,-2);bp.setMargins(0,dp(7),0,0);ht.addView(badge,bp);
+  hero.addView(ht,new LinearLayout.LayoutParams(0,-2,1));root.addView(hero);
+  LinearLayout refresh=new LinearLayout(this);refresh.setGravity(Gravity.CENTER_VERTICAL);refresh.setPadding(dp(12),dp(9),dp(12),dp(9));refresh.setBackground(bg(Color.rgb(16,43,70),14));
+  LinearLayout rt=new LinearLayout(this);rt.setOrientation(LinearLayout.VERTICAL);rt.addView(tv("Verileri yenile",14,Color.WHITE,true));rt.addView(tv("MGM'den en güncel ölçüm ve tahminleri al",11,Color.rgb(175,195,215),false));refresh.addView(rt,new LinearLayout.LayoutParams(0,-2,1));
+  TextView rb=tv("↻  YENİLE",13,Color.WHITE,true);rb.setGravity(17);rb.setPadding(dp(12),dp(9),dp(12),dp(9));rb.setBackground(bg(Color.rgb(28,105,155),18));refresh.addView(rb,new LinearLayout.LayoutParams(dp(105),-2));rb.setOnClickListener(v->load());root.addView(refresh);
+  status=tv("Veriler güncelleniyor…",12,Color.rgb(170,195,215),false);status.setPadding(dp(3),dp(8),dp(3),dp(2));root.addView(status);
+  progress=new ProgressBar(this);progress.setIndeterminate(true);progress.setVisibility(View.VISIBLE);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
+  title("🌡️  ŞİMDİ EDİRNE");HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
+  title("📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
+  title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
+  updated=tv("",11,Color.rgb(135,160,185),false);updated.setPadding(dp(3),dp(10),dp(3),dp(4));root.addView(updated);
+  TextView ftr=tv("TAKİPTE KAL, HAVADAN HABERDAR OL!",13,Color.WHITE,true);ftr.setGravity(17);ftr.setPadding(0,dp(12),0,dp(4));root.addView(ftr);
+  LinearLayout s=new LinearLayout(this);s.setGravity(17);s.setPadding(0,dp(4),0,dp(4));
+  ImageButton fb=new ImageButton(this);fb.setImageResource(R.drawable.ic_facebook);fb.setBackgroundColor(Color.TRANSPARENT);fb.setScaleType(ImageView.ScaleType.CENTER_INSIDE);fb.setOnClickListener(v->open("https://www.facebook.com/edirnehavadurumu"));s.addView(fb,new LinearLayout.LayoutParams(dp(58),dp(58)));
+  ImageButton ig=new ImageButton(this);ig.setImageResource(R.drawable.ic_instagram);ig.setBackgroundColor(Color.TRANSPARENT);ig.setScaleType(ImageView.ScaleType.CENTER_INSIDE);ig.setOnClickListener(v->open("https://www.instagram.com/edirnehavadurumu/"));LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(dp(58),dp(58));ip.setMargins(dp(12),0,0,0);s.addView(ig,ip);root.addView(s);
+  TextView design=tv("Design by Edirnehavadurumugroup • 2026",10,Color.rgb(115,140,165),false);design.setGravity(17);design.setPadding(0,dp(3),0,dp(10));root.addView(design);
  }
  void load(){status.setText("Veriler güncelleniyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
    ArrayList<Loc> all=new ArrayList<>();
@@ -112,23 +111,31 @@ public class MainActivity extends Activity{
  void renderCurrent(ArrayList<Loc>a){
    current.removeAllViews();
    for(Loc l:a){
-     LinearLayout c=new LinearLayout(this);c.setOrientation(LinearLayout.VERTICAL);c.setGravity(17);c.setPadding(dp(8),dp(8),dp(8),dp(8));c.setBackground(bg(Color.rgb(20,48,78),14));
-     LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(142),dp(160));p.setMargins(0,0,dp(7),0);c.setLayoutParams(p);
-     c.addView(tv(l.name,14,-1,true));String e=l.nowEvent;c.addView(tv(icon(e,l.nowTime),26,-1,false));c.addView(tv(l.now.isEmpty()?"—":l.now,20,Color.rgb(255,193,7),true));c.addView(tv(e.isEmpty()?"—":e,10,Color.LTGRAY,false));c.addView(tv(l.nowTime.isEmpty()?"Ölçüm: —":"Ölçüm: "+timeOnly(l.nowTime),11,Color.LTGRAY,false));current.addView(c);
+     LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setGravity(Gravity.CENTER);card.setPadding(dp(9),dp(9),dp(9),dp(9));card.setBackground(bg(Color.rgb(15,48,79),16));
+     LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(148),dp(170));p.setMargins(0,0,dp(8),0);card.setLayoutParams(p);
+     TextView nm=tv(l.name,14,Color.WHITE,true);nm.setGravity(17);card.addView(nm);card.addView(tv(icon(l.nowEvent,l.nowTime),30,Color.WHITE,false));
+     TextView temp=tv(l.now.isEmpty()?"—":l.now,25,Color.rgb(255,196,55),true);temp.setGravity(17);card.addView(temp);
+     TextView ev=tv(l.nowEvent.isEmpty()?"—":l.nowEvent,10,Color.rgb(205,220,235),false);ev.setGravity(17);card.addView(ev);
+     TextView mt=tv(l.nowTime.isEmpty()?"Ölçüm: —":"Ölçüm: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);current.addView(card);
    }
  }
  void renderCenter(Loc l){five.removeAllViews();if(l.days.size()==0){five.addView(tv("Edirne Merkez 5 günlük tahmin okunamadı.",13,Color.LTGRAY,false));return;}for(Day x:l.days)five.addView(card(x,false));}
  void renderDistricts(ArrayList<Loc>a){
-   dist.removeAllViews();
-   for(int i=1;i<a.size();i++){
-     Loc l=a.get(i);LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);
-     TextView z=tv("▶ "+l.name+"   •   5 günlük tahmini aç",16,-1,true);z.setPadding(dp(10),dp(12),dp(10),dp(12));z.setBackground(bg(Color.rgb(20,48,78),12));box.addView(z);
-     LinearLayout days=new LinearLayout(this);days.setOrientation(LinearLayout.VERTICAL);days.setVisibility(View.GONE);for(Day x:l.days)days.addView(card(x,true));box.addView(days);
-     z.setOnClickListener(v->{boolean open=days.getVisibility()!=View.VISIBLE;days.setVisibility(open?View.VISIBLE:View.GONE);z.setText((open?"▼ ":"▶ ")+l.name+"   •   5 günlük tahmini "+(open?"kapat":"aç"));});
-     LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,-2);bp.setMargins(0,dp(3),0,dp(3));box.setLayoutParams(bp);dist.addView(box);
+   dist.removeAllViews();for(int i=1;i<a.size();i++){Loc l=a.get(i);LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);
+     TextView z=tv("▶  "+l.name+"   •   Tahmini aç",15,Color.WHITE,true);z.setPadding(dp(12),dp(13),dp(10),dp(13));z.setBackground(bg(Color.rgb(15,48,79),13));box.addView(z);
+     LinearLayout days=new LinearLayout(this);days.setOrientation(LinearLayout.VERTICAL);days.setPadding(dp(4),dp(2),dp(4),dp(3));days.setVisibility(View.GONE);for(Day x:l.days)days.addView(card(x,true));box.addView(days);
+     z.setOnClickListener(v->{boolean open=days.getVisibility()!=View.VISIBLE;days.setVisibility(open?View.VISIBLE:View.GONE);z.setText((open?"▼  ":"▶  ")+l.name+"   •   Tahmini "+(open?"kapat":"aç"));});
+     LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,-2);bp.setMargins(0,dp(4),0,dp(4));box.setLayoutParams(bp);dist.addView(box);
    }
  }
- View card(Day x,boolean small){LinearLayout c=new LinearLayout(this);c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(8),dp(7),dp(8),dp(7));c.setBackground(bg(Color.rgb(20,48,78),12));LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.setMargins(0,dp(2),0,dp(2));c.setLayoutParams(cp);c.addView(tv(x.date,small?12:13,-1,true),new LinearLayout.LayoutParams(dp(small?118:125),-2));c.addView(tv(icon(x.e),small?21:24,-1,false),new LinearLayout.LayoutParams(dp(38),-2));c.addView(tv(x.e,small?11:12,Color.LTGRAY,false),new LinearLayout.LayoutParams(0,-2,1));LinearLayout tt=new LinearLayout(this);tt.setOrientation(LinearLayout.VERTICAL);tt.addView(tv("↓ "+x.mi+"°",small?15:16,Color.rgb(80,190,255),true));tt.addView(tv("↑ "+x.ma+"°",small?15:16,Color.rgb(255,130,70),true));c.addView(tt);return c;}
+ View card(Day x,boolean small){
+   LinearLayout c=new LinearLayout(this);c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(10),dp(8),dp(10),dp(8));c.setBackground(bg(Color.rgb(15,48,79),12));
+   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.setMargins(0,dp(2),0,dp(2));c.setLayoutParams(cp);
+   LinearLayout left=new LinearLayout(this);left.setOrientation(LinearLayout.VERTICAL);left.addView(tv(x.date,small?12:13,Color.WHITE,true));left.addView(tv(dayName(x.date),10,Color.rgb(150,180,205),false));c.addView(left,new LinearLayout.LayoutParams(dp(small?100:112),-2));
+   c.addView(tv(icon(x.e),small?23:26,Color.WHITE,false),new LinearLayout.LayoutParams(dp(40),-2));c.addView(tv(x.e,small?10:11,Color.rgb(205,220,235),false),new LinearLayout.LayoutParams(0,-2,1));
+   LinearLayout tt=new LinearLayout(this);tt.setOrientation(LinearLayout.VERTICAL);tt.setGravity(Gravity.CENTER_VERTICAL);tt.addView(tv("↓ "+x.mi+"°",small?15:16,Color.rgb(85,195,255),true));tt.addView(tv("↑ "+x.ma+"°",small?15:16,Color.rgb(255,135,75),true));c.addView(tt);return c;
+ }
+ String dayName(String s){if(s==null||s.isEmpty())return"";try{String[] p=s.split(" ");if(p.length>0){int d=Integer.parseInt(p[0]);Calendar cal=Calendar.getInstance();cal.set(Calendar.DAY_OF_MONTH,d);String m=p.length>1?p[1]:"";String[] tr={"Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"};for(int i=0;i<tr.length;i++)if(tr[i].equals(m)){cal.set(Calendar.MONTH,i);break;}return new SimpleDateFormat("EEEE",new Locale("tr","TR")).format(cal.getTime());}}catch(Exception e){}return"";}
  String icon(String e){return icon(e,"");}
  String icon(String e,String time){String x=e.toLowerCase(new Locale("tr"));if(x.contains("gök")||x.contains("şimşek"))return"⛈️";if(x.contains("kar"))return"🌨️";if(x.contains("sağanak")||x.contains("yağış")||x.contains("yağmur"))return"🌧️";if(x.contains("sis"))return"🌫️";if(x.contains("rüzgar"))return"🌬️";if(x.contains("çok bulutlu")||x.contains("kapalı"))return"☁️";if(x.contains("parçalı"))return"⛅";if(x.contains("az bulutlu"))return"🌤️";if(x.contains("açık")){int h=-1;try{if(time!=null&&time.length()>=13)h=Integer.parseInt(time.substring(11,13));}catch(Exception z){}if(h>=0&&(h>=20||h<6))return"🌙";return"☀️";}return"☀️";}
  void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception e){}}
