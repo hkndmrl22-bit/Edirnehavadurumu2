@@ -20,7 +20,7 @@ public class MainActivity extends Activity{
   tx.addView(tv("Edirne Hava Durumu",25,-1,true));
   tx.addView(tv("Yerel Tahmin Uygulaması",17,Color.rgb(180,210,235),true));
   h.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
-  Button r=new Button(this);r.setText("↻ Yenile");r.setOnClickListener(v->load());h.addView(r);root.addView(h);
+  Button r=new Button(this);r.setText("VERİLERİ ANLIK YENİLE");r.setOnClickListener(v->load());h.addView(r);root.addView(h);
   status=tv("Veriler güncelleniyor…",14,Color.LTGRAY,false);root.addView(status);progress=new ProgressBar(this);progress.setIndeterminate(true);root.addView(progress);
   title("🌡️ Edirne Merkez ve İlçeler • Son Durum");
   HorizontalScrollView hs=new HorizontalScrollView(this);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
