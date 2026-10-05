@@ -91,7 +91,8 @@ public class MainActivity extends Activity{
    if(s==null||s.isEmpty())return"";
    try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat out=new SimpleDateFormat("dd.MM.yyyy HH:mm",new Locale("tr","TR"));out.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return out.format(d);}catch(Exception e){return s;}
  }
- String timeOnly(String s){if(s==null||s.isEmpty())return"";int p=s.lastIndexOf(" ");return p>=0&&p+1<s.length()?s.substring(p+1):s;}\n String formatDay(String s){
+ String timeOnly(String s){if(s==null||s.isEmpty())return"";int p=s.lastIndexOf(" ");return p>=0&&p+1<s.length()?s.substring(p+1):s;}
+ String formatDay(String s){
    if(s==null||s.isEmpty())return"";
    try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat out=new SimpleDateFormat("dd MMM",new Locale("tr","TR"));out.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return out.format(d);}catch(Exception e){return s.length()>=10?s.substring(8,10)+"."+s.substring(5,7):s;}
  }
