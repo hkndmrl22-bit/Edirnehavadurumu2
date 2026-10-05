@@ -18,7 +18,7 @@ public class MainActivity extends Activity{
   LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);h.setPadding(0,dp(8),0,dp(8));
   LinearLayout tx=new LinearLayout(this);tx.setOrientation(LinearLayout.VERTICAL);tx.setPadding(dp(2),0,dp(8),0);
   ImageView logo=new ImageView(this);
-  logo.setImageResource(R.drawable.edirne_logo_real);
+  logo.setImageResource(R.drawable.edirne_logo);
   logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
   logo.setAdjustViewBounds(true);
   tx.addView(logo,new LinearLayout.LayoutParams(dp(92),dp(92)));
