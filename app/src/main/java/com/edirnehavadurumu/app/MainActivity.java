@@ -13,7 +13,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
  TextView tv(String s,float z,int c,boolean b){TextView t=new TextView(this);t.setText(s);t.setTextSize(z);t.setTextColor(c);t.setTypeface(Typeface.DEFAULT,b?1:0);t.setPadding(dp(5),dp(3),dp(5),dp(3));return t;}
  GradientDrawable bg(int c,int r){GradientDrawable g=new GradientDrawable();g.setColor(c);g.setCornerRadius(dp(r));return g;}
  void title(String s){TextView t=tv(s,19,-1,true);t.setPadding(dp(2),dp(15),dp(2),dp(7));root.addView(t);}
- @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();timer.postDelayed(refresh5m,300000);}
+ @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();main.postDelayed(()->checkForUpdate(false),1500);timer.postDelayed(refresh5m,300000);}
  void ui(){
   ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
   root.setPadding(dp(14),dp(8),dp(14),dp(26));root.setBackgroundColor(Color.rgb(5,20,38));sc.setFillViewport(true);sc.addView(root);setContentView(sc);
