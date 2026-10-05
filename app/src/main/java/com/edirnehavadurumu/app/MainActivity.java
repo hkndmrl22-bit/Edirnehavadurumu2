@@ -1,12 +1,11 @@
 package com.edirnehavadurumu.app;
 
-import android.app.*;import android.os.*;import android.content.pm.PackageManager;import android.graphics.*;import android.util.Base64;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import java.text.*;import org.json.*;import org.jsoup.*;
+import android.app.*;import android.os.*;import android.graphics.*;import android.util.Base64;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import java.text.*;import org.json.*;import org.jsoup.*;
 
 public class MainActivity extends Activity{
  static final String API="https://servis.mgm.gov.tr/web/";
- static final String MGM_HOURLY="https://www.mgm.gov.tr/tahmin/saatlik.aspx?m=EDIRNE";
  ExecutorService ex=Executors.newSingleThreadExecutor(); Handler main=new Handler();
- LinearLayout root,current,five,dist,details; TextView status,updated; ProgressBar progress; Handler timer=new Handler(); boolean notifyOn=false;
+ LinearLayout root,current,hourly,five,dist,details; TextView status,updated; ProgressBar progress; Handler timer=new Handler();
 Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(this,300000);}};
  String[] D={"Edirne Merkez","Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
  String[] Q={"","ENEZ","HAVSA","IPSALA","KESAN","LALAPASA","MERIC","SULOGLU","UZUNKOPRU"};
@@ -30,8 +29,10 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
   status=tv("Veriler güncelleniyor…",12,Color.rgb(170,195,215),false);status.setPadding(dp(3),dp(8),dp(3),dp(2));root.addView(status);
   progress=new ProgressBar(this);progress.setIndeterminate(true);progress.setVisibility(View.VISIBLE);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
   title("🌡️  SON DURUMLAR");HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
-  title("🕒  SAATLİK + 📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
-  title("📊  AYRINTILAR"); details=new LinearLayout(this);details.setOrientation(LinearLayout.VERTICAL);root.addView(details); LinearLayout tools=new LinearLayout(this);tools.setOrientation(LinearLayout.HORIZONTAL); TextView radar=tv("🌧️ RADAR",13,Color.WHITE,true);radar.setGravity(17);radar.setPadding(dp(12),dp(10),dp(12),dp(10));radar.setBackground(bg(Color.rgb(28,105,155),16));radar.setOnClickListener(v->showRadar());tools.addView(radar,new LinearLayout.LayoutParams(0,-2,1)); TextView alert=tv("🔔 UYARILAR",13,Color.WHITE,true);alert.setGravity(17);alert.setPadding(dp(12),dp(10),dp(12),dp(10));alert.setBackground(bg(Color.rgb(36,82,112),16));alert.setOnClickListener(v->{notifyOn=!notifyOn;alert.setText(notifyOn?"🔔 UYARILAR AÇIK":"🔔 UYARILAR");if(notifyOn&&Build.VERSION.SDK_INT>=33&&checkSelfPermission("android.permission.POST_NOTIFICATIONS")!=PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"},55);});tools.addView(alert,new LinearLayout.LayoutParams(0,-2,1));root.addView(tools); title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
+  title("🕒  SAATLİK TAHMİN • EDİRNE MERKEZ");
+  HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);hourly=new LinearLayout(this);hourly.setOrientation(LinearLayout.HORIZONTAL);hscroll.addView(hourly);root.addView(hscroll);
+  title("📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
+  title("📊  AYRINTILAR"); details=new LinearLayout(this);details.setOrientation(LinearLayout.VERTICAL);root.addView(details); title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
   updated=tv("",11,Color.rgb(135,160,185),false);updated.setPadding(dp(3),dp(10),dp(3),dp(4));root.addView(updated);
   TextView ftr=tv("TAKİPTE KAL, HAVADAN HABERDAR OL!",13,Color.WHITE,true);ftr.setGravity(17);ftr.setPadding(0,dp(12),0,dp(4));root.addView(ftr);
   LinearLayout s=new LinearLayout(this);s.setGravity(17);s.setPadding(0,dp(4),0,dp(4));
@@ -43,7 +44,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
    ArrayList<Loc> all=new ArrayList<>();
    for(int i=0;i<D.length;i++) all.add(apiLocation(D[i],i==0?"merkez":Q[i].toLowerCase(Locale.ROOT)));
    Loc center=all.get(0);
-   main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderCenter(center);renderDetails(center);renderDistricts(all);if(notifyOn)maybeNotify(center);status.setText("Veriler güncellendi. • "+currentTime());});
+   main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderHourly(center);renderCenter(center);renderDetails(center);renderDistricts(all);status.setText("Veriler güncellendi. • "+currentTime());});
   }catch(Exception e){main.post(()->{progress.setVisibility(View.GONE);status.setText("Veriler alınamadı. Yenile'ye basın.");Toast.makeText(this,"Bağlantı başarısız",0).show();});}});
  }
  Loc apiLocation(String name,String district)throws Exception{
@@ -53,6 +54,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
    JSONObject st=stations.getJSONObject(0);
    int merkezId=st.optInt("merkezId",0);
    int istNo=st.optInt("gunlukTahminIstNo",0);
+   int hourlyIstNo=st.optInt("saatlikTahminIstNo",0);
    if(merkezId==0) merkezId=istNo;
    if(istNo==0) istNo=merkezId;
    Loc l=new Loc(name);
@@ -74,7 +76,20 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
        if(!lo.isEmpty()&&!hi.isEmpty()) l.days.add(new Day(date,condition(code),lo,hi));
      }
    }
-   try{JSONArray ha=new JSONArray(apiGet(API+"tahminler/saatlik?istno="+istNo));if(ha.length()>0){JSONArray ta=ha.getJSONObject(0).optJSONArray("tahmin");if(ta!=null)for(int z=0;z<ta.length()&&z<12;z++){JSONObject h=ta.getJSONObject(z);l.hours.add(new Hour(timeOnly(formatUtc(h.optString("tarih",""))),num(h,"sicaklik"),condition(h.optString("hadise","")),num(h,"ruzgarHizi")));}}}catch(Exception ignored){}
+   try{
+     l.hours.clear();
+     int hno=hourlyIstNo>0?hourlyIstNo:istNo;
+     JSONArray ha=new JSONArray(apiGet(API+"tahminler/saatlik?istno="+hno));
+     if(ha.length()>0){
+       JSONArray ta=ha.getJSONObject(0).optJSONArray("tahmin");
+       if(ta!=null) for(int z=0;z<ta.length()&&z<12;z++){
+         JSONObject h=ta.getJSONObject(z);
+         String ht=timeOnly(formatUtc(h.optString("tarih","")));
+         String hv=num(h,"sicaklik");
+         if(!ht.isEmpty()||!hv.isEmpty()) l.hours.add(new Hour(ht,hv,condition(h.optString("hadise","")),num(h,"ruzgarHizi")));
+       }
+     }
+   }catch(Exception ignored){}
    return l;
  }
  String apiGet(String u)throws Exception{
@@ -122,9 +137,20 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
      TextView mt=tv(l.nowTime.isEmpty()?"Ölçüm: —":"Ölçüm: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);current.addView(card);
    }
  }
- void renderHourly(Loc l){if(l.hours.size()==0)return;TextView h=tv("Saatlik: ",12,Color.WHITE,true);details.addView(h);for(Hour x:l.hours){TextView t=tv(x.time+"  "+x.temp+"°  "+x.event+"  💨"+x.wind+" km/sa",12,Color.WHITE,false);t.setPadding(dp(10),dp(8),dp(10),dp(8));t.setBackground(bg(Color.rgb(15,48,79),12));details.addView(t);}}
- void maybeNotify(Loc l){String e=l.nowEvent==null?"":l.nowEvent.toLowerCase(new Locale("tr"));if(e.contains("kuvvetli")||e.contains("fırtına")||e.contains("yoğun")||e.contains("gök")){try{NotificationManager nm=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);String ch="edirne_weather";if(Build.VERSION.SDK_INT>=26)nm.createNotificationChannel(new NotificationChannel(ch,"Edirne Hava Uyarıları",NotificationManager.IMPORTANCE_HIGH));Notification.Builder b=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,ch):new Notification.Builder(this);b.setSmallIcon(android.R.drawable.ic_dialog_alert).setContentTitle("Edirne Hava Uyarısı").setContentText(l.nowEvent).setAutoCancel(true);if(Build.VERSION.SDK_INT<33||checkSelfPermission("android.permission.POST_NOTIFICATIONS")==PackageManager.PERMISSION_GRANTED)nm.notify(55,b.build());}catch(Exception ignored){}}}
- void showRadar(){new AlertDialog.Builder(this).setTitle("🌧️ MGM RADAR").setMessage("Radar bölümü uygulama içine hazırlanıyor. MGM radar verisi için ayrı bir görsel servis bağlantısı gerekiyor.").setPositiveButton("TAMAM",null).show();}
+ void renderHourly(Loc l){
+   hourly.removeAllViews();
+   if(l.hours.size()==0){TextView t=tv("Saatlik MGM tahmini şu anda alınamadı.",13,Color.LTGRAY,false);t.setPadding(dp(10),dp(12),dp(10),dp(12));hourly.addView(t);return;}
+   for(Hour x:l.hours){
+     LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setGravity(Gravity.CENTER);card.setPadding(dp(9),dp(10),dp(9),dp(10));card.setBackground(bg(Color.rgb(15,48,79),14));
+     LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(105),dp(145));p.setMargins(0,0,dp(8),0);card.setLayoutParams(p);
+     card.addView(tv(x.time.isEmpty()?"—":x.time,13,Color.WHITE,true));
+     TextView ic=tv(icon(x.event,x.time),28,Color.WHITE,false);ic.setGravity(17);card.addView(ic);
+     TextView temp=tv(x.temp.isEmpty()?"—":x.temp+"°",23,Color.rgb(255,196,55),true);temp.setGravity(17);card.addView(temp);
+     TextView ev=tv(x.event.isEmpty()?"—":x.event,9,Color.rgb(205,220,235),false);ev.setGravity(17);card.addView(ev);
+     TextView wi=tv(x.wind.isEmpty()?"":"💨 "+x.wind+" km/sa",9,Color.rgb(150,180,205),false);wi.setGravity(17);card.addView(wi);
+     hourly.addView(card);
+   }
+ }
  void renderDetails(Loc l){details.removeAllViews();renderHourly(l);String[] x={"💧 Nem: "+val(l.humidity,"—")+"%","🌡️ Hissedilen: "+val(l.feels,"—")+"°C","💨 Rüzgâr: "+val(l.wind,"—")+" km/sa  •  "+val(l.windDir,"—"),"💨 Rüzgâr hamlesi: "+val(l.gust,"—")+" km/sa","📈 Basınç: "+val(l.pressure,"—")+" hPa"};for(String q:x){TextView t=tv(q,13,Color.WHITE,false);t.setPadding(dp(12),dp(9),dp(12),dp(9));t.setBackground(bg(Color.rgb(15,48,79),12));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.setMargins(0,dp(2),0,dp(2));details.addView(t,p);}}
  String val(String x,String d){return x==null||x.isEmpty()?d:x;}
  void renderCenter(Loc l){five.removeAllViews();if(l.days.size()==0){five.addView(tv("Edirne Merkez 5 günlük tahmin okunamadı.",13,Color.LTGRAY,false));return;}for(Day x:l.days)five.addView(card(x,false));}
