@@ -134,7 +134,9 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
      TextView nm=tv(l.name,14,Color.WHITE,true);nm.setGravity(17);card.addView(nm);card.addView(tv(icon(l.nowEvent,l.nowTime),30,Color.WHITE,false));
      TextView temp=tv(l.now.isEmpty()?"—":l.now,25,Color.rgb(255,196,55),true);temp.setGravity(17);card.addView(temp);
      TextView ev=tv(l.nowEvent.isEmpty()?"—":l.nowEvent,10,Color.rgb(205,220,235),false);ev.setGravity(17);card.addView(ev);
-     TextView mt=tv(l.nowTime.isEmpty()?"Ölçüm: —":"Ölçüm: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);\n     TextView wx=tv("💨 "+val(l.wind,"—")+" km/sa  "+windDirection(l.windDir),10,Color.rgb(180,205,225),false);wx.setGravity(17);card.addView(wx);\n     TextView hx=tv("💧 Nem "+val(l.humidity,"—")+"%   •   📈 "+val(l.pressure,"—")+" hPa",10,Color.rgb(180,205,225),false);hx.setGravity(17);card.addView(hx);current.addView(card);
+     TextView mt=tv(l.nowTime.isEmpty()?"Ölçüm: —":"Ölçüm: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);
+     TextView wx=tv("💨 "+val(l.wind,"—")+" km/sa  "+windDirection(l.windDir),10,Color.rgb(180,205,225),false);wx.setGravity(17);card.addView(wx);
+     TextView hx=tv("💧 Nem "+val(l.humidity,"—")+"%   •   📈 "+val(l.pressure,"—")+" hPa",10,Color.rgb(180,205,225),false);hx.setGravity(17);card.addView(hx);current.addView(card);
    }
  }
  void renderHourly(Loc l){
@@ -152,7 +154,8 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
    }
  }
  void renderDetails(Loc l){details.removeAllViews();renderHourly(l);String[] x={"💧 Nem: "+val(l.humidity,"—")+"%","🌡️ Hissedilen: "+val(l.feels,"—")+"°C","💨 Rüzgâr: "+val(l.wind,"—")+" km/sa  •  "+val(l.windDir,"—"),"💨 Rüzgâr hamlesi: "+val(l.gust,"—")+" km/sa","📈 Basınç: "+val(l.pressure,"—")+" hPa"};for(String q:x){TextView t=tv(q,13,Color.WHITE,false);t.setPadding(dp(12),dp(9),dp(12),dp(9));t.setBackground(bg(Color.rgb(15,48,79),12));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.setMargins(0,dp(2),0,dp(2));details.addView(t,p);}}
- String val(String x,String d){return x==null||x.isEmpty()?d:x;}\n String windDirection(String x){if(x==null||x.isEmpty()||x.equals("-9999"))return "—"; try{double d=Double.parseDouble(x.replace(",",".")); int i=(int)Math.round(d/22.5)%16; String[] sixteen={"K","KKD","KD","DKD","D","DGD","GD","GBD","BGB","B","KB","KGB","K"}; if(i>=0&&i<sixteen.length)return sixteen[i];}catch(Exception e){} return x;}
+ String val(String x,String d){return x==null||x.isEmpty()?d:x;}
+ String windDirection(String x){if(x==null||x.isEmpty()||x.equals("-9999"))return "—"; try{double d=Double.parseDouble(x.replace(",",".")); int i=(int)Math.round(d/22.5)%16; String[] sixteen={"K","KKD","KD","DKD","D","DGD","GD","GBD","BGB","B","KB","KGB","K"}; if(i>=0&&i<sixteen.length)return sixteen[i];}catch(Exception e){} return x;}
  void renderCenter(Loc l){five.removeAllViews();if(l.days.size()==0){five.addView(tv("Edirne Merkez 5 günlük tahmin okunamadı.",13,Color.LTGRAY,false));return;}for(Day x:l.days)five.addView(card(x,false));}
  void renderDistricts(ArrayList<Loc>a){
    dist.removeAllViews();for(int i=1;i<a.size();i++){Loc l=a.get(i);LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);
