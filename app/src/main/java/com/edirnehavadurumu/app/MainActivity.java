@@ -112,7 +112,8 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
    for(String k:keys){v=num(j,k);if(!v.isEmpty())return v;}
    java.util.Iterator<String> it=j.keys(); while(it.hasNext()){String k=it.next();String n=k.toLowerCase(Locale.ROOT); if(n.contains("basinc")||n.contains("basınc")){v=num(j,k);if(!v.isEmpty())return v;}}
    return "";
- }\n String condition(String c){
+ }
+ String condition(String c){
    if(c==null)c="";c=c.toUpperCase(Locale.ROOT);
    String[] k={"PB","GSY","HSY","SY","A","AB","CB","D","HY","HKY","MSY","KKY","GKR","SCK","PUS","Y","K","DY","R","KKR","SGK","SIS","KY","KSY","YKY","KF","KGY"};
    String[] v={"Parçalı Bulutlu","Gökgürültülü Sağanak Yağışlı","Hafif Sağanak Yağışlı","Sağanak Yağışlı","Açık","Az Bulutlu","Çok Bulutlu","Duman","Hafif Yağmurlu","Hafif Kar Yağışlı","Yer Yer Sağanak Yağışlı","Karla Karışık Yağmurlu","Güneyli Kuvvetli Rüzgar","Sıcak","PUS","Yağmurlu","Kar Yağışlı","Dolu","Rüzgarlı","Kuzeyli Kuvvetli Rüzgar","Soğuk","Sis","Kuvvetli Yağmurlu","Kuvvetli Sağanak Yağışlı","Yoğun Kar Yağışlı","Toz veya Kum Fırtınası","Kuvvetli Gökgürültülü Sağanak Yağışlı"};
