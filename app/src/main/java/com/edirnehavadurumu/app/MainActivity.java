@@ -130,7 +130,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
    current.removeAllViews();
    for(Loc l:a){
      LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setGravity(Gravity.CENTER);card.setPadding(dp(9),dp(9),dp(9),dp(9));card.setBackground(bg(Color.rgb(15,48,79),16));
-     LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(148),dp(170));p.setMargins(0,0,dp(8),0);card.setLayoutParams(p);
+     LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(190),dp(250));p.setMargins(0,0,dp(8),0);card.setLayoutParams(p);
      TextView nm=tv(l.name,14,Color.WHITE,true);nm.setGravity(17);card.addView(nm);card.addView(tv(icon(l.nowEvent,l.nowTime),30,Color.WHITE,false));
      TextView temp=tv(l.now.isEmpty()?"—":l.now,25,Color.rgb(255,196,55),true);temp.setGravity(17);card.addView(temp);
      TextView ev=tv(l.nowEvent.isEmpty()?"—":l.nowEvent,10,Color.rgb(205,220,235),false);ev.setGravity(17);card.addView(ev);
