@@ -4,8 +4,9 @@ import android.app.*;import android.os.*;import android.graphics.*;import androi
 
 public class MainActivity extends Activity{
  static final String API="https://servis.mgm.gov.tr/web/";
+ static final String MGM_HOURLY="https://www.mgm.gov.tr/tahmin/saatlik.aspx?m=EDIRNE";
  ExecutorService ex=Executors.newSingleThreadExecutor(); Handler main=new Handler();
- LinearLayout root,current,five,dist; TextView status,updated; ProgressBar progress;
+ LinearLayout root,current,five,dist,details; TextView status,updated; ProgressBar progress;
  String[] D={"Edirne Merkez","Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
  String[] Q={"","ENEZ","HAVSA","IPSALA","KESAN","LALAPASA","MERIC","SULOGLU","UZUNKOPRU"};
  int dp(float x){return(int)(x*getResources().getDisplayMetrics().density+.5f);}
@@ -29,7 +30,7 @@ public class MainActivity extends Activity{
   progress=new ProgressBar(this);progress.setIndeterminate(true);progress.setVisibility(View.VISIBLE);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
   title("🌡️  SON DURUMLAR");HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
   title("🕒  SAATLİK + 📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
-  title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
+  title("📊  AYRINTILAR"); details=new LinearLayout(this);details.setOrientation(LinearLayout.VERTICAL);root.addView(details); LinearLayout tools=new LinearLayout(this);tools.setOrientation(LinearLayout.HORIZONTAL); TextView radar=tv("🌧️ RADAR",13,Color.WHITE,true);radar.setGravity(17);radar.setPadding(dp(12),dp(10),dp(12),dp(10));radar.setBackground(bg(Color.rgb(28,105,155),16));radar.setOnClickListener(v->showRadar());tools.addView(radar,new LinearLayout.LayoutParams(0,-2,1)); TextView alert=tv("🔔 UYARILAR",13,Color.WHITE,true);alert.setGravity(17);alert.setPadding(dp(12),dp(10),dp(12),dp(10));alert.setBackground(bg(Color.rgb(36,82,112),16));tools.addView(alert,new LinearLayout.LayoutParams(0,-2,1));root.addView(tools); title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
   updated=tv("",11,Color.rgb(135,160,185),false);updated.setPadding(dp(3),dp(10),dp(3),dp(4));root.addView(updated);
   TextView ftr=tv("TAKİPTE KAL, HAVADAN HABERDAR OL!",13,Color.WHITE,true);ftr.setGravity(17);ftr.setPadding(0,dp(12),0,dp(4));root.addView(ftr);
   LinearLayout s=new LinearLayout(this);s.setGravity(17);s.setPadding(0,dp(4),0,dp(4));
@@ -41,7 +42,7 @@ public class MainActivity extends Activity{
    ArrayList<Loc> all=new ArrayList<>();
    for(int i=0;i<D.length;i++) all.add(apiLocation(D[i],i==0?"merkez":Q[i].toLowerCase(Locale.ROOT)));
    Loc center=all.get(0);
-   main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderCenter(center);renderDistricts(all);status.setText("Veriler güncellendi. • "+currentTime());});
+   main.post(()->{progress.setVisibility(View.GONE);renderCurrent(all);renderCenter(center);renderDetails(center);renderDistricts(all);status.setText("Veriler güncellendi. • "+currentTime());});
   }catch(Exception e){main.post(()->{progress.setVisibility(View.GONE);status.setText("Veriler alınamadı. Yenile'ye basın.");Toast.makeText(this,"Bağlantı başarısız",0).show();});}});
  }
  Loc apiLocation(String name,String district)throws Exception{
@@ -57,7 +58,7 @@ public class MainActivity extends Activity{
    JSONArray curA=new JSONArray(apiGet(API+"sondurumlar?merkezid="+merkezId));
    if(curA.length()>0){
      JSONObject c=curA.getJSONObject(0);
-     String temp=num(c,"sicaklik"), code=c.optString("hadiseKodu","");
+     String temp=num(c,"sicaklik"), code=c.optString("hadiseKodu",""); l.humidity=num(c,"nem"); l.pressure=num(c,"basinc"); l.wind=num(c,"ruzgarHiz"); l.gust=num(c,"ruzgarHamle"); l.feels=num(c,"hissedilenSicaklik"); l.windDir=c.optString("ruzgarYon","");
      l.now=temp.isEmpty()?"":temp+"°C";
      l.nowEvent=condition(code);
      l.nowTime=measurementTime(c);
@@ -119,6 +120,8 @@ public class MainActivity extends Activity{
      TextView mt=tv(l.nowTime.isEmpty()?"Ölçüm: —":"Ölçüm: "+timeOnly(l.nowTime),10,Color.rgb(145,175,200),false);mt.setGravity(17);card.addView(mt);current.addView(card);
    }
  }
+ void renderDetails(Loc l){details.removeAllViews();String[] x={"💧 Nem: "+val(l.humidity,"—")+"%","🌡️ Hissedilen: "+val(l.feels,"—")+"°C","💨 Rüzgâr: "+val(l.wind,"—")+" km/sa  •  "+val(l.windDir,"—"),"💨 Rüzgâr hamlesi: "+val(l.gust,"—")+" km/sa","📈 Basınç: "+val(l.pressure,"—")+" hPa"};for(String q:x){TextView t=tv(q,13,Color.WHITE,false);t.setPadding(dp(12),dp(9),dp(12),dp(9));t.setBackground(bg(Color.rgb(15,48,79),12));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.setMargins(0,dp(2),0,dp(2));details.addView(t,p);}}
+ String val(String x,String d){return x==null||x.isEmpty()?d:x;}
  void renderCenter(Loc l){five.removeAllViews();if(l.days.size()==0){five.addView(tv("Edirne Merkez 5 günlük tahmin okunamadı.",13,Color.LTGRAY,false));return;}for(Day x:l.days)five.addView(card(x,false));}
  void renderDistricts(ArrayList<Loc>a){
    dist.removeAllViews();for(int i=1;i<a.size();i++){Loc l=a.get(i);LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);
@@ -141,6 +144,6 @@ public class MainActivity extends Activity{
  void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception e){}}
  @Override protected void onDestroy(){ex.shutdownNow();super.onDestroy();}
  static class Day{String date,e,mi,ma;Day(String d,String x,String a,String b){date=d;e=x;mi=a;ma=b;}}
- static class Loc{String name,now="",nowTime="",nowEvent="";ArrayList<Day>days=new ArrayList<>();Loc(String n){name=n;}}
+ static class Loc{String name,now="",nowTime="",nowEvent="",humidity="",pressure="",wind="",gust="",feels="",windDir="";ArrayList<Day>days=new ArrayList<>();Loc(String n){name=n;}}
  static class Current{String time,temp,event;Current(String t,String v,String e){time=t;temp=v;event=e;}}
 }
