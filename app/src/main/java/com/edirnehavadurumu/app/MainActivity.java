@@ -1,6 +1,6 @@
 package com.edirnehavadurumu.app;
 
-import android.app.*;import android.os.*;import android.graphics.*;import android.webkit.*;import android.util.Base64;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import java.text.*;import java.net.*;import java.io.*;import org.json.*;import org.jsoup.*;
+import android.app.*;import android.os.*;import android.graphics.*;import android.webkit.*;import android.util.Base64;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import java.text.*;import org.json.*;import org.jsoup.*;
 
 public class MainActivity extends Activity{
  static final String API="https://servis.mgm.gov.tr/web/";
@@ -15,109 +15,67 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
  void title(String s){TextView t=tv(s,19,-1,true);t.setPadding(dp(2),dp(15),dp(2),dp(7));root.addView(t);}
  @Override public void onCreate(Bundle b){super.onCreate(b);ui();load();main.postDelayed(()->checkForUpdate(false),1500);timer.postDelayed(refresh5m,300000);}
  void ui(){
-  ScrollView sc=new ScrollView(this);
-  root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);
-  root.setPadding(dp(12),dp(8),dp(12),dp(24));
-  root.setBackgroundColor(Color.rgb(4,20,38));
-  sc.setFillViewport(true); sc.addView(root); setContentView(sc);
-
-  LinearLayout head=new LinearLayout(this); head.setGravity(Gravity.CENTER_VERTICAL);
-  head.setPadding(dp(4),dp(8),dp(4),dp(12));
-  ImageView logo=new ImageView(this); logo.setImageResource(R.drawable.edirne_logo_app);
-  logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-  head.addView(logo,new LinearLayout.LayoutParams(dp(64),dp(64)));
-  LinearLayout ht=new LinearLayout(this); ht.setOrientation(LinearLayout.VERTICAL); ht.setPadding(dp(10),0,0,0);
-  ht.addView(tv("EDİRNE",24,Color.WHITE,true));
-  ht.addView(tv("YEREL HAVA TAHMİN UYGULAMASI",12,Color.rgb(91,190,255),true));
-  ht.addView(tv("MGM verileri • 5 dakikada bir güncellenir",10,Color.rgb(150,180,205),false));
-  head.addView(ht,new LinearLayout.LayoutParams(0,-2,1));
-  TextView gear=tv("⚙",25,Color.WHITE,false); gear.setGravity(17); head.addView(gear,new LinearLayout.LayoutParams(dp(42),dp(50)));
-  root.addView(head);
-
-  LinearLayout hero=new LinearLayout(this); hero.setOrientation(LinearLayout.VERTICAL);
-  hero.setPadding(dp(16),dp(16),dp(16),dp(16)); hero.setBackground(bg(Color.rgb(12,57,91),24));
-  TextView place=tv("📍 EDİRNE MERKEZ",15,Color.WHITE,true); hero.addView(place);
-  TextView live=tv("ANLIK HAVA DURUMU",10,Color.rgb(145,210,250),true); live.setPadding(0,dp(2),0,dp(4)); hero.addView(live);
-  status=tv("Veriler güncelleniyor…",11,Color.rgb(175,205,225),false); hero.addView(status);
-  LinearLayout heroRow=new LinearLayout(this); heroRow.setGravity(Gravity.CENTER_VERTICAL);
-  TextView heroIcon=tv("☀️",54,Color.WHITE,false); heroIcon.setGravity(17); heroRow.addView(heroIcon,new LinearLayout.LayoutParams(dp(78),dp(78)));
-  LinearLayout heroText=new LinearLayout(this); heroText.setOrientation(LinearLayout.VERTICAL);
-  TextView heroTemp=tv("—",42,Color.WHITE,true); heroText.addView(heroTemp);
-  TextView heroEvent=tv("—",15,Color.rgb(215,230,240),false); heroText.addView(heroEvent);
-  TextView heroFeel=tv("Hissedilen: —",11,Color.rgb(160,195,220),false); heroText.addView(heroFeel);
-  heroRow.addView(heroText,new LinearLayout.LayoutParams(0,-2,1)); hero.addView(heroRow);
-  LinearLayout metrics=new LinearLayout(this); metrics.setPadding(0,dp(10),0,0);
-  TextView m1=tv("💧 Nem\n—%",12,Color.WHITE,true); m1.setGravity(17); m1.setBackground(bg(Color.rgb(8,39,66),14));
-  TextView m2=tv("💨 Rüzgâr\n— km/sa",12,Color.WHITE,true); m2.setGravity(17); m2.setBackground(bg(Color.rgb(8,39,66),14));
-  TextView m3=tv("📈 Basınç\n— hPa",12,Color.WHITE,true); m3.setGravity(17); m3.setBackground(bg(Color.rgb(8,39,66),14));
-  LinearLayout.LayoutParams mp=new LinearLayout.LayoutParams(0,dp(62),1); mp.setMargins(dp(3),0,dp(3),0);
-  metrics.addView(m1,mp); metrics.addView(m2,new LinearLayout.LayoutParams(0,dp(62),1)); metrics.addView(m3,new LinearLayout.LayoutParams(0,dp(62),1));
-  hero.addView(metrics); root.addView(hero);
-  root.addView(tv(" ",1,Color.TRANSPARENT,false));
-
-  LinearLayout refresh=new LinearLayout(this); refresh.setGravity(Gravity.CENTER_VERTICAL); refresh.setPadding(dp(14),dp(10),dp(10),dp(10));
-  refresh.setBackground(bg(Color.rgb(10,39,64),16));
-  LinearLayout rt=new LinearLayout(this); rt.setOrientation(LinearLayout.VERTICAL);
-  rt.addView(tv("Son güncelleme",13,Color.WHITE,true)); rt.addView(tv("MGM verilerini şimdi yenile",10,Color.rgb(155,185,210),false));
-  refresh.addView(rt,new LinearLayout.LayoutParams(0,-2,1));
-  TextView rb=tv("↻  YENİLE",13,Color.WHITE,true); rb.setGravity(17); rb.setPadding(dp(13),dp(10),dp(13),dp(10)); rb.setBackground(bg(Color.rgb(20,125,190),18));
-  refresh.addView(rb,new LinearLayout.LayoutParams(dp(110),-2)); rb.setOnClickListener(v->load()); root.addView(refresh);
-
-  title("🕒  SAATLİK TAHMİN");
-  HorizontalScrollView hscroll=new HorizontalScrollView(this); hscroll.setHorizontalScrollBarEnabled(false);
-  hourly=new LinearLayout(this); hourly.setOrientation(LinearLayout.HORIZONTAL); hscroll.addView(hourly); root.addView(hscroll);
-
-  title("📅  5 GÜNLÜK TAHMİN");
-  five=new LinearLayout(this); five.setOrientation(LinearLayout.VERTICAL); root.addView(five);
-
-  title("📍  EDİRNE İLÇELERİ");
-  TextView hint=tv("İlçeye dokunarak tahmini açıp kapatabilirsiniz.",11,Color.rgb(145,175,200),false); hint.setPadding(dp(3),0,dp(3),dp(7)); root.addView(hint);
-  current=new LinearLayout(this); current.setOrientation(LinearLayout.HORIZONTAL);
-  HorizontalScrollView cs=new HorizontalScrollView(this); cs.setHorizontalScrollBarEnabled(false); cs.addView(current); root.addView(cs);
-  dist=new LinearLayout(this); dist.setOrientation(LinearLayout.VERTICAL); root.addView(dist);
-
-  progress=new ProgressBar(this); progress.setIndeterminate(true); progress.setVisibility(View.VISIBLE);
-  root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
-  updated=tv("",10,Color.rgb(120,150,175),false); updated.setGravity(17); updated.setPadding(0,dp(12),0,dp(5)); root.addView(updated);
-  TextView ftr=tv("TAKİPTE KAL, HAVADAN HABERDAR OL!",12,Color.WHITE,true); ftr.setGravity(17); ftr.setPadding(0,dp(12),0,dp(5)); root.addView(ftr);
-  LinearLayout social=new LinearLayout(this); social.setGravity(17);
-  int[] icons={R.drawable.ic_facebook,R.drawable.ic_instagram,R.drawable.ic_x,R.drawable.ic_youtube};
-  String[] names={"Facebook","Instagram","X","YouTube"};
-  String[] urls={"https://www.facebook.com/edirnehavadurumu","https://www.instagram.com/edirnehavadurumu/","https://x.com/edirnehavadurumu","https://www.youtube.com/@edirnehavadurumu"};
-  for(int i=0;i<4;i++){ ImageButton b=socialIcon(icons[i],names[i],urls[i]); LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(48),dp(48)); if(i>0)p.setMargins(dp(7),0,0,0); social.addView(b,p); }
-  root.addView(social);
-  TextView design=tv("Design by Edirnehavadurumugroup • 2026",9,Color.rgb(105,135,160),false); design.setGravity(17); root.addView(design);
-
-  final TextView[] heroViews={heroIcon,heroTemp,heroEvent,heroFeel,m1,m2,m3};
-  hero.setTag(heroViews);
+  ScrollView sc=new ScrollView(this);root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
+  root.setPadding(dp(14),dp(8),dp(14),dp(26));root.setBackgroundColor(Color.rgb(5,20,38));sc.setFillViewport(true);sc.addView(root);setContentView(sc);
+  LinearLayout hero=new LinearLayout(this);hero.setOrientation(LinearLayout.HORIZONTAL);hero.setGravity(Gravity.CENTER_VERTICAL);hero.setPadding(dp(4),dp(8),dp(4),dp(10));
+  ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_app);logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);hero.addView(logo,new LinearLayout.LayoutParams(dp(88),dp(88)));
+  LinearLayout ht=new LinearLayout(this);ht.setOrientation(LinearLayout.VERTICAL);ht.setPadding(dp(10),0,dp(6),0);
+  ht.addView(tv("EDİRNE HAVA DURUMU",20,Color.WHITE,true));ht.addView(tv("EDİRNE YEREL HAVA TAHMİN UYGULAMASI",12,Color.rgb(175,205,230),false));
+  
+  hero.addView(ht,new LinearLayout.LayoutParams(0,-2,1));root.addView(hero);
+  TextView version=tv("Sürüm "+appVersion(),11,Color.rgb(150,180,205),false);version.setGravity(17);root.addView(version);
+  TextView update=tv("↻  GÜNCELLEMEYİ KONTROL ET",13,Color.WHITE,true);update.setGravity(17);update.setPadding(dp(12),dp(11),dp(12),dp(11));update.setBackground(bg(Color.rgb(28,105,155),18));update.setOnClickListener(v->checkForUpdate(true));root.addView(update,new LinearLayout.LayoutParams(-1,-2));
+  LinearLayout refresh=new LinearLayout(this);refresh.setGravity(Gravity.CENTER_VERTICAL);refresh.setPadding(dp(12),dp(9),dp(12),dp(9));refresh.setBackground(bg(Color.rgb(16,43,70),14));
+  LinearLayout rt=new LinearLayout(this);rt.setOrientation(LinearLayout.VERTICAL);rt.addView(tv("Verileri yenile",14,Color.WHITE,true));rt.addView(tv("Anlık hava durumunu güncelle",11,Color.rgb(175,195,215),false));refresh.addView(rt,new LinearLayout.LayoutParams(0,-2,1));
+  TextView rb=tv("↻  YENİLE",13,Color.WHITE,true);rb.setGravity(17);rb.setPadding(dp(12),dp(9),dp(12),dp(9));rb.setBackground(bg(Color.rgb(28,105,155),18));refresh.addView(rb,new LinearLayout.LayoutParams(dp(105),-2));rb.setOnClickListener(v->load());root.addView(refresh);
+  title("🌡️  SON DURUMLAR");
+  status=tv("Veriler güncelleniyor…",12,Color.rgb(170,195,215),false);status.setPadding(dp(3),dp(8),dp(3),dp(2));root.addView(status);
+  progress=new ProgressBar(this);progress.setIndeterminate(true);progress.setVisibility(View.VISIBLE);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
+  HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);current=new LinearLayout(this);current.setOrientation(LinearLayout.HORIZONTAL);hs.addView(current);root.addView(hs);
+  title("🕒  SAATLİK TAHMİN • EDİRNE MERKEZ");
+  HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);hourly=new LinearLayout(this);hourly.setOrientation(LinearLayout.HORIZONTAL);hscroll.addView(hourly);root.addView(hscroll);
+  title("📅  EDİRNE MERKEZ • 5 GÜNLÜK");five=new LinearLayout(this);five.setOrientation(LinearLayout.VERTICAL);root.addView(five);
+  title("📍  İLÇELER");TextView hint=tv("İlçeye dokunarak 5 günlük tahmini açıp kapatabilirsiniz.",12,Color.rgb(165,190,210),false);hint.setPadding(dp(3),0,dp(3),dp(8));root.addView(hint);dist=new LinearLayout(this);dist.setOrientation(LinearLayout.VERTICAL);root.addView(dist);
+  updated=tv("",11,Color.rgb(135,160,185),false);updated.setPadding(dp(3),dp(10),dp(3),dp(4));root.addView(updated);
+  TextView ftr=tv("TAKİPTE KAL, HAVADAN HABERDAR OL!",13,Color.WHITE,true);ftr.setGravity(17);ftr.setPadding(0,dp(12),0,dp(4));root.addView(ftr);
+  LinearLayout s=new LinearLayout(this);s.setGravity(17);s.setPadding(0,dp(4),0,dp(4));
+  ImageButton fb=socialIcon(R.drawable.ic_facebook,"Facebook","https://www.facebook.com/edirnehavadurumu");s.addView(fb,new LinearLayout.LayoutParams(dp(52),dp(52)));
+  ImageButton ig=socialIcon(R.drawable.ic_instagram,"Instagram","https://www.instagram.com/edirnehavadurumu/");LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(dp(52),dp(52));ip.setMargins(dp(10),0,0,0);s.addView(ig,ip);
+  ImageButton xb=socialIcon(R.drawable.ic_x,"X","https://x.com/edirnehavadurumu");LinearLayout.LayoutParams xp=new LinearLayout.LayoutParams(dp(52),dp(52));xp.setMargins(dp(10),0,0,0);s.addView(xb,xp);
+  ImageButton yt=socialIcon(R.drawable.ic_youtube,"YouTube","https://www.youtube.com/@edirnehavadurumu");LinearLayout.LayoutParams yp=new LinearLayout.LayoutParams(dp(52),dp(52));yp.setMargins(dp(10),0,0,0);s.addView(yt,yp);root.addView(s);
+  TextView design=tv("Design by Edirnehavadurumugroup • 2026",10,Color.rgb(115,140,165),false);design.setGravity(17);design.setPadding(0,dp(3),0,dp(10));root.addView(design);
  }
  ImageButton socialIcon(int res,String desc,String url){ImageButton b=new ImageButton(this);b.setImageResource(res);b.setBackgroundColor(Color.TRANSPARENT);b.setPadding(dp(3),dp(3),dp(3),dp(3));b.setScaleType(ImageView.ScaleType.CENTER_INSIDE);b.setContentDescription(desc);b.setOnClickListener(v->open(url));return b;}
  String appVersion(){try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){return "8.0";}}
+ WebView updateWebView;
  void checkForUpdate(boolean manual){
-  ex.execute(()->{
-   try{
-    String url="https://raw.githubusercontent.com/hkndmrl22-bit/Edirnehavadurumu2/main/docs/version.json?ts="+System.currentTimeMillis();
-    String body=Jsoup.connect(url).ignoreContentType(true).timeout(15000)
-      .userAgent("EdirneHavaDurumu/10.1 Android")
-      .header("Accept","application/json")
-      .execute().body();
-    JSONObject j=new JSONObject(body);
-    android.content.pm.PackageInfo pi=getPackageManager().getPackageInfo(getPackageName(),0);
-    int localCode=pi.versionCode; String localName=pi.versionName;
-    int remoteCode=j.optInt("versionCode",localCode); String remoteName=j.optString("versionName","");
-    String notes=j.optString("notes","Yeni sürüm yayınlandı.");
-    String apk=j.optString("apkUrl","https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk");
-    main.post(()->{
-     if(remoteCode>localCode) new AlertDialog.Builder(MainActivity.this).setTitle("🎉 Yeni sürüm mevcut")
-       .setMessage("Edirne Hava Durumu uygulamasının yeni sürümü ("+remoteName+") yayınlandı.\\n\\n"+notes)
-       .setNegativeButton("Daha sonra",null)
-       .setPositiveButton("GÜNCELLE",(d,w)->open(apk)).show();
-     else if(manual) Toast.makeText(MainActivity.this,"Uygulamanız güncel. • Sürüm "+localName,Toast.LENGTH_LONG).show();
-    });
-   }catch(Exception e){
-    if(manual) main.post(()->Toast.makeText(MainActivity.this,"Güncelleme kontrolü başarısız: "+e.getMessage(),Toast.LENGTH_LONG).show());
-   }
-  });
+  try{
+   if(updateWebView!=null && updateWebView.getParent()!=null){((ViewGroup)updateWebView.getParent()).removeView(updateWebView);updateWebView.destroy();}
+   updateWebView=new WebView(this);
+   updateWebView.getSettings().setJavaScriptEnabled(true);
+   updateWebView.setAlpha(0f);
+   root.addView(updateWebView,new LinearLayout.LayoutParams(1,1));
+   updateWebView.setWebViewClient(new WebViewClient(){
+    @Override public void onPageFinished(WebView view,String url){
+     view.evaluateJavascript("(function(){return document.body?document.body.innerText:''})()",value->{
+      try{
+       String body=value;
+       if(body.startsWith("\"")&&body.endsWith("\"")) body=body.substring(1,body.length()-1).replace("\\\"","\"").replace("\\\\","\\");
+       JSONObject j=new JSONObject(body);
+       android.content.pm.PackageInfo pi=getPackageManager().getPackageInfo(getPackageName(),0);
+       int localCode=pi.versionCode; String localName=pi.versionName;
+       int remoteCode=j.optInt("versionCode",localCode); String remoteName=j.optString("versionName","");
+       String notes=j.optString("notes","Yeni sürüm yayınlandı.");
+       String apk=j.optString("apkUrl","https://edirnehavadurumu.pages.dev/EdirneHavaDurumu.apk");
+       if(remoteCode>localCode) new AlertDialog.Builder(MainActivity.this).setTitle("🎉 Yeni sürüm mevcut").setMessage("Edirne Hava Durumu uygulamasının yeni sürümü ("+remoteName+") yayınlandı.\n\n"+notes).setNegativeButton("Daha sonra",null).setPositiveButton("GÜNCELLE",(d,w)->open(apk)).show();
+       else if(manual) Toast.makeText(MainActivity.this,"Uygulamanız güncel. • Sürüm "+localName,Toast.LENGTH_LONG).show();
+      }catch(Exception e){if(manual)Toast.makeText(MainActivity.this,"Güncelleme kontrolü başarısız: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+     });
+    }
+    @Override public void onReceivedError(WebView view,int errorCode,String description,String failingUrl){if(manual)Toast.makeText(MainActivity.this,"Güncelleme kontrolü başarısız: "+description,Toast.LENGTH_LONG).show();}
+   });
+   updateWebView.loadUrl("https://edirnehavadurumu.pages.dev/version.json?ts="+System.currentTimeMillis());
+  }catch(Exception e){if(manual)Toast.makeText(this,"Güncelleme kontrolü başarısız: "+e.getMessage(),Toast.LENGTH_LONG).show();}
  }
  void load(){status.setText("Veriler güncelleniyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
    ArrayList<Loc> all=new ArrayList<>();
@@ -214,24 +172,6 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
  }
  void renderCurrent(ArrayList<Loc>a){
    current.removeAllViews();
-   if(a.size()>0){
-     Loc c=a.get(0);
-     for(int i=0;i<root.getChildCount();i++){
-       View vv=root.getChildAt(i);
-       Object tag=vv.getTag();
-       if(tag instanceof TextView[]){
-         TextView[] hv=(TextView[])tag;
-         hv[0].setText(icon(c.nowEvent,c.nowTime));
-         hv[1].setText(c.now.isEmpty()?"—":c.now);
-         hv[2].setText(c.nowEvent.isEmpty()?"—":c.nowEvent);
-         hv[3].setText("Hissedilen: "+val(c.feels,"—")+"°C");
-         hv[4].setText("💧 Nem\\n"+val(c.humidity,"—")+"%");
-         hv[5].setText("💨 Rüzgâr\\n"+val(c.wind,"—")+" km/sa");
-         hv[6].setText("📈 Basınç\\n"+val(c.pressure,"—")+" hPa");
-         break;
-       }
-     }
-   }
    for(Loc l:a){
      LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setGravity(Gravity.CENTER);card.setPadding(dp(9),dp(9),dp(9),dp(9));card.setBackground(bg(Color.rgb(15,48,79),16));
      LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(190),dp(250));p.setMargins(0,0,dp(8),0);card.setLayoutParams(p);
