@@ -50,12 +50,22 @@ jobs:
           test -s signing/release.keystore
           chmod 600 signing/release.keystore
 
+          if keytool -list -keystore signing/release.keystore -storepass "$STORE_PASSWORD" >/dev/null 2>&1; then
+            echo "SIGNING_STORE_TYPE=jks" >> "$GITHUB_ENV"
+          elif keytool -list -storetype PKCS12 -keystore signing/release.keystore -storepass "$STORE_PASSWORD" >/dev/null 2>&1; then
+            echo "SIGNING_STORE_TYPE=pkcs12" >> "$GITHUB_ENV"
+          else
+            echo "Keystore okunamıyor: JKS veya PKCS12 değil ya da base64 secret hatalı."
+            exit 1
+          fi
+
       - name: Build signed release APK
         env:
           SIGNING_KEYSTORE_PATH: ${{ github.workspace }}/signing/release.keystore
           SIGNING_STORE_PASSWORD: ${{ secrets.EDIRNE_SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.EDIRNE_SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.EDIRNE_SIGNING_KEY_PASSWORD }}
+          SIGNING_STORE_TYPE: ${{ env.SIGNING_STORE_TYPE }}
         run: gradle assembleRelease --stacktrace
 
       - name: Upload APK artifact
