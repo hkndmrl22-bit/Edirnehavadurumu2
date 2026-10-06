@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
     LinearLayout nav(){
         LinearLayout n=row();n.setGravity(Gravity.CENTER);n.setPadding(dp(6),dp(5),dp(6),dp(5));n.setBackground(bg(Color.rgb(9,34,61),0));
         String[] labels={"⌂\nAna Sayfa","▦\nİlçeler","☁\nTahmin","⚠\nUyarılar"};
-        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],11,MUTED,true);b.setGravity(Gravity.CENTER);b.setPadding(0,dp(3),0,dp(3));b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showForecast();else showWarnings();});n.addView(b,new LinearLayout.LayoutParams(0,-1,1));}
+        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],11,MUTED,true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(58));b.setPadding(0,dp(3),0,dp(3));b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showForecast();else showWarnings();});n.addView(b,new LinearLayout.LayoutParams(0,-1,1));} n.setClickable(true);n.bringToFront();
         return n;
     }
 
