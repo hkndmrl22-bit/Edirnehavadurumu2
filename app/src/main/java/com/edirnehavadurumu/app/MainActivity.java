@@ -215,6 +215,24 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
  }
  void renderCurrent(ArrayList<Loc>a){
    current.removeAllViews();
+   if(a.size()>0){
+     Loc c=a.get(0);
+     for(int i=0;i<root.getChildCount();i++){
+       View vv=root.getChildAt(i);
+       Object tag=vv.getTag();
+       if(tag instanceof TextView[]){
+         TextView[] hv=(TextView[])tag;
+         hv[0].setText(icon(c.nowEvent,c.nowTime));
+         hv[1].setText(c.now.isEmpty()?"—":c.now);
+         hv[2].setText(c.nowEvent.isEmpty()?"—":c.nowEvent);
+         hv[3].setText("Hissedilen: "+val(c.feels,"—")+"°C");
+         hv[4].setText("💧 Nem\\n"+val(c.humidity,"—")+"%");
+         hv[5].setText("💨 Rüzgâr\\n"+val(c.wind,"—")+" km/sa");
+         hv[6].setText("📈 Basınç\\n"+val(c.pressure,"—")+" hPa");
+         break;
+       }
+     }
+   }
    for(Loc l:a){
      LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setGravity(Gravity.CENTER);card.setPadding(dp(9),dp(9),dp(9),dp(9));card.setBackground(bg(Color.rgb(15,48,79),16));
      LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(190),dp(250));p.setMargins(0,0,dp(8),0);card.setLayoutParams(p);
