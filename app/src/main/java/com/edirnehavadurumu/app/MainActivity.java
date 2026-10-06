@@ -91,7 +91,6 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
   final TextView[] heroViews={heroIcon,heroTemp,heroEvent,heroFeel,m1,m2,m3};
   hero.setTag(heroViews);
  }
- }
  ImageButton socialIcon(int res,String desc,String url){ImageButton b=new ImageButton(this);b.setImageResource(res);b.setBackgroundColor(Color.TRANSPARENT);b.setPadding(dp(3),dp(3),dp(3),dp(3));b.setScaleType(ImageView.ScaleType.CENTER_INSIDE);b.setContentDescription(desc);b.setOnClickListener(v->open(url));return b;}
  String appVersion(){try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){return "8.0";}}
  void checkForUpdate(boolean manual){
