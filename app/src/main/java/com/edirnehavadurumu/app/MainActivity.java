@@ -190,4 +190,35 @@ void showDistricts(){
     static class Day{String date,e,mi,ma;Day(String d,String e,String mi,String ma){this.date=d;this.e=e;this.mi=mi;this.ma=ma;}}
     static class Hour{String time,temp,event,wind;Hour(String t,String v,String e,String w){time=t;temp=v;event=e;wind=w;}}
     static class Loc{String name,now="",nowEvent="",humidity="",pressure="",wind="",feels="",windDir="";ArrayList<Day>days=new ArrayList<>();ArrayList<Hour>hours=new ArrayList<>();Loc(String n){name=n;}}
+
+    View dayCard(Day d){
+        LinearLayout c=row();c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(12),dp(10),dp(12),dp(10));c.setBackground(bg(CARD,17));
+        LinearLayout left=col();left.addView(tv(dayLabel(d.date),14,TEXT,true));left.addView(tv(d.e,10,MUTED,false));c.addView(left,new LinearLayout.LayoutParams(0,-2,1));
+        c.addView(tv(icon(d.e),27,TEXT,false),new LinearLayout.LayoutParams(dp(45),dp(55)));
+        LinearLayout temp=col();temp.setGravity(Gravity.CENTER_VERTICAL);temp.addView(tv("↑ "+d.ma+"°",15,Color.rgb(255,145,90),true));temp.addView(tv("↓ "+d.mi+"°",15,Color.rgb(85,195,255),true));c.addView(temp);
+        return c;
+    }
+
+    View hourCard(Hour h){
+        TextView t=tv(h.time+"\n"+icon(h.event)+"\n"+h.temp+"°\n"+h.event,10,TEXT,true);t.setGravity(Gravity.CENTER);t.setPadding(dp(8),dp(8),dp(8),dp(8));t.setBackground(bg(Color.rgb(19,59,91),15));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(95),dp(125));p.setMargins(0,0,dp(8),0);t.setLayoutParams(p);return t;
+    }
+
+    void showForecast(){
+        content.removeAllViews();header("5 Günlük Tahmin",true,false);
+        if(center==null){content.addView(tv("MGM verileri yükleniyor…",14,MUTED,false));return;}
+        for(Day d:center.days)content.addView(dayCard(d),mp());
+        section(center.days.size()>1?center.days.get(1).date+"  •  DETAY":"DETAYLI TAHMİN");
+        LinearLayout detail=col();detail.setPadding(dp(14),dp(14),dp(14),dp(14));detail.setBackground(bg(CARD,20));
+        if(center.days.size()>1){Day d=center.days.get(1);detail.addView(tv(d.ma+"° / "+d.mi+"°",28,GOLD,true));detail.addView(tv(d.e,16,TEXT,true));}
+        detail.addView(tv("Yağış ihtimali  •  MGM tahmininde ayrıca yayınlandığında gösterilir",11,MUTED,false));
+        detail.addView(tv("Nem: "+val(center.humidity,"—")+"%     Rüzgâr: "+val(center.wind,"—")+" km/sa "+val(center.windDir,"")+"     Basınç: "+val(center.pressure,"—")+" hPa",11,TEXT,false));
+        content.addView(detail,mp());
+        section("SAATLİK TAHMİN");
+        HorizontalScrollView hs=new HorizontalScrollView(this);LinearLayout hr=row();
+        if(center.hours.size()==0)hr.addView(tv("Saatlik MGM tahmini şu anda alınamadı.",12,MUTED,false));
+        for(Hour h:center.hours)hr.addView(hourCard(h));
+        hs.addView(hr);content.addView(hs,mp());
+    }
+
+
 }
