@@ -67,3 +67,5 @@ jobs:
           git add docs/EdirneHavaDurumu.apk docs/version.json
           git diff --cached --quiet || git commit -m "Site surum bilgisini guncelle [skip ci]"
           git push
+
+# Trigger 10.6 APK build
