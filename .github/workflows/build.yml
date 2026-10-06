@@ -57,10 +57,17 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk docs/EdirneHavaDurumu.apk
           VERSION_NAME=$(awk -F"'" '/versionName/{print $2}' app/build.gradle)
           VERSION_CODE=$(awk '/versionCode/{print $2}' app/build.gradle)
-          printf '{"versionCode":%s,"versionName":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://raw.githubusercontent.com/hkndmrl22-bit/Edirnehavadurumu2/main/docs/EdirneHavaDurumu.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" > docs/version.json
+          printf '{"versionCode":%s,"versionName":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" > docs/version.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/EdirneHavaDurumu.apk docs/version.json
           git diff --cached --quiet || git commit -m "10.0 APK yayinla"
           git pull --rebase --autostash origin main
           git push
+
+          TAG="v${VERSION_NAME}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --clobber
+          else
+            gh release create "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --title "Edirne Hava Durumu ${VERSION_NAME}" --notes "Edirne Yerel Hava Tahmin Uygulaması - ${VERSION_NAME}"
+          fi
