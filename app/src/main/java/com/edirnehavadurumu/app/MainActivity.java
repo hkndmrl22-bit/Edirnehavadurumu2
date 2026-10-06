@@ -66,7 +66,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
        int localCode=pi.versionCode; String localName=pi.versionName;
        int remoteCode=j.optInt("versionCode",localCode); String remoteName=j.optString("versionName","");
        String notes=j.optString("notes","Yeni sürüm yayınlandı.");
-       String apk=j.optString("apkUrl","https://edirnehavadurumu.pages.dev/EdirneHavaDurumu.apk");
+       String apk=j.optString("apkUrl","https://hkndmrl22-bit.github.io/Edirnehavadurumu2/EdirneHavaDurumu.apk");
        if(remoteCode>localCode) new AlertDialog.Builder(MainActivity.this).setTitle("🎉 Yeni sürüm mevcut").setMessage("Edirne Hava Durumu uygulamasının yeni sürümü ("+remoteName+") yayınlandı.\n\n"+notes).setNegativeButton("Daha sonra",null).setPositiveButton("GÜNCELLE",(d,w)->open(apk)).show();
        else if(manual) Toast.makeText(MainActivity.this,"Uygulamanız güncel. • Sürüm "+localName,Toast.LENGTH_LONG).show();
       }catch(Exception e){if(manual)Toast.makeText(MainActivity.this,"Güncelleme kontrolü başarısız: "+e.getMessage(),Toast.LENGTH_LONG).show();}
@@ -74,7 +74,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
     }
     @Override public void onReceivedError(WebView view,int errorCode,String description,String failingUrl){if(manual)Toast.makeText(MainActivity.this,"Güncelleme kontrolü başarısız: "+description,Toast.LENGTH_LONG).show();}
    });
-   updateWebView.loadUrl("https://edirnehavadurumu.pages.dev/version.json?ts="+System.currentTimeMillis());
+   updateWebView.loadUrl("https://hkndmrl22-bit.github.io/Edirnehavadurumu2/version.json?ts="+System.currentTimeMillis());
   }catch(Exception e){if(manual)Toast.makeText(this,"Güncelleme kontrolü başarısız: "+e.getMessage(),Toast.LENGTH_LONG).show();}
  }
  void load(){status.setText("Veriler güncelleniyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
