@@ -66,7 +66,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
        int localCode=pi.versionCode; String localName=pi.versionName;
        int remoteCode=j.optInt("versionCode",localCode); String remoteName=j.optString("versionName","");
        String notes=j.optString("notes","Yeni sürüm yayınlandı.");
-       String apk=j.optString("apkUrl","https://hkndmrl22-bit.github.io/Edirnehavadurumu2/EdirneHavaDurumu.apk");
+       String apk=j.optString("apkUrl","https://raw.githubusercontent.com/hkndmrl22-bit/Edirnehavadurumu2/main/docs/EdirneHavaDurumu.apk");
        if(remoteCode>localCode) new AlertDialog.Builder(MainActivity.this).setTitle("🎉 Yeni sürüm mevcut").setMessage("Edirne Hava Durumu uygulamasının yeni sürümü ("+remoteName+") yayınlandı.\n\n"+notes).setNegativeButton("Daha sonra",null).setPositiveButton("GÜNCELLE",(d,w)->open(apk)).show();
        else if(manual) Toast.makeText(MainActivity.this,"Uygulamanız güncel. • Sürüm "+localName,Toast.LENGTH_LONG).show();
       }catch(Exception e){if(manual)Toast.makeText(MainActivity.this,"Güncelleme kontrolü başarısız: "+e.getMessage(),Toast.LENGTH_LONG).show();}
