@@ -50,7 +50,7 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
  void checkForUpdate(boolean manual){
   ex.execute(()->{
    try{
-    String url="https://hkndmrl22-bit.github.io/Edirnehavadurumu2/version.json?ts="+System.currentTimeMillis();
+    String url="https://raw.githubusercontent.com/hkndmrl22-bit/Edirnehavadurumu2/main/docs/version.json?ts="+System.currentTimeMillis();
     String body=Jsoup.connect(url).ignoreContentType(true).timeout(15000)
       .userAgent("EdirneHavaDurumu/10.1 Android")
       .header("Accept","application/json")
