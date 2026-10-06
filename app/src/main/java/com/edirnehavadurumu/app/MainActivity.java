@@ -1,6 +1,6 @@
 package com.edirnehavadurumu.app;
 
-import android.app.*;import android.os.*;import android.graphics.*;import android.webkit.*;import android.util.Base64;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import java.text.*;import org.json.*;import org.jsoup.*;
+import android.app.*;import android.os.*;import android.graphics.*;import android.webkit.*;import android.util.Base64;import android.graphics.drawable.*;import android.view.*;import android.content.*;import android.net.*;import android.widget.*;import java.util.*;import java.util.concurrent.*;import java.text.*;import java.net.*;import java.io.*;import org.json.*;import org.jsoup.*;
 
 public class MainActivity extends Activity{
  static final String API="https://servis.mgm.gov.tr/web/";
@@ -47,35 +47,31 @@ Runnable refresh5m=new Runnable(){public void run(){load();timer.postDelayed(thi
  }
  ImageButton socialIcon(int res,String desc,String url){ImageButton b=new ImageButton(this);b.setImageResource(res);b.setBackgroundColor(Color.TRANSPARENT);b.setPadding(dp(3),dp(3),dp(3),dp(3));b.setScaleType(ImageView.ScaleType.CENTER_INSIDE);b.setContentDescription(desc);b.setOnClickListener(v->open(url));return b;}
  String appVersion(){try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){return "8.0";}}
- WebView updateWebView;
  void checkForUpdate(boolean manual){
-  try{
-   if(updateWebView!=null && updateWebView.getParent()!=null){((ViewGroup)updateWebView.getParent()).removeView(updateWebView);updateWebView.destroy();}
-   updateWebView=new WebView(this);
-   updateWebView.getSettings().setJavaScriptEnabled(true);
-   updateWebView.setAlpha(0f);
-   root.addView(updateWebView,new LinearLayout.LayoutParams(1,1));
-   updateWebView.setWebViewClient(new WebViewClient(){
-    @Override public void onPageFinished(WebView view,String url){
-     view.evaluateJavascript("(function(){return document.body?document.body.innerText:''})()",value->{
-      try{
-       String body=value;
-       if(body.startsWith("\"")&&body.endsWith("\"")) body=body.substring(1,body.length()-1).replace("\\\"","\"").replace("\\\\","\\");
-       JSONObject j=new JSONObject(body);
-       android.content.pm.PackageInfo pi=getPackageManager().getPackageInfo(getPackageName(),0);
-       int localCode=pi.versionCode; String localName=pi.versionName;
-       int remoteCode=j.optInt("versionCode",localCode); String remoteName=j.optString("versionName","");
-       String notes=j.optString("notes","Yeni sürüm yayınlandı.");
-       String apk=j.optString("apkUrl","https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk");
-       if(remoteCode>localCode) new AlertDialog.Builder(MainActivity.this).setTitle("🎉 Yeni sürüm mevcut").setMessage("Edirne Hava Durumu uygulamasının yeni sürümü ("+remoteName+") yayınlandı.\n\n"+notes).setNegativeButton("Daha sonra",null).setPositiveButton("GÜNCELLE",(d,w)->open(apk)).show();
-       else if(manual) Toast.makeText(MainActivity.this,"Uygulamanız güncel. • Sürüm "+localName,Toast.LENGTH_LONG).show();
-      }catch(Exception e){if(manual)Toast.makeText(MainActivity.this,"Güncelleme kontrolü başarısız: "+e.getMessage(),Toast.LENGTH_LONG).show();}
-     });
-    }
-    @Override public void onReceivedError(WebView view,int errorCode,String description,String failingUrl){if(manual)Toast.makeText(MainActivity.this,"Güncelleme kontrolü başarısız: "+description,Toast.LENGTH_LONG).show();}
-   });
-   updateWebView.loadUrl("https://hkndmrl22-bit.github.io/Edirnehavadurumu2/version.json?ts="+System.currentTimeMillis());
-  }catch(Exception e){if(manual)Toast.makeText(this,"Güncelleme kontrolü başarısız: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+  ex.execute(()->{
+   try{
+    String url="https://hkndmrl22-bit.github.io/Edirnehavadurumu2/version.json?ts="+System.currentTimeMillis();
+    String body=Jsoup.connect(url).ignoreContentType(true).timeout(15000)
+      .userAgent("EdirneHavaDurumu/10.1 Android")
+      .header("Accept","application/json")
+      .execute().body();
+    JSONObject j=new JSONObject(body);
+    android.content.pm.PackageInfo pi=getPackageManager().getPackageInfo(getPackageName(),0);
+    int localCode=pi.versionCode; String localName=pi.versionName;
+    int remoteCode=j.optInt("versionCode",localCode); String remoteName=j.optString("versionName","");
+    String notes=j.optString("notes","Yeni sürüm yayınlandı.");
+    String apk=j.optString("apkUrl","https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk");
+    main.post(()->{
+     if(remoteCode>localCode) new AlertDialog.Builder(MainActivity.this).setTitle("🎉 Yeni sürüm mevcut")
+       .setMessage("Edirne Hava Durumu uygulamasının yeni sürümü ("+remoteName+") yayınlandı.\\n\\n"+notes)
+       .setNegativeButton("Daha sonra",null)
+       .setPositiveButton("GÜNCELLE",(d,w)->open(apk)).show();
+     else if(manual) Toast.makeText(MainActivity.this,"Uygulamanız güncel. • Sürüm "+localName,Toast.LENGTH_LONG).show();
+    });
+   }catch(Exception e){
+    if(manual) main.post(()->Toast.makeText(MainActivity.this,"Güncelleme kontrolü başarısız: "+e.getMessage(),Toast.LENGTH_LONG).show());
+   }
+  });
  }
  void load(){status.setText("Veriler güncelleniyor…");progress.setVisibility(View.VISIBLE);ex.execute(()->{try{
    ArrayList<Loc> all=new ArrayList<>();
