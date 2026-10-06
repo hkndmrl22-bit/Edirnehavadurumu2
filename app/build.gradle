@@ -12,23 +12,9 @@ android {
         versionName '10.0'
     }
 
-    signingConfigs {
-        release {
-            def signingStoreFile = System.getenv('SIGNING_KEYSTORE_PATH')
-            if (signingStoreFile != null && !signingStoreFile.isBlank()) {
-                storeFile file(signingStoreFile)
-                def signingStoreType = System.getenv('SIGNING_STORE_TYPE')
-                if (signingStoreType != null && !signingStoreType.isBlank()) storeType signingStoreType
-                storePassword System.getenv('SIGNING_STORE_PASSWORD')
-                keyAlias System.getenv('SIGNING_KEY_ALIAS')
-                keyPassword System.getenv('SIGNING_KEY_PASSWORD')
-            }
-        }
-    }
-
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
             minifyEnabled false
         }
     }
