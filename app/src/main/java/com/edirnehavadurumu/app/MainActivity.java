@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
     final int TEXT=Color.WHITE, MUTED=Color.rgb(175,198,220), GOLD=Color.rgb(255,194,55);
     ExecutorService ex=Executors.newSingleThreadExecutor();
     Handler main=new Handler(Looper.getMainLooper()), timer=new Handler(Looper.getMainLooper());
-    Runnable refresh5m=()->{load();timer.postDelayed(refresh5m,300000);};
+    Runnable refresh5m;
     LinearLayout page,content,bottomNav;
     TextView pageTitle,status;
     ArrayList<Loc> all=new ArrayList<>();
@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
     LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     LinearLayout.LayoutParams mp(){return new LinearLayout.LayoutParams(-1,-2);}
     LinearLayout.LayoutParams w(int width){return new LinearLayout.LayoutParams(dp(width),-1);}
-    @Override public void onCreate(Bundle b){super.onCreate(b);buildShell();showHome();load();timer.postDelayed(refresh5m,300000);}
+    @Override public void onCreate(Bundle b){super.onCreate(b);refresh5m=()->{load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);}
 
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
