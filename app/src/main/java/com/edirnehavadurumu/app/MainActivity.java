@@ -184,10 +184,14 @@ public class MainActivity extends Activity {
         sectionPanel("ÖNEMLİ BİLGİLER");
         HorizontalScrollView infoScroll=new HorizontalScrollView(this);infoScroll.setHorizontalScrollBarEnabled(false);
         LinearLayout info=row();
-        info.addView(infoCard("🌡","Sıcaklık","Merkez"),new LinearLayout.LayoutParams(dp(102),dp(78)));
-        info.addView(infoCard("🌿","Hava","Kalitesi"),new LinearLayout.LayoutParams(dp(102),dp(78)));
-        info.addView(infoCard("💧","Nem",center==null?"—":val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(dp(102),dp(78)));
-        info.addView(infoCard("≋","Rüzgâr",center==null?"—":val(center.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(dp(102),dp(78)));
+        LinearLayout.LayoutParams ip1=new LinearLayout.LayoutParams(dp(79),dp(78));ip1.setMargins(0,0,dp(2),0);
+        LinearLayout.LayoutParams ip2=new LinearLayout.LayoutParams(dp(79),dp(78));ip2.setMargins(0,0,dp(2),0);
+        LinearLayout.LayoutParams ip3=new LinearLayout.LayoutParams(dp(79),dp(78));ip3.setMargins(0,0,dp(2),0);
+        LinearLayout.LayoutParams ip4=new LinearLayout.LayoutParams(dp(79),dp(78));
+        info.addView(infoCard("🌡","Sıcaklık","Merkez"),ip1);
+        info.addView(infoCard("🌿","Hava","Kalitesi"),ip2);
+        info.addView(infoCard("💧","Nem",center==null?"—":val(center.humidity,"—")+"%"),ip3);
+        info.addView(infoCard("≋","Rüzgâr",center==null?"—":val(center.wind,"—")+" km/sa"),ip4);
         infoScroll.addView(info);content.addView(infoScroll,mp());
     }
 
@@ -213,7 +217,7 @@ public class MainActivity extends Activity {
     }
 
     TextView metric(String a,String b){TextView t=tv(a+"\n"+b,9,TEXT,true);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
-    TextView infoCard(String icon,String a,String b){TextView t=tv(icon+"  "+a+"\n      "+b,11,TEXT,true);t.setPadding(dp(12),dp(12),dp(12),dp(12));t.setBackground(bg(Color.rgb(12,58,94),17));return t;}
+    TextView infoCard(String icon,String a,String b){TextView t=tv(icon+"  "+a+"\n      "+b,10,TEXT,true);t.setPadding(dp(7),dp(10),dp(7),dp(10));t.setGravity(Gravity.CENTER_VERTICAL);t.setBackground(bg(Color.rgb(12,58,94),17));return t;}
     void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
 
 void showDistricts(){
@@ -347,7 +351,19 @@ void showDistricts(){
     }
     String apiGet(String u)throws Exception{return Jsoup.connect(u).ignoreContentType(true).timeout(20000).userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu").header("Accept","application/json, text/plain, */*").header("Origin","https://www.mgm.gov.tr").header("Referer","https://www.mgm.gov.tr/").execute().body();}
     String num(JSONObject j,String k){if(!j.has(k)||j.isNull(k))return "";String s=String.valueOf(j.opt(k));if(s.equals("-9999"))return "";try{double d=Double.parseDouble(s.replace(",","."));return d==Math.rint(d)?String.valueOf((int)d):String.format(Locale.US,"%.1f",d);}catch(Exception e){java.util.regex.Matcher m=java.util.regex.Pattern.compile("-?\\d+(?:[.,]\\d+)?").matcher(s);return m.find()?m.group().replace(",","."):"";}}
-    String pressure(JSONObject j){String v=num(j,"basinc");if(!v.isEmpty())return v;java.util.Iterator<String> it=j.keys();while(it.hasNext()){String k=it.next().toLowerCase(Locale.ROOT);if(k.contains("basinc")){v=num(j,k);if(!v.isEmpty())return v;}}return "";}
+    String pressure(JSONObject j){
+        String[] keys={"basinc","basincHpa","basincDegeri","istasyonBasinc","denizSeviyesiBasinc","pressure","pressureHpa"};
+        for(String key:keys){String v=num(j,key);if(!v.isEmpty())return v;}
+        java.util.Iterator<String> it=j.keys();
+        while(it.hasNext()){
+            String key=it.next();
+            String low=key.toLowerCase(Locale.ROOT);
+            if(low.contains("basinc")||low.contains("pressure")){
+                String v=num(j,key);if(!v.isEmpty())return v;
+            }
+        }
+        return "";
+    }
     String condition(String c){String[] k={"PB","GSY","HSY","SY","A","AB","CB","HY","Y","K","R","SIS","KY","KSY","YKY","KGY"};String[] v={"Parçalı Bulutlu","Gökgürültülü Sağanak Yağışlı","Hafif Sağanak Yağışlı","Sağanak Yağışlı","Açık","Az Bulutlu","Çok Bulutlu","Hafif Yağmurlu","Yağmurlu","Kar Yağışlı","Rüzgarlı","Sis","Kuvvetli Yağmurlu","Kuvvetli Sağanak Yağışlı","Yoğun Kar Yağışlı","Kuvvetli Gökgürültülü Sağanak Yağışlı"};for(int i=0;i<k.length;i++)if(k[i].equalsIgnoreCase(c))return v[i];return c;}
     String formatUtc(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat o=new SimpleDateFormat("dd.MM.yyyy HH:mm",new Locale("tr","TR"));o.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return o.format(d);}catch(Exception e){return s;}}
     String formatDay(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat o=new SimpleDateFormat("dd MMM",new Locale("tr","TR"));o.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return o.format(d);}catch(Exception e){return s;}}
