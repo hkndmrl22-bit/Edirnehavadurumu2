@@ -153,16 +153,16 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
 
         // Saatlik tahmin
-        LinearLayout hourly=col();hourly.setPadding(dp(7),dp(7),dp(7),dp(8));
+        LinearLayout hourly=col();hourly.setPadding(dp(6),dp(5),dp(6),dp(5));
         hourly.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
         sectionLabel(hourly,"SAATLİK TAHMİNLER ( EDİRNE MERKEZ )");
         LinearLayout hr=row();int hc=0;
         for(Hour h:center.hours){
-            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(92),1));
+            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(78),1));
             if(++hc>=6)break;
         }
-        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(92)));
-        LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(3),dp(8),0);content.addView(hourly,hp);
+        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(78)));
+        LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(2),dp(8),0);content.addView(hourly,hp);
 
         // 5 günlük tahmin
         sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
@@ -175,13 +175,13 @@ public class MainActivity extends Activity {
     }
 
     View hourCardFlex(Hour h){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(3),dp(6),dp(3),dp(6));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(3),dp(2),dp(3));
         c.setBackground(bg(Color.rgb(7,55,88),15));
         TextView tm=tv(h.time,9,TEXT,true);tm.setGravity(Gravity.CENTER);tm.setIncludeFontPadding(false);
-        c.addView(tm,new LinearLayout.LayoutParams(-1,dp(19)));
-        c.addView(weatherIconView(h.event,18),new LinearLayout.LayoutParams(-1,dp(34)));
+        c.addView(tm,new LinearLayout.LayoutParams(-1,dp(17)));
+        c.addView(weatherIconView(h.event,18),new LinearLayout.LayoutParams(-1,dp(28)));
         TextView te=tv(h.temp+"°",17,TEXT,true);te.setGravity(Gravity.CENTER);te.setIncludeFontPadding(false);
-        c.addView(te,new LinearLayout.LayoutParams(-1,dp(25)));
+        c.addView(te,new LinearLayout.LayoutParams(-1,dp(22)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);
         c.setLayoutParams(p);return c;
     }
@@ -206,7 +206,7 @@ public class MainActivity extends Activity {
     }
 
     void sectionLabel(LinearLayout parent,String s){
-        TextView t=tv(s,13,Color.rgb(210,229,246),true);t.setPadding(0,dp(4),0,dp(7));parent.addView(t,mp());
+        TextView t=tv(s,13,Color.rgb(210,229,246),true);t.setPadding(0,dp(3),0,dp(4));parent.addView(t,mp());
     }
 
     String trDate(){
