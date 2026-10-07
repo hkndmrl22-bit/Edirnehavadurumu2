@@ -416,6 +416,18 @@ void showDistricts(){
         };
     }
 
+    String icon(String e){
+        String x=val(e,"").toLowerCase(new Locale("tr"));
+        if(x.contains("gök")||x.contains("şimşek"))return "⛈";
+        if(x.contains("kar"))return "❄";
+        if(x.contains("yağ")||x.contains("sağanak"))return "☔";
+        if(x.contains("sis"))return "≋";
+        if(x.contains("rüz"))return "≋";
+        if(x.contains("çok bulutlu"))return "☁";
+        if(x.contains("parçalı"))return "◒";
+        if(x.contains("az bulutlu"))return "◓";
+        return "☀";
+    }
     void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception ignored){}}
     void loadHeroPhoto(ImageView target){
         ex.execute(()->{
