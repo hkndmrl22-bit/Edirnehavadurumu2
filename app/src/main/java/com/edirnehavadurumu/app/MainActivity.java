@@ -164,14 +164,18 @@ public class MainActivity extends Activity {
         hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(82)));
         LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(2),dp(8),0);content.addView(hourly,hp);
 
-        // 5 günlük tahmin
-        sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
+        // 5 günlük tahmin — kompakt master panel
+        LinearLayout forecast5=col();
+        forecast5.setPadding(dp(6),dp(5),dp(6),dp(6));
+        forecast5.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
+        sectionLabel(forecast5,"5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(152),1));
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(126),1));
             if(++n>=5)break;
         }
-        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),0,dp(8),dp(18));content.addView(days,dp5);
+        forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(126)));
+        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(2),dp(8),dp(12));content.addView(forecast5,dp5);
     }
 
     View hourCardFlex(Hour h){
@@ -187,20 +191,20 @@ public class MainActivity extends Activity {
     }
 
     View dayCardFlex(Day d){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(3),dp(2),dp(3));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER_HORIZONTAL);c.setPadding(dp(2),dp(2),dp(2),dp(2));
         c.setBackground(stroke(Color.rgb(7,58,94),Color.rgb(24,111,171),13));
         TextView dl=tv(dayLabel(d.date),9,TEXT,true);dl.setGravity(Gravity.CENTER);dl.setIncludeFontPadding(false);
         c.addView(dl,new LinearLayout.LayoutParams(-1,dp(15)));
         TextView wd=tv(weekday(d.date),8,MUTED,false);wd.setGravity(Gravity.CENTER);wd.setIncludeFontPadding(false);
-        c.addView(wd,new LinearLayout.LayoutParams(-1,dp(14)));
-        c.addView(weatherIconView(d.e,23),new LinearLayout.LayoutParams(-1,dp(32)));
-        TextView ev=tv(d.e,7,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(3);
-        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(42)));
+        c.addView(wd,new LinearLayout.LayoutParams(-1,dp(13)));
+        c.addView(weatherIconView(d.e,21),new LinearLayout.LayoutParams(-1,dp(28)));
+        TextView ev=tv(d.e,7,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(2);
+        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(30)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
-        TextView hi=tv(d.ma+"°",13,Color.rgb(255,45,45),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);
-        TextView lo=tv(d.mi+"°",13,Color.rgb(45,150,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);
-        temps.addView(hi,new LinearLayout.LayoutParams(0,dp(22),1));
-        temps.addView(lo,new LinearLayout.LayoutParams(0,dp(22),1));
+        TextView hi=tv(d.ma+"°",12,Color.rgb(255,45,45),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);
+        TextView lo=tv(d.mi+"°",12,Color.rgb(45,150,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);
+        temps.addView(hi,new LinearLayout.LayoutParams(0,dp(20),1));
+        temps.addView(lo,new LinearLayout.LayoutParams(0,dp(20),1));
         c.addView(temps);
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);c.setLayoutParams(p);return c;
     }
