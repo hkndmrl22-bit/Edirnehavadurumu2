@@ -175,7 +175,7 @@ public class MainActivity extends Activity {
             if(++n>=5)break;
         }
         forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(126)));
-        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(2),dp(8),dp(12));content.addView(forecast5,dp5);
+        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(52),dp(8),dp(0));content.addView(forecast5,dp5);
     }
 
     View hourCardFlex(Hour h){
