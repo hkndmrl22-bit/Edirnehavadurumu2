@@ -70,4 +70,4 @@ jobs:
           git diff --cached --quiet || git commit -m "Site surum bilgisini guncelle [skip ci]"
           git push
 
-# Trigger 10.6 APK build
+# Trigger 10.57 APK build
