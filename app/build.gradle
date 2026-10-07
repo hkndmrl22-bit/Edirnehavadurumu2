@@ -8,8 +8,8 @@ android {
         applicationId 'com.edirnehavadurumu.app'
         minSdk 23
         targetSdk 35
-        versionCode 57
-        versionName '10.47'
+        versionCode 58
+        versionName '10.48'
     }
 
     signingConfigs {
