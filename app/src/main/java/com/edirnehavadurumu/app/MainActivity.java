@@ -17,6 +17,7 @@ import org.jsoup.*;
 
 public class MainActivity extends Activity {
     static final String API="https://servis.mgm.gov.tr/web/";
+    static final String HERO_URL="";
         final int NAVY=Color.rgb(7,25,48), CARD=Color.rgb(15,48,79), BLUE=Color.rgb(34,112,170);
     final int TEXT=Color.WHITE, MUTED=Color.rgb(175,198,220), GOLD=Color.rgb(255,194,55);
     ExecutorService ex=Executors.newSingleThreadExecutor();
