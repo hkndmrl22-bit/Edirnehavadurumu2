@@ -17,6 +17,7 @@ import org.jsoup.*;
 
 public class MainActivity extends Activity {
     static final String API="https://servis.mgm.gov.tr/web/";
+    static final String HERO_URL="https://images.pexels.com/photos/9013874/pexels-photo-9013874.jpeg?auto=compress&cs=tinysrgb&w=1600";
     final int NAVY=Color.rgb(7,25,48), CARD=Color.rgb(15,48,79), BLUE=Color.rgb(34,112,170);
     final int TEXT=Color.WHITE, MUTED=Color.rgb(175,198,220), GOLD=Color.rgb(255,194,55);
     ExecutorService ex=Executors.newSingleThreadExecutor();
@@ -84,14 +85,23 @@ public class MainActivity extends Activity {
         FrameLayout hero=new FrameLayout(this);
         GradientDrawable hb=bg(Color.rgb(8,38,68),24);hero.setBackground(hb);hero.setClipToOutline(true);
         ImageView photo=new ImageView(this);photo.setImageResource(R.drawable.edirne_hero);photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(214)));
+        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(230)));
+        loadHeroPhoto(photo);
 
         LinearLayout overlay=col();overlay.setPadding(dp(14),dp(12),dp(14),dp(10));
         GradientDrawable ov=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 new int[]{Color.argb(15,0,0,0),Color.argb(145,5,25,48)});
         overlay.setBackground(ov);
-        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(214),Gravity.BOTTOM);
+        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(230),Gravity.BOTTOM);
         hero.addView(overlay,op);
+
+        TextView updateBadge=tv("⟳  Son Güncelleme\n    "+currentTime(),10,TEXT,true);
+        updateBadge.setGravity(Gravity.CENTER);
+        updateBadge.setPadding(dp(8),dp(5),dp(8),dp(5));
+        updateBadge.setBackground(bg(Color.argb(190,8,38,68),15));
+        FrameLayout.LayoutParams ubp=new FrameLayout.LayoutParams(dp(148),dp(54),Gravity.TOP|Gravity.RIGHT);
+        ubp.setMargins(0,dp(10),dp(10),0);
+        hero.addView(updateBadge,ubp);
 
         LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);
         ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_real);logo.setScaleType(ImageView.ScaleType.CENTER_CROP);logo.setBackground(bg(Color.WHITE,50));logo.setClipToOutline(true);logo.setOutlineProvider(new ViewOutlineProvider(){@Override public void getOutline(View v,Outline o){o.setOval(0,0,v.getWidth(),v.getHeight());}});
@@ -104,7 +114,7 @@ public class MainActivity extends Activity {
         overlay.addView(top);
         TextView landmarks=tv("☀  Selimiye Camii • Meriç Köprüsü",11,Color.rgb(255,210,90),true);
         landmarks.setPadding(dp(4),dp(3),0,dp(1));overlay.addView(landmarks);
-        overlay.addView(tv(trDate()+"  •  "+new SimpleDateFormat("HH:mm",new Locale("tr","TR")).format(new Date()),11,MUTED,false));
+        overlay.addView(tv(trDate()+"  •  "+new SimpleDateFormat("HH:mm",new Locale("tr","TR")).format(new Date()),10,MUTED,false));
         content.addView(hero,mp());
 
         LinearLayout weather=col();weather.setPadding(dp(14),dp(13),dp(14),dp(13));
@@ -373,6 +383,26 @@ void showDistricts(){
     String val(String x,String d){return x==null||x.isEmpty()?d:x;}
     String icon(String e){String x=val(e,"").toLowerCase(new Locale("tr"));if(x.contains("gök")||x.contains("şimşek"))return "⛈️";if(x.contains("kar"))return "🌨️";if(x.contains("yağ")||x.contains("sağanak"))return "🌧️";if(x.contains("sis"))return "🌫️";if(x.contains("rüz"))return "🌬️";if(x.contains("çok bulutlu"))return "☁️";if(x.contains("parçalı"))return "⛅";if(x.contains("az bulutlu"))return "🌤️";return "☀️";}
     void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception ignored){}}
+    void loadHeroPhoto(ImageView target){
+        ex.execute(()->{
+            try{
+                java.io.File cache=new java.io.File(getCacheDir(),"edirne_hero_high.jpg");
+                if(!cache.exists()){
+                    java.net.URL u=new java.net.URL(HERO_URL);
+                    java.net.HttpURLConnection c=(java.net.HttpURLConnection)u.openConnection();
+                    c.setConnectTimeout(15000);c.setReadTimeout(20000);c.setUseCaches(true);
+                    java.io.InputStream in=c.getInputStream();
+                    java.io.FileOutputStream out=new java.io.FileOutputStream(cache);
+                    byte[] buf=new byte[8192];int n;
+                    while((n=in.read(buf))!=-1)out.write(buf,0,n);
+                    out.close();in.close();c.disconnect();
+                }
+                final android.graphics.Bitmap b=android.graphics.BitmapFactory.decodeFile(cache.getAbsolutePath());
+                if(b!=null)main.post(()->target.setImageBitmap(b));
+            }catch(Exception ignored){}
+        });
+    }
+
     String appVersion(){try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){return "10.9";}}
     @Override protected void onDestroy(){timer.removeCallbacks(refresh5m);ex.shutdownNow();super.onDestroy();}
     static class Day{String date,e,mi,ma;Day(String d,String e,String mi,String ma){this.date=d;this.e=e;this.mi=mi;this.ma=ma;}}
@@ -389,11 +419,11 @@ void showDistricts(){
 
     View hourCard(Hour h){
         LinearLayout c=col(); c.setGravity(Gravity.CENTER); c.setPadding(dp(8),dp(10),dp(8),dp(10)); c.setBackground(bg(Color.rgb(19,59,91),18));
-        c.addView(tv(h.time,17,TEXT,true),new LinearLayout.LayoutParams(-1,dp(28)));
-        TextView wi=tv(icon(h.event),34,TEXT,false);wi.setGravity(Gravity.CENTER);c.addView(wi,new LinearLayout.LayoutParams(-1,dp(50)));
-        TextView temp=tv(h.temp+"°",25,TEXT,true);temp.setGravity(Gravity.CENTER);c.addView(temp,new LinearLayout.LayoutParams(-1,dp(34)));
-        TextView ev=tv(h.event,14,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(38)));
-        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(118),dp(170));p.setMargins(0,0,dp(9),0);c.setLayoutParams(p);return c;
+        c.addView(tv(h.time,10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(22)));
+        TextView wi=tv(icon(h.event),23,TEXT,false);wi.setGravity(Gravity.CENTER);c.addView(wi,new LinearLayout.LayoutParams(-1,dp(38)));
+        TextView temp=tv(h.temp+"°",16,TEXT,true);temp.setGravity(Gravity.CENTER);c.addView(temp,new LinearLayout.LayoutParams(-1,dp(25)));
+        TextView ev=tv(h.event,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(27)));
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(57),dp(136));p.setMargins(0,0,dp(9),0);c.setLayoutParams(p);return c;
     }
     void showForecast(){
         content.removeAllViews();header("5 Günlük Tahmin",true,false);
