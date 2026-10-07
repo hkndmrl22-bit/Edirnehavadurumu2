@@ -62,7 +62,8 @@ jobs:
           VERSION_NAME=$(awk -F"'" '/versionName/{print $2}' app/build.gradle)
           VERSION_CODE=$(awk '/versionCode/{print $2}' app/build.gradle)
           cp app/build/outputs/apk/release/app-release.apk docs/EdirneHavaDurumu.apk
-          printf '{"versionCode":%s,"versionName":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" > docs/version.json
+          UPLOAD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          printf '{"versionCode":%s,"versionName":"%s","uploadDate":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" "$UPLOAD_DATE" > docs/version.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/EdirneHavaDurumu.apk docs/version.json
