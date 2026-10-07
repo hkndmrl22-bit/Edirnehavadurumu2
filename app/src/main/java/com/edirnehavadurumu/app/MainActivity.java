@@ -175,13 +175,13 @@ public class MainActivity extends Activity {
     }
 
     View hourCardFlex(Hour h){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(3),dp(2),dp(3));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(1),dp(2),dp(2));
         c.setBackground(bg(Color.rgb(7,55,88),15));
         TextView tm=tv(h.time,9,TEXT,true);tm.setGravity(Gravity.CENTER);tm.setIncludeFontPadding(false);
         c.addView(tm,new LinearLayout.LayoutParams(-1,dp(17)));
-        c.addView(weatherIconView(h.event,18),new LinearLayout.LayoutParams(-1,dp(28)));
+        c.addView(weatherIconView(h.event,18),new LinearLayout.LayoutParams(-1,dp(24)));
         TextView te=tv(h.temp+"°",17,TEXT,true);te.setGravity(Gravity.CENTER);te.setIncludeFontPadding(false);
-        c.addView(te,new LinearLayout.LayoutParams(-1,dp(22)));
+        c.addView(te,new LinearLayout.LayoutParams(-1,dp(20)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);
         c.setLayoutParams(p);return c;
     }
