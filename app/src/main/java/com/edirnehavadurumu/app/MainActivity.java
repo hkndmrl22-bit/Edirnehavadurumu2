@@ -121,35 +121,35 @@ public class MainActivity extends Activity {
         LinearLayout main=row();main.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout cur=col();cur.setGravity(Gravity.CENTER);
         LinearLayout cr=row();cr.setGravity(Gravity.CENTER);
-        cr.addView(tv(icon(center.nowEvent),40,TEXT,false),new LinearLayout.LayoutParams(dp(48),dp(48)));
-        TextView bt=tv(tempC(center.now,"—"),27,GOLD,true);bt.setSingleLine(true);bt.setIncludeFontPadding(false);
-        cr.addView(bt,new LinearLayout.LayoutParams(dp(100),dp(48)));
+        cr.addView(tv(icon(center.nowEvent),50,TEXT,false),new LinearLayout.LayoutParams(dp(58),dp(58)));
+        TextView bt=tv(tempC(center.now,"—"),34,GOLD,true);bt.setSingleLine(true);bt.setIncludeFontPadding(false);
+        cr.addView(bt,new LinearLayout.LayoutParams(dp(120),dp(58)));
         cur.addView(cr);cur.addView(tv(val(center.nowEvent,"—"),13,TEXT,true));
-        main.addView(cur,new LinearLayout.LayoutParams(0,dp(86),0.52f));
+        main.addView(cur,new LinearLayout.LayoutParams(0,dp(78),0.52f));
 
         LinearLayout met=col();
-        LinearLayout r1=row();r1.addView(metric("♨ Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(44),1));r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(44),1));met.addView(r1);
-        LinearLayout r2=row();r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(44),1));r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(44),1));met.addView(r2);
-        main.addView(met,new LinearLayout.LayoutParams(0,dp(86),0.48f));weather.addView(main);
+        LinearLayout r1=row();r1.addView(metric("♨ Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(34),1));r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(34),1));met.addView(r1);
+        LinearLayout r2=row();r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(34),1));r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(34),1));met.addView(r2);
+        main.addView(met,new LinearLayout.LayoutParams(0,dp(70),0.48f));weather.addView(main);
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(15),dp(7),dp(15),0);content.addView(weather,wp);
 
         // Saatlik: 6 kartı zorunlu olarak aynı satıra sığdır.
-        LinearLayout hourly=col();hourly.setPadding(dp(10),dp(7),dp(10),dp(8));
+        LinearLayout hourly=col();hourly.setPadding(dp(8),dp(3),dp(8),dp(5));
         hourly.setBackground(stroke(Color.rgb(0,55,96),Color.rgb(32,105,160),20));
         sectionLabel(hourly,"SAATLİK TAHMİNLERE ( EDİRNE MERKEZ )");
         LinearLayout hr=row();int hc=0;
         for(Hour h:center.hours){
-            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(70),1));
+            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(48),1));
             if(++hc>=6)break;
         }
-        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(70)));
+        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(48)));
         LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(15),dp(7),dp(15),0);content.addView(hourly,hp);
 
         // 5 günlük: 5 kart aynı satırda.
         sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(115),1));
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(105),1));
             if(++n>=5)break;
         }
         LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(15),0,dp(15),0);content.addView(days,dp5);
@@ -158,26 +158,26 @@ public class MainActivity extends Activity {
     View hourCardFlex(Hour h){
         LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(2),dp(2),dp(2));
         c.setBackground(bg(Color.rgb(7,43,76),15));
-        c.addView(tv(h.time,8,TEXT,true),new LinearLayout.LayoutParams(-1,dp(18)));
-        TextView ic=tv(icon(h.event),24,TEXT,false);ic.setGravity(Gravity.CENTER);c.addView(ic,new LinearLayout.LayoutParams(-1,dp(22)));
-        TextView te=tv(h.temp+"°",15,TEXT,true);te.setGravity(Gravity.CENTER);c.addView(te,new LinearLayout.LayoutParams(-1,dp(20)));
-        TextView ev=tv(h.event,7,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(22)));
+        c.addView(tv(h.time,8,TEXT,true),new LinearLayout.LayoutParams(-1,dp(14)));
+        TextView ic=tv(icon(h.event),22,TEXT,false);ic.setGravity(Gravity.CENTER);c.addView(ic,new LinearLayout.LayoutParams(-1,dp(18)));
+        TextView te=tv(h.temp+"°",15,TEXT,true);te.setGravity(Gravity.CENTER);c.addView(te,new LinearLayout.LayoutParams(-1,dp(18)));
+        TextView ev=tv(h.event,7,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(16)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);c.setLayoutParams(p);return c;
     }
 
     View dayCardFlex(Day d){
         LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(5),dp(2),dp(4));
         c.setBackground(stroke(Color.rgb(8,54,90),Color.rgb(29,103,158),14));
-        c.addView(tv(dayLabel(d.date),10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(18)));
-        c.addView(tv(weekday(d.date),8,MUTED,false),new LinearLayout.LayoutParams(-1,dp(16)));
-        TextView ic=tv(icon(d.e),28,TEXT,false);ic.setGravity(Gravity.CENTER);c.addView(ic,new LinearLayout.LayoutParams(-1,dp(28)));
-        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(22)));
-        c.addView(tv(d.ma+"°  "+d.mi+"°",10,GOLD,true),new LinearLayout.LayoutParams(-1,dp(18)));
+        c.addView(tv(dayLabel(d.date),10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(16)));
+        c.addView(tv(weekday(d.date),8,MUTED,false),new LinearLayout.LayoutParams(-1,dp(14)));
+        TextView ic=tv(icon(d.e),26,TEXT,false);ic.setGravity(Gravity.CENTER);c.addView(ic,new LinearLayout.LayoutParams(-1,dp(25)));
+        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(20)));
+        c.addView(tv(d.ma+"°  "+d.mi+"°",10,GOLD,true),new LinearLayout.LayoutParams(-1,dp(16)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);c.setLayoutParams(p);return c;
     }
 
     void sectionLabel(LinearLayout parent,String s){
-        TextView t=tv(s,15,Color.rgb(210,229,246),true);t.setPadding(0,dp(12),0,dp(7));parent.addView(t,mp());
+        TextView t=tv(s,13,Color.rgb(210,229,246),true);t.setPadding(0,dp(5),0,dp(3));parent.addView(t,mp());
     }
 
     String trDate(){
