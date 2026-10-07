@@ -28,10 +28,11 @@ jobs:
         run: |
           mkdir -p "$HOME/.android"
           keytool -genkeypair -v \
+            -storetype JKS \
             -keystore "$HOME/.android/debug.keystore" \
             -storepass android \
             -alias androiddebugkey \
-            -keypass androiddebugkey \
+            -keypass android \
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
