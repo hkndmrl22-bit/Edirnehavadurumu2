@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
         if(center==null){weather.addView(tv("Veriler yükleniyor…",17,MUTED,true));}
         else{
             LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);
-            LinearLayout left=col();left.addView(tv("⌖  Edirne Merkez",18,TEXT,true));left.addView(tv(new SimpleDateFormat("d MMM yyyy EEE HH:mm",new Locale("tr","TR")).format(new Date()),12,MUTED,false));left.addView(tv("Son güncelleme: "+currentTime()+",11,MUTED,false));top.addView(left,new LinearLayout.LayoutParams(0,-2,1));
+            LinearLayout left=col();left.addView(tv("⌖  Edirne Merkez",18,TEXT,true));left.addView(tv(new SimpleDateFormat("d MMM yyyy EEE HH:mm",new Locale("tr","TR")).format(new Date()),12,MUTED,false));left.addView(tv("Son güncelleme: "+currentTime(),11,MUTED,false));top.addView(left,new LinearLayout.LayoutParams(0,-2,1));
             LinearLayout right=col();right.setGravity(Gravity.CENTER);right.addView(tv(icon(center.nowEvent),48,TEXT,false));right.addView(tv(val(center.now,"—"),38,Color.WHITE,true));right.addView(tv(val(center.nowEvent,"—"),14,TEXT,true));right.addView(tv("Hissedilen: "+val(center.feels,"—")+"°C",11,MUTED,false));top.addView(right,new LinearLayout.LayoutParams(dp(125),-2));weather.addView(top);
             LinearLayout metrics=row();metrics.setPadding(0,dp(12),0,0);metrics.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,-2,1));metrics.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,-2,1));metrics.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,-2,1));weather.addView(metrics);
         }
