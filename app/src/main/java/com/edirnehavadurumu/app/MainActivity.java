@@ -39,17 +39,17 @@ public class MainActivity extends Activity {
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);
-        content=col();content.setPadding(dp(16),dp(10),dp(16),dp(24));scroll.addView(content);
+        content=col();content.setPadding(dp(16),dp(10),dp(16),dp(28));scroll.addView(content);
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
-        page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(68)));
+        page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(92)));
         setContentView(page);
     }
 
     LinearLayout nav(){
-        LinearLayout n=row();n.setGravity(Gravity.CENTER);n.setPadding(dp(8),dp(8),dp(8),dp(8));n.setBackground(bg(Color.rgb(8,38,68),0));
+        LinearLayout n=row();n.setGravity(Gravity.CENTER);n.setPadding(dp(8),dp(7),dp(8),dp(7));n.setBackground(bg(Color.rgb(8,38,68),0));
         String[] labels={"⌂\nAna Sayfa","●\nİlçeler","▥\nTahmin","⚠\nUyarılar"};
-        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],14,k==0?Color.WHITE:Color.rgb(190,215,238),true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(74));b.setPadding(0,dp(7),0,dp(5));if(k==0)b.setBackground(bg(Color.rgb(18,122,235),18));b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showForecast();else showWarnings();});LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(76),1);p.setMargins(dp(3),0,dp(3),0);n.addView(b,p);} n.setClickable(true);n.bringToFront();
+        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],15,k==0?Color.WHITE:Color.rgb(210,228,245),true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(84));b.setPadding(0,dp(6),0,dp(6));if(k==0)b.setBackground(bg(Color.rgb(18,122,235),18));b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showForecast();else showWarnings();});LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(84),1);p.setMargins(dp(3),0,dp(3),0);n.addView(b,p);} n.setClickable(true);n.bringToFront();
         return n;
     }
 
@@ -78,10 +78,10 @@ public class MainActivity extends Activity {
     void showHome(){
         content.removeAllViews();header("EDİRNE",false,true);content.addView(logoHero(),mp());
         LinearLayout weather=col();weather.setPadding(dp(18),dp(14),dp(18),dp(16));weather.setBackground(bg(Color.rgb(8,56,91),22));
-        if(center==null){weather.addView(tv("MGM verileri yükleniyor…",17,MUTED,true));}
+        if(center==null){weather.addView(tv("Veriler yükleniyor…",17,MUTED,true));}
         else{
             LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);
-            LinearLayout left=col();left.addView(tv("⌖  Edirne Merkez",18,TEXT,true));left.addView(tv(new SimpleDateFormat("d MMM yyyy EEE HH:mm",new Locale("tr","TR")).format(new Date()),12,MUTED,false));left.addView(tv("Son güncelleme: "+currentTime()+"  (MGM)",11,MUTED,false));top.addView(left,new LinearLayout.LayoutParams(0,-2,1));
+            LinearLayout left=col();left.addView(tv("⌖  Edirne Merkez",18,TEXT,true));left.addView(tv(new SimpleDateFormat("d MMM yyyy EEE HH:mm",new Locale("tr","TR")).format(new Date()),12,MUTED,false));left.addView(tv("Son güncelleme: "+currentTime()",11,MUTED,false));top.addView(left,new LinearLayout.LayoutParams(0,-2,1));
             LinearLayout right=col();right.setGravity(Gravity.CENTER);right.addView(tv(icon(center.nowEvent),48,TEXT,false));right.addView(tv(val(center.now,"—"),38,Color.WHITE,true));right.addView(tv(val(center.nowEvent,"—"),14,TEXT,true));right.addView(tv("Hissedilen: "+val(center.feels,"—")+"°C",11,MUTED,false));top.addView(right,new LinearLayout.LayoutParams(dp(125),-2));weather.addView(top);
             LinearLayout metrics=row();metrics.setPadding(0,dp(12),0,0);metrics.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,-2,1));metrics.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,-2,1));metrics.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,-2,1));weather.addView(metrics);
         }
@@ -90,12 +90,10 @@ public class MainActivity extends Activity {
         LinearLayout sun=row();sun.addView(infoCard("☀","Gün doğumu","07:08"),new LinearLayout.LayoutParams(0,-2,1));sun.addView(infoCard("◐","Gün batımı","18:54"),new LinearLayout.LayoutParams(0,-2,1));content.addView(sun,mp());
         section("SAATLİK TAHMİN");
         HorizontalScrollView hs=new HorizontalScrollView(this);LinearLayout hr=row();
-        if(center==null||center.hours.size()==0)hr.addView(tv("Saatlik MGM tahmini yükleniyor…",12,MUTED,false));else for(Hour h:center.hours)hr.addView(hourCard(h));
+        if(center==null||center.hours.size()==0)hr.addView(tv("Saatlik tahmin yükleniyor…",12,MUTED,false));else for(Hour h:center.hours)hr.addView(hourCard(h));
         hs.addView(hr);content.addView(hs,mp());
         section("5 GÜNLÜK HAVA TAHMİNİ");
         if(center!=null&&!center.days.isEmpty()){LinearLayout days=row();HorizontalScrollView ds=new HorizontalScrollView(this);for(Day d:center.days){TextView card=tv(dayLabel(d.date)+"\n"+icon(d.e)+"\n"+d.ma+"°  "+d.mi+"°\n"+d.e,11,TEXT,true);card.setGravity(Gravity.CENTER);card.setPadding(dp(10),dp(10),dp(10),dp(10));card.setBackground(bg(Color.rgb(7,48,82),17));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(112),dp(150));p.setMargins(0,0,dp(8),0);days.addView(card,p);}ds.addView(days);content.addView(ds,mp());}
-        section("MGM VERİ KAYNAĞI");
-        TextView src=tv("Meteoroloji Genel Müdürlüğü (MGM)\nVeriler MGM kaynağından alınır. Uygulama 5 dakikada bir yeniler.",12,TEXT,false);src.setPadding(dp(16),dp(14),dp(16),dp(14));src.setBackground(bg(Color.rgb(8,49,82),18));content.addView(src,mp());
     }
 
     TextView metric(String a,String b){TextView t=tv(a+"\n"+b,10,TEXT,true);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
@@ -104,7 +102,6 @@ public class MainActivity extends Activity {
 
 void showDistricts(){
         content.removeAllViews();header("Edirne İlçeleri",false,false);
-        TextView map=tv("🗺️\n\n   Lalapaşa     Süloğlu\n\nEdirne Merkez   Havsa\n\nMeriç       Uzunköprü\n\nİpsala       Keşan       Enez",13,TEXT,true);map.setGravity(Gravity.CENTER);map.setPadding(dp(14),dp(18),dp(14),dp(18));map.setBackground(bg(CARD,22));content.addView(map,mp());
         section("İLÇE HAVA DURUMU");
         for(int i=1;i<all.size();i++)districtCard(all.get(i));
     }
@@ -129,17 +126,17 @@ void showDistricts(){
     void showWarnings(){
         content.removeAllViews();header("Meteorolojik Uyarılar",true,false);
         LinearLayout card=col();card.setPadding(dp(15),dp(15),dp(15),dp(15));card.setBackground(stroke(Color.rgb(72,57,15),Color.rgb(255,193,7),20));
-        card.addView(tv("METEOROLOJİK UYARI",12,Color.rgb(255,205,65),true));card.addView(tv("SARI KODLU UYARI",20,TEXT,true));card.addView(tv("MGM tarafından yayınlanan güncel uyarılar bu alanda gösterilecektir.",12,MUTED,false));card.addView(tv("Kaynak: Meteoroloji Genel Müdürlüğü (MGM)",10,MUTED,false));content.addView(card,mp());
-        TextView note=tv("⚠  Bu deneme sürümünde uyarı ekranının tasarımı hazırlandı. Canlı MGM uyarı servisi bağlandığında aktif uyarılar burada otomatik listelenecek.",12,TEXT,false);note.setPadding(dp(14),dp(14),dp(14),dp(14));note.setBackground(bg(CARD,18));LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(12),0,0);content.addView(note,p);
+        card.addView(tv("METEOROLOJİK UYARI",12,Color.rgb(255,205,65),true));card.addView(tv("SARI KODLU UYARI",20,TEXT,true));card.addView(tv("Güncel meteorolojik uyarılar bu alanda gösterilecektir.",12,MUTED,false));card.addView(tv("Güncel uyarılar burada yayınlanır.",10,MUTED,false));content.addView(card,mp());
+        TextView note=tv("⚠  Bu deneme sürümünde uyarı ekranının tasarımı hazırlandı. Aktif uyarılar aktif uyarılar burada otomatik listelenecek.",12,TEXT,false);note.setPadding(dp(14),dp(14),dp(14),dp(14));note.setBackground(bg(CARD,18));LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(12),0,0);content.addView(note,p);
     }
 
     void showSettings(){
         content.removeAllViews();header("Ayarlar",true,false);
         section("UYGULAMA TEMASI");content.addView(setting("◐","Açık / Koyu / Sistem","Koyu tema (deneme)"),mp());
         section("TERCİHLER");content.addView(toggleSetting("Bildirimler",true));content.addView(toggleSetting("Konum",false));content.addView(toggleSetting("Anlık Güncelleme",true));
-        section("HAKKINDA");content.addView(setting("ⓘ","Hakkında","Edirne Yerel Hava Tahmin Uygulaması"),mp());content.addView(setting("🔒","Gizlilik Politikası","MGM verileri • Yerel uygulama"),mp());
+        section("HAKKINDA");content.addView(setting("ⓘ","Hakkında","Edirne Yerel Hava Tahmin Uygulaması"),mp());content.addView(setting("🔒","Gizlilik Politikası","Yerel uygulama"),mp());
         section("BİZİ TAKİP EDİN");LinearLayout socials=row();addSocial(socials,R.drawable.ic_facebook,"https://www.facebook.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_instagram,"https://www.instagram.com/edirnehavadurumu/");addSocial(socials,R.drawable.ic_x,"https://x.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_youtube,"https://www.youtube.com/@edirnehavadurumu");content.addView(socials,mp());
-        TextView foot=tv("Edirne Yerel Hava Tahmin Uygulaması\nVeriler: Meteoroloji Genel Müdürlüğü (MGM)\nSürüm "+appVersion(),11,MUTED,false);foot.setGravity(Gravity.CENTER);foot.setPadding(0,dp(25),0,dp(15));content.addView(foot,mp());
+        TextView foot=tv("Edirne Yerel Hava Tahmin Uygulaması\nSürüm "+appVersion(),11,MUTED,false);foot.setGravity(Gravity.CENTER);foot.setPadding(0,dp(25),0,dp(15));content.addView(foot,mp());
     }
 
     TextView setting(String i,String a,String b){TextView t=tv(i+"   "+a+"\n        "+b,13,TEXT,true);t.setPadding(dp(13),dp(12),dp(13),dp(12));t.setBackground(bg(CARD,16));return t;}
@@ -147,17 +144,17 @@ void showDistricts(){
     void addSocial(LinearLayout p,int res,String url){ImageButton b=new ImageButton(this);b.setImageResource(res);b.setBackgroundColor(Color.TRANSPARENT);b.setOnClickListener(v->open(url));p.addView(b,new LinearLayout.LayoutParams(0,dp(55),1));}
 
     void load(){
-        if(status!=null)status.setText("MGM verileri güncelleniyor…");
+        if(status!=null)status.setText("Veriler güncelleniyor…");
         ex.execute(()->{
             try{
                 final Loc cen=apiLocation("Edirne Merkez","merkez");
-                main.post(()->{center=cen;all=new ArrayList<>();all.add(cen);if(status!=null)status.setText("MGM verileri güncellendi.");showHome();});
+                main.post(()->{center=cen;all=new ArrayList<>();all.add(cen);if(status!=null)status.setText("Veriler güncellendi.");showHome();});
                 String[] D={"Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
                 String[] Q={"ENEZ","HAVSA","IPSALA","KESAN","LALAPASA","MERIC","SULOGLU","UZUNKOPRU"};
                 ArrayList<Loc> tmp=new ArrayList<>();tmp.add(cen);
                 for(int i=0;i<D.length;i++){try{tmp.add(apiLocation(D[i],Q[i].toLowerCase(Locale.ROOT)));}catch(Exception ignored){}}
                 main.post(()->{all=tmp;if(center==null)center=tmp.get(0);});
-            }catch(Exception e){main.post(()->{if(status!=null)status.setText("MGM verisi alınamadı.");showHome();});}
+            }catch(Exception e){main.post(()->{if(status!=null)status.setText("Veriler alınamadı.");showHome();});}
         });
     }
 
@@ -200,22 +197,22 @@ void showDistricts(){
     }
 
     View hourCard(Hour h){
-        TextView t=tv(h.time+"\n"+icon(h.event)+"\n"+h.temp+"°\n"+h.event,10,TEXT,true);t.setGravity(Gravity.CENTER);t.setPadding(dp(8),dp(8),dp(8),dp(8));t.setBackground(bg(Color.rgb(19,59,91),15));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(95),dp(125));p.setMargins(0,0,dp(8),0);t.setLayoutParams(p);return t;
+        TextView t=tv(h.time+"\n"+icon(h.event)+"\n"+h.temp+"°\n"+h.event,13,TEXT,true);t.setGravity(Gravity.CENTER);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setBackground(bg(Color.rgb(19,59,91),16));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(105),dp(150));p.setMargins(0,0,dp(8),0);t.setLayoutParams(p);return t;
     }
 
     void showForecast(){
         content.removeAllViews();header("5 Günlük Tahmin",true,false);
-        if(center==null){content.addView(tv("MGM verileri yükleniyor…",14,MUTED,false));return;}
+        if(center==null){content.addView(tv("Veriler yükleniyor…",14,MUTED,false));return;}
         for(Day d:center.days)content.addView(dayCard(d),mp());
         section(center.days.size()>1?center.days.get(1).date+"  •  DETAY":"DETAYLI TAHMİN");
         LinearLayout detail=col();detail.setPadding(dp(14),dp(14),dp(14),dp(14));detail.setBackground(bg(CARD,20));
         if(center.days.size()>1){Day d=center.days.get(1);detail.addView(tv(d.ma+"° / "+d.mi+"°",28,GOLD,true));detail.addView(tv(d.e,16,TEXT,true));}
-        detail.addView(tv("Yağış ihtimali  •  MGM tahmininde ayrıca yayınlandığında gösterilir",11,MUTED,false));
+        detail.addView(tv("Yağış ihtimali ve miktarı yayınlandığında burada gösterilir",11,MUTED,false));
         detail.addView(tv("Nem: "+val(center.humidity,"—")+"%     Rüzgâr: "+val(center.wind,"—")+" km/sa "+val(center.windDir,"")+"     Basınç: "+val(center.pressure,"—")+" hPa",11,TEXT,false));
         content.addView(detail,mp());
         section("SAATLİK TAHMİN");
         HorizontalScrollView hs=new HorizontalScrollView(this);LinearLayout hr=row();
-        if(center.hours.size()==0)hr.addView(tv("Saatlik MGM tahmini şu anda alınamadı.",12,MUTED,false));
+        if(center.hours.size()==0)hr.addView(tv("Saatlik tahmin şu anda alınamadı.",12,MUTED,false));
         for(Hour h:center.hours)hr.addView(hourCard(h));
         hs.addView(hr);content.addView(hs,mp());
     }
