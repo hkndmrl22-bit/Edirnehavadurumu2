@@ -167,7 +167,7 @@ public class MainActivity extends Activity {
         sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(124),1));
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(139),1));
             if(++n>=5)break;
         }
         LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),0,dp(8),0);content.addView(days,dp5);
@@ -189,9 +189,9 @@ public class MainActivity extends Activity {
         c.setBackground(stroke(Color.rgb(7,58,94),Color.rgb(24,111,171),14));
         c.addView(tv(dayLabel(d.date),10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(17)));
         c.addView(tv(weekday(d.date),9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(16)));
-        c.addView(weatherIconView(d.e,34),new LinearLayout.LayoutParams(-1,dp(39)));
-        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(22)));
-        c.addView(tv(d.ma+"°  "+d.mi+"°",11,GOLD,true),new LinearLayout.LayoutParams(-1,dp(19)));
+        c.addView(weatherIconView(d.e,34),new LinearLayout.LayoutParams(-1,dp(44)));
+        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(27)));
+        c.addView(tv(d.ma+"°  "+d.mi+"°",11,GOLD,true),new LinearLayout.LayoutParams(-1,dp(22)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);c.setLayoutParams(p);return c;
     }
 
