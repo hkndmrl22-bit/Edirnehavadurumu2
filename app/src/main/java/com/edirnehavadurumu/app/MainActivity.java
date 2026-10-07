@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);
-        content=col();content.setPadding(0,0,0,dp(18));scroll.addView(content);
+        content=col();content.setPadding(0,0,0,dp(105));scroll.addView(content);
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
         page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(104)));
@@ -201,7 +201,7 @@ public class MainActivity extends Activity {
         TextView t=tv(s,17,Color.rgb(210,229,246),true);t.setPadding(dp(19),dp(10),dp(19),dp(7));content.addView(t,mp());
     }
 
-    TextView metric(String a,String b){TextView t=tv(a+"\n"+b,9,TEXT,true);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
+    TextView metric(String a,String b){TextView t=tv(a+"\n"+b,9,TEXT,true);t.setPadding(dp(5),dp(4),dp(5),dp(4));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
     TextView infoCard(String icon,String a,String b){TextView t=tv(icon+"  "+a+"\n      "+b,10,TEXT,true);t.setPadding(dp(7),dp(10),dp(7),dp(10));t.setGravity(Gravity.CENTER_VERTICAL);t.setBackground(bg(Color.rgb(12,58,94),17));return t;}
     void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
 
@@ -394,11 +394,11 @@ void showDistricts(){
 
     View hourCard(Hour h){
         LinearLayout c=col(); c.setGravity(Gravity.CENTER); c.setPadding(dp(4),dp(3),dp(4),dp(3)); c.setBackground(bg(Color.rgb(19,59,91),18));
-        c.addView(tv(h.time,10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(20)));
-        TextView wi=tv(icon(h.event),23,TEXT,false);wi.setGravity(Gravity.CENTER);c.addView(wi,new LinearLayout.LayoutParams(-1,dp(25)));
+        c.addView(tv(h.time,9,TEXT,true),new LinearLayout.LayoutParams(-1,dp(18)));
+        TextView wi=tv(icon(h.event),23,TEXT,false);wi.setGravity(Gravity.CENTER);c.addView(wi,new LinearLayout.LayoutParams(-1,dp(38)));
         TextView temp=tv(h.temp+"°",16,TEXT,true);temp.setGravity(Gravity.CENTER);c.addView(temp,new LinearLayout.LayoutParams(-1,dp(24)));
-        TextView ev=tv(h.event,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(27)));
-        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(100),dp(126));p.setMargins(0,0,dp(4),0);c.setLayoutParams(p);return c;
+        TextView ev=tv(h.event,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(30)));
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(52),dp(112));p.setMargins(0,0,dp(4),0);c.setLayoutParams(p);return c;
     }
     void showForecast(){
         content.removeAllViews();header("5 Günlük Tahmin",true,false);
