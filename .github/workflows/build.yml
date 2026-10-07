@@ -32,7 +32,7 @@ jobs:
             -keystore "$HOME/.android/debug.keystore" \
             -storepass android \
             -alias androiddebugkey \
-            -keypass android \
+            -keypass androiddebugkey \
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
