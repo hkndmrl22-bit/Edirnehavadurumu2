@@ -152,6 +152,10 @@ public class MainActivity extends Activity {
 
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
 
+        // Üç ana bölüm arasındaki boşlukları eşit dağıt; son panel alt menüye yaklaşsın.
+        Space gap1=new Space(this);
+        content.addView(gap1,new LinearLayout.LayoutParams(1,0,1));
+
         // Saatlik tahmin — 5 günlük tahminin üstünde.
         LinearLayout hourly=col();hourly.setPadding(dp(6),dp(5),dp(6),dp(5));
         hourly.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
@@ -163,6 +167,10 @@ public class MainActivity extends Activity {
         }
         hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(82)));
         LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(6),dp(8),0);content.addView(hourly,hp);
+
+        // İkinci eşit boşluk.
+        Space gap2=new Space(this);
+        content.addView(gap2,new LinearLayout.LayoutParams(1,0,1));
 
         // 5 günlük tahmin — saatliğin hemen altında.
         LinearLayout forecast5=col();
