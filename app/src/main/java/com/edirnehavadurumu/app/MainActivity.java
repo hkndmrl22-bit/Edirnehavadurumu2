@@ -131,11 +131,11 @@ public class MainActivity extends Activity {
         LinearLayout main=row();main.setGravity(Gravity.TOP);
         LinearLayout cur=col();cur.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL);
         LinearLayout cr=row();cr.setGravity(Gravity.CENTER);
-        cr.addView(weatherIconView(center.nowEvent,48),new LinearLayout.LayoutParams(dp(56),dp(56)));
+        cr.addView(weatherIconView(center.nowEvent,42),new LinearLayout.LayoutParams(dp(48),dp(48)));
         TextView bt=tv(tempC(center.now,"—"),34,GOLD,true);
         bt.setSingleLine(true);bt.setIncludeFontPadding(false);
-        cr.addView(bt,new LinearLayout.LayoutParams(dp(120),dp(56)));
-        cur.addView(cr,new LinearLayout.LayoutParams(-1,dp(58)));
+        cr.addView(bt,new LinearLayout.LayoutParams(dp(126),dp(52)));
+        cur.addView(cr,new LinearLayout.LayoutParams(-1,dp(54)));
         TextView cond=tv(val(center.nowEvent,"—"),13,TEXT,true);cond.setGravity(Gravity.CENTER);cond.setIncludeFontPadding(false);
         cur.addView(cond,new LinearLayout.LayoutParams(-1,dp(20)));
         main.addView(cur,new LinearLayout.LayoutParams(0,dp(78),0.50f));
@@ -171,11 +171,11 @@ public class MainActivity extends Activity {
         sectionLabel(forecast5,"5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(126),1));
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(122),1));
             if(++n>=5)break;
         }
-        forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(126)));
-        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(52),dp(8),dp(0));content.addView(forecast5,dp5);
+        forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(122)));
+        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(2),dp(8),dp(0));content.addView(forecast5,dp5);
     }
 
     View hourCardFlex(Hour h){
