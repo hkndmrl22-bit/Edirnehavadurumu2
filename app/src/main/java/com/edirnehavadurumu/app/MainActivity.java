@@ -459,10 +459,10 @@ void showDistricts(){
                 p.setColor(Color.rgb(255,195,25));p.setStyle(Paint.Style.FILL);c.drawCircle(cx,cy,dp(14),p);
                 p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(dp(3));
                 for(int i=0;i<8;i++){double a=i*Math.PI/4;float x1=cx+(float)Math.cos(a)*dp(20),y1=cy+(float)Math.sin(a)*dp(20);float x2=cx+(float)Math.cos(a)*dp(27),y2=cy+(float)Math.sin(a)*dp(27);c.drawLine(x1,y1,x2,y2,p);}
+                if(sizeDp<=18) c.restore();
             }
         };
     }
-
     String icon(String e){
         String x=val(e,"").toLowerCase(new Locale("tr"));
         if(x.contains("gök")||x.contains("şimşek"))return "⛈";
