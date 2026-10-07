@@ -158,10 +158,10 @@ public class MainActivity extends Activity {
         sectionLabel(hourly,"SAATLİK TAHMİNLER ( EDİRNE MERKEZ )");
         LinearLayout hr=row();int hc=0;
         for(Hour h:center.hours){
-            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(78),1));
+            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(82),1));
             if(++hc>=6)break;
         }
-        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(78)));
+        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(82)));
         LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(2),dp(8),0);content.addView(hourly,hp);
 
         // 5 günlük tahmin
