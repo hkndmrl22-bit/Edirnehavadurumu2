@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
         content=col();content.setPadding(0,0,0,dp(20));scroll.addView(content);
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
-        page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(66)));
+        page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(60)));
         setContentView(page);
     }
 
@@ -88,14 +88,14 @@ public class MainActivity extends Activity {
         ImageView photo=new ImageView(this);
         photo.setImageResource(R.drawable.edirne_hero);
         photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(333)));
+        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(337)));
 
         // Fotoğrafın üstündeki başlık alanı: masterdaki gibi fotoğrafın üzerinde.
-        LinearLayout overlay=col();overlay.setPadding(dp(10),dp(20),dp(10),dp(8));
+        LinearLayout overlay=col();overlay.setPadding(dp(10),dp(18),dp(10),dp(8));
         GradientDrawable ov=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 new int[]{Color.argb(45,0,0,0),Color.argb(30,0,0,0)});
         overlay.setBackground(ov);
-        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(333),Gravity.TOP);
+        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(337),Gravity.TOP);
         hero.addView(overlay,op);
 
         LinearLayout top=row();top.setGravity(Gravity.TOP);
@@ -141,12 +141,12 @@ public class MainActivity extends Activity {
 
         LinearLayout met=col();
         LinearLayout r1=row();
-        r1.addView(metric("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(34),1));
-        r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(43),1));met.addView(r1);
+        r1.addView(metric("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(32),1));
+        r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(32),1));met.addView(r1);
         LinearLayout r2=row();
-        r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(43),1));
-        r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(43),1));met.addView(r2);
-        main.addView(met,new LinearLayout.LayoutParams(0,dp(70),0.47f));
+        r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(32),1));
+        r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(32),1));met.addView(r2);
+        main.addView(met,new LinearLayout.LayoutParams(0,dp(64),0.47f));
         weather.addView(main);
 
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
@@ -157,17 +157,17 @@ public class MainActivity extends Activity {
         sectionLabel(hourly,"SAATLİK TAHMİNLERE ( EDİRNE MERKEZ )");
         LinearLayout hr=row();int hc=0;
         for(Hour h:center.hours){
-            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(72),1));
+            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(76),1));
             if(++hc>=6)break;
         }
-        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(72)));
+        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(76)));
         LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(5),dp(8),0);content.addView(hourly,hp);
 
         // 5 günlük tahmin
         sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(112),1));
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(124),1));
             if(++n>=5)break;
         }
         LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),0,dp(8),0);content.addView(days,dp5);
@@ -190,8 +190,8 @@ public class MainActivity extends Activity {
         c.addView(tv(dayLabel(d.date),10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(17)));
         c.addView(tv(weekday(d.date),9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(16)));
         c.addView(weatherIconView(d.e,34),new LinearLayout.LayoutParams(-1,dp(39)));
-        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(20)));
-        c.addView(tv(d.ma+"°  "+d.mi+"°",11,GOLD,true),new LinearLayout.LayoutParams(-1,dp(18)));
+        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(22)));
+        c.addView(tv(d.ma+"°  "+d.mi+"°",11,GOLD,true),new LinearLayout.LayoutParams(-1,dp(19)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);c.setLayoutParams(p);return c;
     }
 
