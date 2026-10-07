@@ -86,7 +86,7 @@ public class MainActivity extends Activity {
         FrameLayout hero=new FrameLayout(this);
         hero.setBackgroundColor(Color.rgb(3,28,48));
         ImageView photo=new ImageView(this);
-        photo.setImageResource(R.drawable.edirne_hero);
+        photo.setImageDrawable(null);
         photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
         hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(337)));
         loadHeroPhoto(photo);
@@ -128,17 +128,17 @@ public class MainActivity extends Activity {
         wh.addView(upd,new LinearLayout.LayoutParams(dp(174),dp(24)));
         weather.addView(wh);
 
-        LinearLayout main=row();main.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout cur=col();cur.setGravity(Gravity.CENTER);
+        LinearLayout main=row();main.setGravity(Gravity.TOP);
+        LinearLayout cur=col();cur.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL);
         LinearLayout cr=row();cr.setGravity(Gravity.CENTER);
-        cr.addView(weatherIconView(center.nowEvent,48),new LinearLayout.LayoutParams(dp(62),dp(62)));
+        cr.addView(weatherIconView(center.nowEvent,48),new LinearLayout.LayoutParams(dp(56),dp(56)));
         TextView bt=tv(tempC(center.now,"—"),34,GOLD,true);
         bt.setSingleLine(true);bt.setIncludeFontPadding(false);
-        cr.addView(bt,new LinearLayout.LayoutParams(dp(120),dp(62)));
-        cur.addView(cr,new LinearLayout.LayoutParams(-1,dp(72)));
+        cr.addView(bt,new LinearLayout.LayoutParams(dp(120),dp(56)));
+        cur.addView(cr,new LinearLayout.LayoutParams(-1,dp(58)));
         TextView cond=tv(val(center.nowEvent,"—"),13,TEXT,true);cond.setGravity(Gravity.CENTER);cond.setIncludeFontPadding(false);
-        cur.addView(cond,new LinearLayout.LayoutParams(-1,dp(22)));
-        main.addView(cur,new LinearLayout.LayoutParams(0,dp(82),0.53f));
+        cur.addView(cond,new LinearLayout.LayoutParams(-1,dp(20)));
+        main.addView(cur,new LinearLayout.LayoutParams(0,dp(78),0.53f));
 
         LinearLayout met=col();
         LinearLayout r1=row();
@@ -153,15 +153,15 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
 
         // Saatlik tahmin
-        LinearLayout hourly=col();hourly.setPadding(dp(7),dp(3),dp(7),dp(4));
+        LinearLayout hourly=col();hourly.setPadding(dp(7),dp(7),dp(7),dp(8));
         hourly.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
         sectionLabel(hourly,"SAATLİK TAHMİNLER ( EDİRNE MERKEZ )");
         LinearLayout hr=row();int hc=0;
         for(Hour h:center.hours){
-            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(76),1));
+            hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(92),1));
             if(++hc>=6)break;
         }
-        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(76)));
+        hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(92)));
         LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(3),dp(8),0);content.addView(hourly,hp);
 
         // 5 günlük tahmin
@@ -175,13 +175,13 @@ public class MainActivity extends Activity {
     }
 
     View hourCardFlex(Hour h){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(1),dp(2),dp(1));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(3),dp(6),dp(3),dp(6));
         c.setBackground(bg(Color.rgb(7,55,88),15));
         TextView tm=tv(h.time,9,TEXT,true);tm.setGravity(Gravity.CENTER);tm.setIncludeFontPadding(false);
-        c.addView(tm,new LinearLayout.LayoutParams(-1,dp(17)));
-        c.addView(weatherIconView(h.event,18),new LinearLayout.LayoutParams(-1,dp(25)));
+        c.addView(tm,new LinearLayout.LayoutParams(-1,dp(19)));
+        c.addView(weatherIconView(h.event,18),new LinearLayout.LayoutParams(-1,dp(34)));
         TextView te=tv(h.temp+"°",17,TEXT,true);te.setGravity(Gravity.CENTER);te.setIncludeFontPadding(false);
-        c.addView(te,new LinearLayout.LayoutParams(-1,dp(23)));
+        c.addView(te,new LinearLayout.LayoutParams(-1,dp(25)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);
         c.setLayoutParams(p);return c;
     }
@@ -206,7 +206,7 @@ public class MainActivity extends Activity {
     }
 
     void sectionLabel(LinearLayout parent,String s){
-        TextView t=tv(s,13,Color.rgb(210,229,246),true);t.setPadding(0,dp(5),0,dp(3));parent.addView(t,mp());
+        TextView t=tv(s,13,Color.rgb(210,229,246),true);t.setPadding(0,dp(4),0,dp(7));parent.addView(t,mp());
     }
 
     String trDate(){
