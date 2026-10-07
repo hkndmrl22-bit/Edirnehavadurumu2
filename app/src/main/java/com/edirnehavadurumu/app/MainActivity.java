@@ -305,7 +305,7 @@ void showDistricts(){
         ex.execute(()->{
             try{
                 final Loc cen=apiLocation("Edirne Merkez","merkez");
-                main.post(()->{center=cen;all=new ArrayList<>();all.add(cen);if(status!=null)status.setText("Veriler güncellendi.");showHome();});
+                main.post(()->{center=cen;all=new ArrayList<>();all.add(cen);lastUpdate=currentTime();if(status!=null)status.setText("Veriler güncellendi.");showHome();});
                 String[] D={"Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
                 String[] Q={"ENEZ","HAVSA","IPSALA","KESAN","LALAPASA","MERIC","SULOGLU","UZUNKOPRU"};
                 ArrayList<Loc> tmp=new ArrayList<>();tmp.add(cen);
