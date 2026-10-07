@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
     }
 
     void header(String title,boolean back,boolean gear){
-        LinearLayout h=row();h.setGravity(Gravity.CENTER_VERTICAL);h.setPadding(0,dp(5),0,dp(10));
+        LinearLayout h=row();h.setGravity(Gravity.CENTER_VERTICAL);h.setPadding(0,dp(14),0,dp(10));
         if(back){TextView b=tv("‹",34,TEXT,false);b.setGravity(Gravity.CENTER);b.setOnClickListener(v->showHome());h.addView(b,new LinearLayout.LayoutParams(dp(42),dp(46)));}
         LinearLayout tt=col();tt.addView(tv(title,21,TEXT,true));if(title.equals("EDİRNE"))tt.addView(tv("YEREL HAVA TAHMİN UYGULAMASI",10,MUTED,true));
         h.addView(tt,new LinearLayout.LayoutParams(0,-2,1));
@@ -79,50 +79,135 @@ public class MainActivity extends Activity {
 
     void showHome(){
         content.removeAllViews();setNavActive(0);
-        content.setPadding(dp(16),dp(8),dp(16),dp(28));
+        content.setPadding(dp(16),dp(10),dp(16),dp(28));
 
-        LinearLayout hero=col(); hero.setPadding(dp(14),dp(10),dp(14),dp(12));
-        GradientDrawable hg=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{Color.rgb(18,74,116),Color.rgb(5,29,56)});hg.setCornerRadius(dp(22));hero.setBackground(hg);
-        LinearLayout htop=row();htop.setGravity(Gravity.CENTER_VERTICAL);
+        FrameLayout hero=new FrameLayout(this);
+        GradientDrawable hb=bg(Color.rgb(8,38,68),24);hero.setBackground(hb);hero.setClipToOutline(true);
+        ImageView photo=new ImageView(this);photo.setImageResource(R.drawable.edirne_hero);photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(214)));
+
+        LinearLayout overlay=col();overlay.setPadding(dp(14),dp(12),dp(14),dp(10));
+        GradientDrawable ov=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{Color.argb(25,0,0,0),Color.argb(205,5,25,48)});
+        overlay.setBackground(ov);
+        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(214),Gravity.BOTTOM);
+        hero.addView(overlay,op);
+
+        LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);
         ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_real);logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        htop.addView(logo,new LinearLayout.LayoutParams(dp(88),dp(88)));
-        LinearLayout htxt=col();htxt.setPadding(dp(10),0,0,0);
-        htxt.addView(tv("Edirne",30,TEXT,true));
-        htxt.addView(tv("HAVA DURUMU",18,TEXT,true));
-        htxt.addView(tv("YEREL HAVA TAHMİN UYGULAMASI",10,MUTED,true));
-        htxt.addView(tv("☀  Selimiye Camii • Meriç Köprüsü",10,Color.rgb(255,210,90),true));
-        htop.addView(htxt,new LinearLayout.LayoutParams(0,-2,1)); hero.addView(htop);
-        hero.addView(tv("7 Ekim 2026 Çarşamba  •  "+new SimpleDateFormat("HH:mm",new Locale("tr","TR")).format(new Date()),11,MUTED,false));
+        top.addView(logo,new LinearLayout.LayoutParams(dp(78),dp(78)));
+        LinearLayout title=col();title.setPadding(dp(10),0,0,0);
+        title.addView(tv("Edirne",29,TEXT,true));
+        title.addView(tv("HAVA DURUMU",18,TEXT,true));
+        title.addView(tv("YEREL HAVA TAHMİN UYGULAMASI",10,Color.rgb(205,224,244),true));
+        top.addView(title,new LinearLayout.LayoutParams(0,-2,1));
+        overlay.addView(top);
+        TextView landmarks=tv("☀  Selimiye Camii • Meriç Köprüsü",11,Color.rgb(255,210,90),true);
+        landmarks.setPadding(dp(4),dp(3),0,dp(1));overlay.addView(landmarks);
+        overlay.addView(tv(trDate()+"  •  "+new SimpleDateFormat("HH:mm",new Locale("tr","TR")).format(new Date()),11,MUTED,false));
         content.addView(hero,mp());
 
-        LinearLayout weather=col();weather.setPadding(dp(16),dp(14),dp(16),dp(14));weather.setBackground(bg(Color.rgb(8,56,91),22));
-        if(center==null){weather.addView(tv("Veriler yükleniyor…",17,MUTED,true));}
-        else{
-            TextView loc=tv("EDİRNE MERKEZ",17,Color.rgb(210,228,246),true);weather.addView(loc);
+        LinearLayout weather=col();weather.setPadding(dp(14),dp(13),dp(14),dp(13));
+        weather.setBackground(stroke(Color.rgb(8,57,92),Color.rgb(26,91,137),22));
+        if(center==null){
+            weather.addView(tv("Veriler yükleniyor…",16,MUTED,true));
+        } else {
+            TextView loc=tv("EDİRNE MERKEZ",17,Color.rgb(220,235,248),true);
+            weather.addView(loc);
             LinearLayout mainrow=row();mainrow.setGravity(Gravity.CENTER_VERTICAL);
-            LinearLayout big=col();big.setGravity(Gravity.CENTER_VERTICAL);
-            LinearLayout tempRow=row();tempRow.setGravity(Gravity.CENTER_VERTICAL);
-            tempRow.addView(tv(icon(center.nowEvent),52,TEXT,false),new LinearLayout.LayoutParams(dp(72),dp(72)));
-            tempRow.addView(tv(val(center.now,"—"),38,GOLD,true));
-            big.addView(tempRow);big.addView(tv(val(center.nowEvent,"—"),15,TEXT,true));
-            mainrow.addView(big,new LinearLayout.LayoutParams(0,dp(120),1));
+            LinearLayout current=col();current.setGravity(Gravity.CENTER);
+            LinearLayout cr=row();cr.setGravity(Gravity.CENTER);
+            cr.addView(tv(icon(center.nowEvent),52,TEXT,false),new LinearLayout.LayoutParams(dp(62),dp(62)));
+            cr.addView(tv(tempC(center.now,"—"),36,GOLD,true));
+            current.addView(cr);
+            current.addView(tv(val(center.nowEvent,"—"),14,TEXT,true));
+            mainrow.addView(current,new LinearLayout.LayoutParams(0,dp(132),0.48f));
+
             LinearLayout metrics=col();
-            LinearLayout r1=row();r1.addView(metric("♨ Hissedilen",val(center.feels,"—")+"°C"),new LinearLayout.LayoutParams(0,-2,1));r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,-2,1));metrics.addView(r1);
-            LinearLayout r2=row();r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa\\n"+val(center.windDir,"")),new LinearLayout.LayoutParams(0,-2,1));r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,-2,1));metrics.addView(r2);
-            mainrow.addView(metrics,new LinearLayout.LayoutParams(dp(320),dp(120)));weather.addView(mainrow);
-            weather.addView(tv("Son güncelleme: "+currentTime(),10,MUTED,false));
-            LinearLayout hr=row();for(Hour h:center.hours)hr.addView(hourCard(h));HorizontalScrollView hs=new HorizontalScrollView(this);hs.addView(hr);weather.addView(hs);
+            LinearLayout m1=row();
+            m1.addView(metric("♨ Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,-2,1));
+            m1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,-2,1));
+            metrics.addView(m1);
+            LinearLayout m2=row();
+            m2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,-2,1));
+            m2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,-2,1));
+            metrics.addView(m2);
+            mainrow.addView(metrics,new LinearLayout.LayoutParams(0,dp(132),0.52f));
+            weather.addView(mainrow);
+
+            TextView upd=tv("Son güncelleme: "+currentTime(),10,MUTED,false);upd.setPadding(0,dp(3),0,dp(7));weather.addView(upd);
+
+            HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);
+            LinearLayout hr=row();
+            int hc=0;for(Hour h:center.hours){hr.addView(hourCard(h));if(++hc>=6)break;}
+            hs.addView(hr);weather.addView(hs,new LinearLayout.LayoutParams(-1,dp(166)));
         }
         LinearLayout.LayoutParams wp=mp();wp.setMargins(0,dp(10),0,0);content.addView(weather,wp);
 
-        section("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
-        if(center!=null&&!center.days.isEmpty()){HorizontalScrollView ds=new HorizontalScrollView(this);LinearLayout days=row();for(Day d:center.days){TextView card=tv(dayLabel(d.date)+"\\n"+icon(d.e)+"\\n"+d.e+"\\n"+d.ma+"°  "+d.mi+"°",12,TEXT,true);card.setGravity(Gravity.CENTER);card.setPadding(dp(8),dp(8),dp(8),dp(8));card.setBackground(bg(Color.rgb(7,48,82),16));days.addView(card,new LinearLayout.LayoutParams(dp(126),dp(138)));}ds.addView(days);content.addView(ds,mp());}
+        sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
+        if(center!=null&&!center.days.isEmpty()){
+            HorizontalScrollView ds=new HorizontalScrollView(this);ds.setHorizontalScrollBarEnabled(false);
+            LinearLayout days=row();int n=0;
+            for(Day d:center.days){
+                LinearLayout card=col();card.setGravity(Gravity.CENTER);card.setPadding(dp(4),dp(7),dp(4),dp(7));
+                card.setBackground(stroke(Color.rgb(10,54,88),Color.rgb(26,87,130),15));
+                card.addView(tv(dayLabel(d.date),11,TEXT,true),new LinearLayout.LayoutParams(-1,dp(19)));
+                card.addView(tv(weekday(d.date),9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(18)));
+                TextView ic=tv(icon(d.e),29,TEXT,false);ic.setGravity(Gravity.CENTER);card.addView(ic,new LinearLayout.LayoutParams(-1,dp(39)));
+                TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);card.addView(ev,new LinearLayout.LayoutParams(-1,dp(27)));
+                card.addView(tv(d.ma+"°  "+d.mi+"°",11,GOLD,true),new LinearLayout.LayoutParams(-1,dp(20)));
+                LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(70),dp(142));cp.setMargins(0,0,dp(4),0);days.addView(card,cp);
+                if(++n>=5)break;
+            }
+            ds.addView(days);content.addView(ds,mp());
+        }
 
-        section("EDİRNE İLÇELERİ");
-        if(all.size()>1){HorizontalScrollView ds=new HorizontalScrollView(this);LinearLayout dl=row();for(int i=1;i<all.size()&&i<5;i++){Loc l=all.get(i);TextView card=tv(l.name+"\\n"+icon(l.nowEvent)+"  "+val(l.now,"—")+"\\n"+val(l.nowEvent,"—"),11,TEXT,true);card.setGravity(Gravity.CENTER);card.setBackground(bg(CARD,16));dl.addView(card,new LinearLayout.LayoutParams(dp(150),dp(82)));}ds.addView(dl);content.addView(ds,mp());}
+        sectionPanel("EDİRNE İLÇELERİ");
+        LinearLayout districtPanel=col();districtPanel.setPadding(dp(8),dp(8),dp(8),dp(8));districtPanel.setBackground(bg(Color.rgb(8,51,83),18));
+        LinearLayout dh=row();dh.setGravity(Gravity.CENTER_VERTICAL);
+        dh.addView(tv("İLÇELERDE SON DURUM",13,Color.rgb(210,228,244),true),new LinearLayout.LayoutParams(0,-2,1));
+        TextView allBtn=tv("Tüm ilçeleri gör  ›",10,MUTED,true);allBtn.setGravity(Gravity.CENTER);allBtn.setOnClickListener(v->showDistricts());dh.addView(allBtn,new LinearLayout.LayoutParams(dp(110),dp(28)));
+        districtPanel.addView(dh);
+        HorizontalScrollView dscroll=new HorizontalScrollView(this);dscroll.setHorizontalScrollBarEnabled(false);
+        LinearLayout dl=row();int dc=0;
+        for(int i=1;i<all.size()&&dc<4;i++,dc++){
+            Loc l=all.get(i);LinearLayout card=col();card.setGravity(Gravity.CENTER);card.setPadding(dp(4),dp(6),dp(4),dp(6));card.setBackground(bg(Color.rgb(12,58,94),14));
+            TextView name=tv(l.name,10,TEXT,true);name.setGravity(Gravity.CENTER);card.addView(name,new LinearLayout.LayoutParams(-1,dp(19)));
+            TextView ic=tv(icon(l.nowEvent),25,TEXT,false);ic.setGravity(Gravity.CENTER);card.addView(ic,new LinearLayout.LayoutParams(-1,dp(32)));
+            TextView tt=tv(tempC(l.now,"—"),15,GOLD,true);tt.setGravity(Gravity.CENTER);card.addView(tt,new LinearLayout.LayoutParams(-1,dp(22)));
+            TextView ev=tv(val(l.nowEvent,"—"),9,MUTED,false);ev.setGravity(Gravity.CENTER);card.addView(ev,new LinearLayout.LayoutParams(-1,dp(18)));
+            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(82),dp(100));cp.setMargins(0,0,dp(5),0);dl.addView(card,cp);
+        }
+        dscroll.addView(dl);districtPanel.addView(dscroll,new LinearLayout.LayoutParams(-1,dp(105)));
+        content.addView(districtPanel,mp());
+
+        sectionPanel("ÖNEMLİ BİLGİLER");
+        LinearLayout info=row();
+        info.addView(infoCard("🌡","Sıcaklık","Merkez"),new LinearLayout.LayoutParams(0,dp(78),1));
+        info.addView(infoCard("🌿","Hava","Kalitesi"),new LinearLayout.LayoutParams(0,dp(78),1));
+        info.addView(infoCard("💧","Nem",center==null?"—":val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(78),1));
+        info.addView(infoCard("≋","Rüzgâr",center==null?"—":val(center.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(0,dp(78),1));
+        content.addView(info,mp());
     }
 
-    TextView metric(String a,String b){TextView t=tv(a+"\n"+b,10,TEXT,true);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
+    String trDate(){
+        String[] gun={"Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"};
+        Calendar c=Calendar.getInstance();return new SimpleDateFormat("d MMMM yyyy",new Locale("tr","TR")).format(c.getTime())+" "+gun[c.get(Calendar.DAY_OF_WEEK)-1];
+    }
+    String weekday(String d){
+        try{Date x=new SimpleDateFormat("dd.MM.yyyy",new Locale("tr","TR")).parse(d);String[] gun={"Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"};return gun[Calendar.getInstance(){{
+            setTime(x);}}.get(Calendar.DAY_OF_WEEK)-1];}catch(Exception e){return "";}
+    }
+    String tempC(String s,String def){
+        if(s==null||s.trim().isEmpty())return def;
+        String x=s.trim().replace("°C","").replace("°","").trim();
+        return x+"°C";
+    }
+    void sectionPanel(String s){
+        TextView t=tv(s,17,Color.rgb(210,229,246),true);t.setPadding(dp(4),dp(17),dp(4),dp(8));content.addView(t,mp());
+    }
+
+    TextView metric(String a,String b){TextView t=tv(a+"\n"+b,9,TEXT,true);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
     TextView infoCard(String icon,String a,String b){TextView t=tv(icon+"  "+a+"\n      "+b,13,TEXT,true);t.setPadding(dp(12),dp(12),dp(12),dp(12));t.setBackground(bg(Color.rgb(12,58,94),17));return t;}
     void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
 
@@ -160,7 +245,7 @@ void showDistricts(){
     }
 
     TextView districtMiniCard(Loc l,boolean active){
-        TextView c=tv(icon(l.nowEvent)+"  "+l.name+"\\n"+val(l.nowEvent,"—")+"                 "+val(l.now,"—")+"°C",11,TEXT,true);
+        TextView c=tv(icon(l.nowEvent)+"  "+l.name+"\n"+val(l.nowEvent,"—")+"   "+tempC(l.now,"—"),10,TEXT,true);
         c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(8),dp(7),dp(6),dp(7));
         c.setBackground(active?bg(Color.rgb(18,122,235),14):bg(CARD,14));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(76));p.setMargins(0,0,0,dp(6));c.setLayoutParams(p);return c;
@@ -171,8 +256,8 @@ void showDistricts(){
         LinearLayout rt=row();rt.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout names=col();names.addView(tv(l.name,20,TEXT,true));names.addView(tv(val(l.nowEvent,"—"),11,MUTED,false));rt.addView(names,new LinearLayout.LayoutParams(0,-2,1));
         rt.addView(tv(icon(l.nowEvent),42,TEXT,false));hero.addView(rt);
-        hero.addView(tv(val(l.now,"—")+"°C",31,GOLD,true));
-        LinearLayout mm=row();mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,-2,1));mm.addView(metric("≋ Rüzgâr",val(l.wind,"—")+" km/sa\\n"+val(l.windDir,"")),new LinearLayout.LayoutParams(0,-2,1));mm.addView(metric("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,-2,1));hero.addView(mm);
+        hero.addView(tv(tempC(l.now,"—"),30,GOLD,true));
+        LinearLayout mm=row();mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,-2,1));mm.addView(metric("≋ Rüzgâr",val(l.wind,"—")+" km/sa "+val(l.windDir,"")),new LinearLayout.LayoutParams(0,-2,1));mm.addView(metric("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,-2,1));hero.addView(mm);
         right.addView(hero,mp());
 
         TextView h=tv("5 GÜNLÜK HAVA TAHMİNİ",14,Color.rgb(205,224,244),true);h.setPadding(0,dp(10),0,dp(6));right.addView(h,mp());
@@ -209,14 +294,14 @@ void showDistricts(){
     }
 
     void showWarnings(){
-        content.removeAllViews();setNavActive(2);header("Meteorolojik Uyarılar",true,false);
+        content.removeAllViews();setNavActive(2);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Meteorolojik Uyarılar",true,false);
         LinearLayout card=col();card.setPadding(dp(15),dp(15),dp(15),dp(15));card.setBackground(stroke(Color.rgb(72,57,15),Color.rgb(255,193,7),20));
         card.addView(tv("METEOROLOJİK UYARI",12,Color.rgb(255,205,65),true));card.addView(tv("SARI KODLU UYARI",20,TEXT,true));card.addView(tv("Güncel meteorolojik uyarılar bu alanda gösterilecektir.",12,MUTED,false));card.addView(tv("Güncel uyarılar burada yayınlanır.",10,MUTED,false));content.addView(card,mp());
         TextView note=tv("⚠  Bu deneme sürümünde uyarı ekranının tasarımı hazırlandı. Aktif uyarılar aktif uyarılar burada otomatik listelenecek.",12,TEXT,false);note.setPadding(dp(14),dp(14),dp(14),dp(14));note.setBackground(bg(CARD,18));LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(12),0,0);content.addView(note,p);
     }
 
     void showSettings(){
-        content.removeAllViews();setNavActive(3);header("Ayarlar",true,false);
+        content.removeAllViews();setNavActive(3);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Ayarlar",true,false);
         section("UYGULAMA TEMASI");content.addView(setting("◐","Açık / Koyu / Sistem","Koyu tema (deneme)"),mp());
         section("TERCİHLER");content.addView(toggleSetting("Bildirimler",true));content.addView(toggleSetting("Konum",false));content.addView(toggleSetting("Anlık Güncelleme",true));
         section("HAKKINDA");content.addView(setting("ⓘ","Hakkında","Edirne Yerel Hava Tahmin Uygulaması"),mp());content.addView(setting("🔒","Gizlilik Politikası","Yerel uygulama"),mp());
@@ -249,7 +334,7 @@ void showDistricts(){
         JSONObject st=stations.getJSONObject(0);int merkezId=st.optInt("merkezId",0),istNo=st.optInt("gunlukTahminIstNo",0),hourly=st.optInt("saatlikTahminIstNo",0);
         if(merkezId==0)merkezId=istNo;if(istNo==0)istNo=merkezId;Loc l=new Loc(name);
         JSONArray cur=new JSONArray(apiGet(API+"sondurumlar?merkezid="+merkezId));
-        if(cur.length()>0){JSONObject c=cur.getJSONObject(0);l.now=num(c,"sicaklik");if(!l.now.isEmpty())l.now+="°C";l.nowEvent=condition(c.optString("hadiseKodu",""));l.humidity=num(c,"nem");l.pressure=pressure(c);l.wind=num(c,"ruzgarHiz");l.feels=num(c,"hissedilenSicaklik");l.windDir=c.optString("ruzgarYon","");}
+        if(cur.length()>0){JSONObject c=cur.getJSONObject(0);l.now=num(c,"sicaklik");l.nowEvent=condition(c.optString("hadiseKodu",""));l.humidity=num(c,"nem");l.pressure=pressure(c);l.wind=num(c,"ruzgarHiz");l.feels=num(c,"hissedilenSicaklik");l.windDir=c.optString("ruzgarYon","");}
         JSONArray days=new JSONArray(apiGet(API+"tahminler/gunluk?istno="+istNo));
         if(days.length()>0){JSONObject j=days.getJSONObject(0);for(int i=1;i<=5;i++){String lo=num(j,"enDusukGun"+i),hi=num(j,"enYuksekGun"+i);if(!lo.isEmpty()&&!hi.isEmpty())l.days.add(new Day(formatDay(j.optString("tarihGun"+i,"")),condition(j.optString("hadiseGun"+i,"")),lo,hi));}}
         try{int hno=hourly>0?hourly:istNo;JSONArray ha=new JSONArray(apiGet(API+"tahminler/saatlik?istno="+hno));if(ha.length()>0){JSONArray a=ha.getJSONObject(0).optJSONArray("tahmin");if(a!=null)for(int z=0;z<a.length()&&z<12;z++){JSONObject h=a.getJSONObject(z);l.hours.add(new Hour(timeOnly(formatUtc(h.optString("tarih",""))),num(h,"sicaklik"),condition(h.optString("hadise","")),num(h,"ruzgarHizi")));}}}catch(Exception ignored){}
