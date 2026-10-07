@@ -167,7 +167,7 @@ public class MainActivity extends Activity {
         sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(112),1));
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(108),1));
             if(++n>=5)break;
         }
         LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),0,dp(8),dp(10));content.addView(days,dp5);
@@ -178,7 +178,7 @@ public class MainActivity extends Activity {
         c.setBackground(bg(Color.rgb(7,55,88),15));
         TextView tm=tv(h.time,9,TEXT,true);tm.setGravity(Gravity.CENTER);tm.setIncludeFontPadding(false);
         c.addView(tm,new LinearLayout.LayoutParams(-1,dp(17)));
-        c.addView(weatherIconView(h.event,21),new LinearLayout.LayoutParams(-1,dp(25)));
+        c.addView(weatherIconView(h.event,18),new LinearLayout.LayoutParams(-1,dp(25)));
         TextView te=tv(h.temp+"°",17,TEXT,true);te.setGravity(Gravity.CENTER);te.setIncludeFontPadding(false);
         c.addView(te,new LinearLayout.LayoutParams(-1,dp(23)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);
@@ -192,7 +192,7 @@ public class MainActivity extends Activity {
         c.addView(dl,new LinearLayout.LayoutParams(-1,dp(15)));
         TextView wd=tv(weekday(d.date),8,MUTED,false);wd.setGravity(Gravity.CENTER);wd.setIncludeFontPadding(false);
         c.addView(wd,new LinearLayout.LayoutParams(-1,dp(14)));
-        c.addView(weatherIconView(d.e,27),new LinearLayout.LayoutParams(-1,dp(35)));
+        c.addView(weatherIconView(d.e,25),new LinearLayout.LayoutParams(-1,dp(33)));
         TextView ev=tv(d.e,7,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);
         c.addView(ev,new LinearLayout.LayoutParams(-1,dp(23)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
@@ -214,9 +214,11 @@ public class MainActivity extends Activity {
     }
     String weekday(String d){
         try{
-            Date x=new SimpleDateFormat("dd.MM.yyyy",new Locale("tr","TR")).parse(d);
-            String[] gun={"Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"};
+            Date x;
+            try{x=new SimpleDateFormat("dd MMM",new Locale("tr","TR")).parse(d);}
+            catch(Exception e){x=new SimpleDateFormat("dd.MM.yyyy",new Locale("tr","TR")).parse(d);}
             Calendar cal=Calendar.getInstance();cal.setTime(x);
+            String[] gun={"Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"};
             return gun[cal.get(Calendar.DAY_OF_WEEK)-1];
         }catch(Exception e){return "";}
     }
