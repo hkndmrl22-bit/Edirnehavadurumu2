@@ -88,7 +88,8 @@ public class MainActivity extends Activity {
         ImageView photo=new ImageView(this);
         photo.setImageResource(R.drawable.edirne_hero);
         photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(337)));\n        loadHeroPhoto(photo);
+        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(337)));
+        loadHeroPhoto(photo);
 
         // Fotoğrafın üstündeki başlık alanı: masterdaki gibi fotoğrafın üzerinde.
         LinearLayout overlay=col();overlay.setPadding(dp(10),dp(18),dp(10),dp(8));
