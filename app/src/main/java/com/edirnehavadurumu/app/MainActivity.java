@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);
-        content=col();content.setPadding(0,0,0,dp(20));scroll.addView(content);
+        content=col();content.setPadding(0,0,0,dp(72));scroll.addView(content);
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
         page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(52)));
@@ -142,12 +142,12 @@ public class MainActivity extends Activity {
 
         LinearLayout met=col();met.setPadding(0,0,0,0);
         LinearLayout r1=row();r1.setGravity(Gravity.CENTER_VERTICAL);
-        r1.addView(metric("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(52),1));
-        r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(52),1));met.addView(r1);
+        r1.addView(metric("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(58),1));
+        r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r1);
         LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
-        r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(52),1));
-        r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(52),1));met.addView(r2);
-        main.addView(met,new LinearLayout.LayoutParams(0,dp(104),0.47f));
+        r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa\n"+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(58),1));
+        r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r2);
+        main.addView(met,new LinearLayout.LayoutParams(0,dp(116),0.47f));
         weather.addView(main);
 
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
@@ -168,7 +168,7 @@ public class MainActivity extends Activity {
         sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(108),1));
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(126),1));
             if(++n>=5)break;
         }
         LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),0,dp(8),dp(10));content.addView(days,dp5);
@@ -187,20 +187,20 @@ public class MainActivity extends Activity {
     }
 
     View dayCardFlex(Day d){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(2),dp(2),dp(2));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(3),dp(2),dp(3));
         c.setBackground(stroke(Color.rgb(7,58,94),Color.rgb(24,111,171),13));
         TextView dl=tv(dayLabel(d.date),9,TEXT,true);dl.setGravity(Gravity.CENTER);dl.setIncludeFontPadding(false);
         c.addView(dl,new LinearLayout.LayoutParams(-1,dp(15)));
         TextView wd=tv(weekday(d.date),8,MUTED,false);wd.setGravity(Gravity.CENTER);wd.setIncludeFontPadding(false);
         c.addView(wd,new LinearLayout.LayoutParams(-1,dp(14)));
-        c.addView(weatherIconView(d.e,25),new LinearLayout.LayoutParams(-1,dp(33)));
+        c.addView(weatherIconView(d.e,25),new LinearLayout.LayoutParams(-1,dp(36)));
         TextView ev=tv(d.e,7,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);
-        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(23)));
+        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(25)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
         TextView hi=tv(d.ma+"°",13,Color.rgb(255,45,45),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);
         TextView lo=tv(d.mi+"°",13,Color.rgb(45,150,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);
-        temps.addView(hi,new LinearLayout.LayoutParams(0,dp(20),1));
-        temps.addView(lo,new LinearLayout.LayoutParams(0,dp(20),1));
+        temps.addView(hi,new LinearLayout.LayoutParams(0,dp(22),1));
+        temps.addView(lo,new LinearLayout.LayoutParams(0,dp(22),1));
         c.addView(temps);
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);c.setLayoutParams(p);return c;
     }
@@ -236,15 +236,15 @@ public class MainActivity extends Activity {
         String iconText=a, label="";
         int sp=a.indexOf(" ");
         if(sp>0){iconText=a.substring(0,sp);label=a.substring(sp+1);}
-        LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);card.setPadding(dp(5),dp(3),dp(4),dp(3));
+        LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);card.setPadding(dp(4),dp(3),dp(3),dp(3));
         card.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),15));
-        TextView ic=tv(iconText,27,TEXT,false);ic.setGravity(Gravity.CENTER);ic.setIncludeFontPadding(false);
-        card.addView(ic,new LinearLayout.LayoutParams(dp(38),-1));
+        TextView ic=tv(iconText,24,TEXT,false);ic.setGravity(Gravity.CENTER);ic.setIncludeFontPadding(false);
+        card.addView(ic,new LinearLayout.LayoutParams(dp(34),-1));
         LinearLayout info=col();info.setGravity(Gravity.CENTER_VERTICAL);
-        TextView la=tv(label,10,TEXT,true);la.setIncludeFontPadding(false);
-        TextView va=tv(b,13,TEXT,true);va.setIncludeFontPadding(false);
+        TextView la=tv(label,9,TEXT,true);la.setIncludeFontPadding(false);la.setSingleLine(true);la.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        TextView va=tv(b,11,TEXT,true);va.setIncludeFontPadding(false);va.setMaxLines(2);va.setGravity(Gravity.CENTER_VERTICAL);
         info.addView(la,new LinearLayout.LayoutParams(-1,dp(18)));
-        info.addView(va,new LinearLayout.LayoutParams(-1,dp(20)));
+        info.addView(va,new LinearLayout.LayoutParams(-1,dp(30)));
         card.addView(info,new LinearLayout.LayoutParams(0,-1,1));
         return card;
     }
