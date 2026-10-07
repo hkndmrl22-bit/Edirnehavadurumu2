@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
     }
 
     void showHome(){
-        content.removeAllViews();setNavActive(0);content.setPadding(0,0,0,dp(8));
+        content.removeAllViews();setNavActive(0);content.setPadding(0,0,0,dp(72));
 
         // MASTER ANA SAYFA — renk, oran, kart ve yazı hiyerarşisi 5223.png esas alınmıştır.
         FrameLayout hero=new FrameLayout(this);
