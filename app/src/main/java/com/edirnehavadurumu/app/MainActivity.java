@@ -179,7 +179,7 @@ public class MainActivity extends Activity {
         c.setBackground(bg(Color.rgb(7,55,88),15));
         TextView tm=tv(h.time,9,TEXT,true);tm.setGravity(Gravity.CENTER);tm.setIncludeFontPadding(false);
         c.addView(tm,new LinearLayout.LayoutParams(-1,dp(14)));
-        LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(-1,dp(28));ip.setMargins(0,dp(-4),0,0);c.addView(weatherIconView(h.event,18),ip);
+        LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(-1,dp(28));ip.setMargins(0,dp(-5),0,0);c.addView(weatherIconView(h.event,18),ip);
         TextView te=tv(h.temp+"°",17,TEXT,true);te.setGravity(Gravity.CENTER);te.setIncludeFontPadding(false);
         c.addView(te,new LinearLayout.LayoutParams(-1,dp(20)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);
@@ -430,7 +430,7 @@ void showDistricts(){
             @Override protected void onDraw(Canvas c){
                 super.onDraw(c);
                 float w=getWidth(),h=getHeight(),cx=w/2f,cy=h/2f;
-                if(sizeDp<=18){ c.save(); c.scale(0.60f,0.60f,cx,cy); c.translate(0,-dp(5)); }
+                if(sizeDp<=18){ c.save(); c.scale(0.55f,0.55f,cx,cy); c.translate(0,-dp(8)); }
                 p.setStrokeWidth(Math.max(2,dp(2)));p.setStrokeCap(Paint.Cap.ROUND);
                 if(e.contains("gök")||e.contains("şimşek")||e.contains("sağanak")||e.contains("yağ")){
                     // güneş/yağışlı ikon
