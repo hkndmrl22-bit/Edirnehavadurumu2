@@ -140,14 +140,14 @@ public class MainActivity extends Activity {
         cur.addView(cond,new LinearLayout.LayoutParams(-1,dp(20)));
         main.addView(cur,new LinearLayout.LayoutParams(0,dp(78),0.53f));
 
-        LinearLayout met=col();
-        LinearLayout r1=row();
-        r1.addView(metric("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(43),1));
-        r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(43),1));met.addView(r1);
-        LinearLayout r2=row();
-        r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(43),1));
-        r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(43),1));met.addView(r2);
-        main.addView(met,new LinearLayout.LayoutParams(0,dp(86),0.47f));
+        LinearLayout met=col();met.setPadding(0,0,0,0);
+        LinearLayout r1=row();r1.setGravity(Gravity.CENTER_VERTICAL);
+        r1.addView(metric("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(52),1));
+        r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(52),1));met.addView(r1);
+        LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
+        r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(52),1));
+        r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(52),1));met.addView(r2);
+        main.addView(met,new LinearLayout.LayoutParams(0,dp(104),0.47f));
         weather.addView(main);
 
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
@@ -175,13 +175,13 @@ public class MainActivity extends Activity {
     }
 
     View hourCardFlex(Hour h){
-        LinearLayout c=col();c.setGravity(Gravity.TOP);c.setPadding(dp(2),dp(0),dp(2),dp(1));
-        c.setBackground(bg(Color.rgb(7,55,88),15));
-        TextView tm=tv(h.time,9,TEXT,true);tm.setGravity(Gravity.CENTER);tm.setIncludeFontPadding(false);
-        c.addView(tm,new LinearLayout.LayoutParams(-1,dp(14)));
-        LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(-1,dp(28));ip.setMargins(0,dp(-5),0,0);c.addView(weatherIconView(h.event,18),ip);
-        TextView te=tv(h.temp+"°",17,TEXT,true);te.setGravity(Gravity.CENTER);te.setIncludeFontPadding(false);
-        c.addView(te,new LinearLayout.LayoutParams(-1,dp(20)));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER_HORIZONTAL);c.setPadding(dp(2),dp(2),dp(2),dp(2));
+        c.setBackground(stroke(Color.rgb(7,55,88),Color.rgb(16,91,137),14));
+        TextView tm=tv(h.time,10,TEXT,true);tm.setGravity(Gravity.CENTER);tm.setIncludeFontPadding(false);
+        c.addView(tm,new LinearLayout.LayoutParams(-1,dp(18)));
+        c.addView(weatherIconView(h.event,25),new LinearLayout.LayoutParams(-1,dp(34)));
+        TextView te=tv(h.temp+"°",18,TEXT,true);te.setGravity(Gravity.CENTER);te.setIncludeFontPadding(false);
+        c.addView(te,new LinearLayout.LayoutParams(-1,dp(23)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);
         c.setLayoutParams(p);return c;
     }
@@ -232,8 +232,22 @@ public class MainActivity extends Activity {
         TextView t=tv(s,17,Color.rgb(210,229,246),true);t.setPadding(dp(19),dp(5),dp(19),dp(4));content.addView(t,mp());
     }
 
-    TextView metric(String a,String b){TextView t=tv(a+"\n"+b,11,TEXT,true);t.setPadding(dp(4),dp(4),dp(4),dp(4));t.setGravity(Gravity.CENTER);t.setIncludeFontPadding(false);t.setBackground(stroke(Color.rgb(20,69,105),Color.rgb(25,93,137),15));return t;}
-    TextView infoCard(String icon,String a,String b){TextView t=tv(icon+"  "+a+"\n      "+b,10,TEXT,true);t.setPadding(dp(7),dp(10),dp(7),dp(10));t.setGravity(Gravity.CENTER_VERTICAL);t.setBackground(bg(Color.rgb(12,58,94),17));return t;}
+    View metric(String a,String b){
+        String iconText=a, label="";
+        int sp=a.indexOf(" ");
+        if(sp>0){iconText=a.substring(0,sp);label=a.substring(sp+1);}
+        LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);card.setPadding(dp(5),dp(3),dp(4),dp(3));
+        card.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),15));
+        TextView ic=tv(iconText,27,TEXT,false);ic.setGravity(Gravity.CENTER);ic.setIncludeFontPadding(false);
+        card.addView(ic,new LinearLayout.LayoutParams(dp(38),-1));
+        LinearLayout info=col();info.setGravity(Gravity.CENTER_VERTICAL);
+        TextView la=tv(label,10,TEXT,true);la.setIncludeFontPadding(false);
+        TextView va=tv(b,13,TEXT,true);va.setIncludeFontPadding(false);
+        info.addView(la,new LinearLayout.LayoutParams(-1,dp(18)));
+        info.addView(va,new LinearLayout.LayoutParams(-1,dp(20)));
+        card.addView(info,new LinearLayout.LayoutParams(0,-1,1));
+        return card;
+    }
     void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
 
 void showDistricts(){
