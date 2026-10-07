@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);
-        content=col();content.setPadding(0,0,0,dp(96));scroll.addView(content);
+        content=col();content.setPadding(0,0,0,0);scroll.addView(content);
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
         page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(52)));
