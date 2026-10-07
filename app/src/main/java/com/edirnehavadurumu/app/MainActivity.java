@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
         ImageView photo=new ImageView(this);
         photo.setImageDrawable(null);
         photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(130)));
+        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(210)));
         loadHeroPhoto(photo);
 
         // Fotoğrafın üstündeki başlık alanı: masterdaki gibi fotoğrafın üzerinde.
@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
         GradientDrawable ov=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 new int[]{Color.argb(45,0,0,0),Color.argb(30,0,0,0)});
         overlay.setBackground(ov);
-        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(130),Gravity.TOP);
+        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(210),Gravity.TOP);
         hero.addView(overlay,op);
 
         LinearLayout top=row();top.setGravity(Gravity.TOP);
