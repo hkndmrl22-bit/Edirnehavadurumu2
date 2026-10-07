@@ -164,7 +164,9 @@ public class MainActivity extends Activity {
         hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(82)));
         LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(2),dp(8),0);content.addView(hourly,hp);
 
-        // 5 günlük tahmin — kompakt master panel
+        // 5 günlük tahmin — kompakt master panel; kalan alanı doldurup alt menüye sıfırla.
+        Space forecastSpacer=new Space(this);
+        content.addView(forecastSpacer,new LinearLayout.LayoutParams(1,0,1));
         LinearLayout forecast5=col();
         forecast5.setPadding(dp(6),dp(5),dp(6),dp(6));
         forecast5.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
