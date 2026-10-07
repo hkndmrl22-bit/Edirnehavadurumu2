@@ -195,8 +195,12 @@ public class MainActivity extends Activity {
         Calendar c=Calendar.getInstance();return new SimpleDateFormat("d MMMM yyyy",new Locale("tr","TR")).format(c.getTime())+" "+gun[c.get(Calendar.DAY_OF_WEEK)-1];
     }
     String weekday(String d){
-        try{Date x=new SimpleDateFormat("dd.MM.yyyy",new Locale("tr","TR")).parse(d);String[] gun={"Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"};return gun[Calendar.getInstance(){{
-            setTime(x);}}.get(Calendar.DAY_OF_WEEK)-1];}catch(Exception e){return "";}
+        try{
+            Date x=new SimpleDateFormat("dd.MM.yyyy",new Locale("tr","TR")).parse(d);
+            String[] gun={"Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"};
+            Calendar cal=Calendar.getInstance();cal.setTime(x);
+            return gun[cal.get(Calendar.DAY_OF_WEEK)-1];
+        }catch(Exception e){return "";}
     }
     String tempC(String s,String def){
         if(s==null||s.trim().isEmpty())return def;
