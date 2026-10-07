@@ -44,14 +44,14 @@ public class MainActivity extends Activity {
         content=col();content.setPadding(0,0,0,dp(20));scroll.addView(content);
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
-        page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(60)));
+        page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(52)));
         setContentView(page);
     }
 
     LinearLayout nav(){
-        LinearLayout n=row();n.setGravity(Gravity.CENTER);n.setPadding(dp(7),dp(3),dp(7),dp(3));n.setBackground(bg(Color.rgb(8,38,68),0));
+        LinearLayout n=row();n.setGravity(Gravity.CENTER);n.setPadding(dp(6),dp(2),dp(6),dp(2));n.setBackground(bg(Color.rgb(8,38,68),0));
         String[] labels={"⌂\nAna Sayfa","●\nİlçeler","⚠\nUyarılar","⚙\nAyarlar"};
-        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],14,Color.rgb(225,238,250),true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(54));b.setPadding(0,dp(1),0,dp(1));navButtons[i]=b;b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showWarnings();else showSettings();});LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(54),1);p.setMargins(dp(3),0,dp(3),0);n.addView(b,p);} n.setClickable(true);n.bringToFront();return n;
+        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],14,Color.rgb(225,238,250),true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(46));b.setPadding(0,dp(1),0,dp(1));navButtons[i]=b;b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showWarnings();else showSettings();});LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(46),1);p.setMargins(dp(3),0,dp(3),0);n.addView(b,p);} n.setClickable(true);n.bringToFront();return n;
     }
     void setNavActive(int active){
         for(int i=0;i<navButtons.length;i++) if(navButtons[i]!=null) navButtons[i].setBackground(i==active?bg(Color.rgb(18,122,235),18):null);
@@ -170,7 +170,7 @@ public class MainActivity extends Activity {
             days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(133),1));
             if(++n>=5)break;
         }
-        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),0,dp(8),0);content.addView(days,dp5);
+        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),0,dp(8),dp(10));content.addView(days,dp5);
     }
 
     View hourCardFlex(Hour h){
@@ -185,17 +185,17 @@ public class MainActivity extends Activity {
     }
 
     View dayCardFlex(Day d){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(2),dp(2),dp(2));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(3),dp(3),dp(3),dp(3));
         c.setBackground(stroke(Color.rgb(7,58,94),Color.rgb(24,111,171),14));
-        c.addView(tv(dayLabel(d.date),10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(15)));
-        c.addView(tv(weekday(d.date),9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(14)));
-        c.addView(weatherIconView(d.e,31),new LinearLayout.LayoutParams(-1,dp(42)));
-        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(24)));
+        c.addView(tv(dayLabel(d.date),10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(16)));
+        c.addView(tv(weekday(d.date),9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(15)));
+        c.addView(weatherIconView(d.e,32),new LinearLayout.LayoutParams(-1,dp(43)));
+        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(25)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
-        TextView hi=tv(d.ma+"°",13,Color.rgb(255,65,65),true);hi.setGravity(Gravity.CENTER);
-        TextView lo=tv(d.mi+"°",13,Color.rgb(65,175,255),true);lo.setGravity(Gravity.CENTER);
-        temps.addView(hi,new LinearLayout.LayoutParams(0,dp(20),1));
-        temps.addView(lo,new LinearLayout.LayoutParams(0,dp(20),1));
+        TextView hi=tv(d.ma+"°",14,Color.rgb(255,45,45),true);hi.setGravity(Gravity.CENTER);
+        TextView lo=tv(d.mi+"°",14,Color.rgb(45,150,255),true);lo.setGravity(Gravity.CENTER);
+        temps.addView(hi,new LinearLayout.LayoutParams(0,dp(22),1));
+        temps.addView(lo,new LinearLayout.LayoutParams(0,dp(22),1));
         c.addView(temps);
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);c.setLayoutParams(p);return c;
     }
@@ -354,8 +354,44 @@ void showDistricts(){
         JSONArray cur=new JSONArray(apiGet(API+"sondurumlar?merkezid="+merkezId));
         if(cur.length()>0){JSONObject c=cur.getJSONObject(0);l.now=num(c,"sicaklik");l.nowEvent=condition(c.optString("hadiseKodu",""));l.humidity=num(c,"nem");l.pressure=pressure(c);l.wind=num(c,"ruzgarHiz");l.feels=num(c,"hissedilenSicaklik");l.windDir=c.optString("ruzgarYon","");}
         JSONArray days=new JSONArray(apiGet(API+"tahminler/gunluk?istno="+istNo));
-        if(days.length()>0){JSONObject j=days.getJSONObject(0);for(int i=1;i<=5;i++){String lo=num(j,"enDusukGun"+i),hi=num(j,"enYuksekGun"+i);if(!lo.isEmpty()&&!hi.isEmpty())l.days.add(new Day(formatDay(j.optString("tarihGun"+i,"")),condition(j.optString("hadiseGun"+i,"")),lo,hi));}}
-        try{int hno=hourly>0?hourly:istNo;JSONArray ha=new JSONArray(apiGet(API+"tahminler/saatlik?istno="+hno));if(ha.length()>0){JSONArray a=ha.getJSONObject(0).optJSONArray("tahmin");if(a!=null)for(int z=0;z<a.length()&&z<12;z++){JSONObject h=a.getJSONObject(z);l.hours.add(new Hour(timeOnly(formatUtc(h.optString("tarih",""))),num(h,"sicaklik"),condition(h.optString("hadise","")),num(h,"ruzgarHizi")));}}}catch(Exception ignored){}
+        if(days.length()>0){
+            JSONObject j=days.getJSONObject(0);
+            for(int i=1;i<=5;i++){
+                String lo=num(j,"enDusukGun"+i),hi=num(j,"enYuksekGun"+i);
+                if(!lo.isEmpty()&&!hi.isEmpty())l.days.add(new Day(formatDay(j.optString("tarihGun"+i,"")),condition(j.optString("hadiseGun"+i,"")),lo,hi));
+            }
+        }
+        try{
+            int hno=hourly>0?hourly:istNo;
+            JSONArray ha=new JSONArray(apiGet(API+"tahminler/saatlik?istno="+hno));
+            if(ha.length()>0){
+                JSONArray a=ha.getJSONObject(0).optJSONArray("tahmin");
+                if(a!=null)for(int z=0;z<a.length()&&z<12;z++){
+                    JSONObject h=a.getJSONObject(z);
+                    l.hours.add(new Hour(timeOnly(formatUtc(h.optString("tarih",""))),num(h,"sicaklik"),condition(h.optString("hadise","")),num(h,"ruzgarHizi")));
+                }
+            }
+        }catch(Exception ignored){}
+
+        // First card is always today. Current observation is also MGM data.
+        String today=new SimpleDateFormat("dd MMM",new Locale("tr","TR")).format(new Date());
+        String todayTemp=val(l.now,"—");
+        String todayMin=todayTemp, todayMax=todayTemp;
+        try{
+            double mn=Double.parseDouble(todayTemp.replace(",","."));
+            double mx=mn;
+            for(Hour hh:l.hours){
+                if(hh.time.startsWith("00:")||hh.time.startsWith("01:")||hh.time.startsWith("02:")||hh.time.startsWith("03:")||hh.time.startsWith("04:")||hh.time.startsWith("05:")||hh.time.startsWith("06:")||hh.time.startsWith("07:")||hh.time.startsWith("08:")||hh.time.startsWith("09:")||hh.time.startsWith("10:")||hh.time.startsWith("11:")||hh.time.startsWith("12:")||hh.time.startsWith("13:")||hh.time.startsWith("14:")||hh.time.startsWith("15:")||hh.time.startsWith("16:")||hh.time.startsWith("17:")||hh.time.startsWith("18:")||hh.time.startsWith("19:")||hh.time.startsWith("20:")||hh.time.startsWith("21:")||hh.time.startsWith("22:")||hh.time.startsWith("23:")){
+                    try{double v=Double.parseDouble(hh.temp.replace(",","."));mn=Math.min(mn,v);mx=Math.max(mx,v);}catch(Exception ignored){}
+                }
+            }
+            todayMin=String.format(Locale.US,"%.0f",mn);
+            todayMax=String.format(Locale.US,"%.0f",mx);
+        }catch(Exception ignored){}
+        ArrayList<Day> next=new ArrayList<>();
+        next.add(new Day(today,condition(l.nowEvent),todayMin,todayMax));
+        for(int i=0;i<l.days.size()&&next.size()<5;i++)next.add(l.days.get(i));
+        l.days.clear();l.days.addAll(next);
         return l;
     }
     String apiGet(String u)throws Exception{return Jsoup.connect(u).ignoreContentType(true).timeout(20000).userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu").header("Accept","application/json, text/plain, */*").header("Origin","https://www.mgm.gov.tr").header("Referer","https://www.mgm.gov.tr/").execute().body();}
