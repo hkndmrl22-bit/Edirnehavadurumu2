@@ -429,7 +429,7 @@ void showDistricts(){
             Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
             @Override protected void onDraw(Canvas c){
                 super.onDraw(c);
-                float w=getWidth(),h=getHeight(),cx=w/2f,cy=h/2f;
+                float w=getWidth(),h=getHeight(),cx=w/2f,cy=h/2f;\n                if(sizeDp<=18){ c.save(); c.scale(0.66f,0.66f,cx,cy); c.translate(0,-dp(4)); }
                 p.setStrokeWidth(Math.max(2,dp(2)));p.setStrokeCap(Paint.Cap.ROUND);
                 if(e.contains("gök")||e.contains("şimşek")||e.contains("sağanak")||e.contains("yağ")){
                     // güneş/yağışlı ikon
