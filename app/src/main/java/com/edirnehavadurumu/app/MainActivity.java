@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);
-        content=col();content.setPadding(dp(16),dp(10),dp(16),dp(28));scroll.addView(content);
+        content=col();content.setPadding(0,0,0,dp(18));scroll.addView(content);
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
         page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(104)));
@@ -81,23 +81,23 @@ public class MainActivity extends Activity {
 
     void showHome(){
         content.removeAllViews();setNavActive(0);
-        content.setPadding(dp(16),dp(8),dp(16),dp(28));
+        content.setPadding(0,0,0,dp(18));
 
         // ANA SAYFA: Onaylanan taslağın birebir akışı
         FrameLayout hero=new FrameLayout(this);
-        hero.setBackground(bg(Color.rgb(8,38,68),24));hero.setClipToOutline(true);
+        hero.setBackground(bg(Color.rgb(8,38,68),0));hero.setClipToOutline(true);
 
         ImageView photo=new ImageView(this);
         photo.setImageResource(R.drawable.edirne_hero);
         photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(300)));
+        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(338)));
 
         LinearLayout overlay=col();
-        overlay.setPadding(dp(14),dp(12),dp(14),dp(12));
+        overlay.setPadding(dp(20),dp(16),dp(20),dp(14));
         GradientDrawable ov=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 new int[]{Color.argb(35,0,0,0),Color.argb(95,5,25,48)});
         overlay.setBackground(ov);
-        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(300),Gravity.BOTTOM);
+        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(338),Gravity.BOTTOM);
         hero.addView(overlay,op);
 
         LinearLayout top=row();top.setGravity(Gravity.TOP);
@@ -106,9 +106,9 @@ public class MainActivity extends Activity {
         logo.setScaleType(ImageView.ScaleType.CENTER_CROP);
         logo.setBackground(bg(Color.WHITE,50));logo.setClipToOutline(true);
         logo.setOutlineProvider(new ViewOutlineProvider(){@Override public void getOutline(View v,Outline o){o.setOval(0,0,v.getWidth(),v.getHeight());}});
-        top.addView(logo,new LinearLayout.LayoutParams(dp(78),dp(78)));
+        top.addView(logo,new LinearLayout.LayoutParams(dp(82),dp(82)));
 
-        LinearLayout title=col();title.setPadding(dp(10),dp(3),0,0);
+        LinearLayout title=col();title.setPadding(dp(8),dp(1),0,0);
         title.addView(tv("Edirne",29,TEXT,true));
         title.addView(tv("HAVA DURUMU",18,TEXT,true));
         title.addView(tv(trDate(),10,Color.WHITE,false));
@@ -156,7 +156,7 @@ public class MainActivity extends Activity {
             mainrow.addView(metrics,new LinearLayout.LayoutParams(0,dp(76),0.48f));
             weather.addView(mainrow);
         }
-        LinearLayout.LayoutParams wp=mp();wp.setMargins(0,dp(10),0,0);content.addView(weather,wp);
+        LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(15),dp(8),dp(15),0);content.addView(weather,wp);
 
         // Saatlik tahmin kartı ayrı: taslaktaki gibi
         if(center!=null){
@@ -169,22 +169,22 @@ public class MainActivity extends Activity {
             LinearLayout hr=row();int hc=0;
             for(Hour h:center.hours){hr.addView(hourCard(h));if(++hc>=6)break;}
             hs.addView(hr);
-            hourlyBox.addView(hs,new LinearLayout.LayoutParams(-1,dp(102)));
-            LinearLayout.LayoutParams hp=mp();hp.setMargins(0,dp(10),0,0);content.addView(hourlyBox,hp);
+            hourlyBox.addView(hs,new LinearLayout.LayoutParams(-1,dp(74)));
+            LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(15),dp(8),dp(15),0);content.addView(hourlyBox,hp);
 
             sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
             if(!center.days.isEmpty()){
                 HorizontalScrollView ds=new HorizontalScrollView(this);ds.setHorizontalScrollBarEnabled(false);
                 LinearLayout days=row();int n=0;
                 for(Day d:center.days){
-                    LinearLayout card=col();card.setGravity(Gravity.CENTER);card.setPadding(dp(4),dp(7),dp(4),dp(7));
+                    LinearLayout card=col();card.setGravity(Gravity.CENTER);card.setPadding(dp(3),dp(5),dp(3),dp(5));
                     card.setBackground(stroke(Color.rgb(10,54,88),Color.rgb(26,87,130),15));
-                    card.addView(tv(dayLabel(d.date),11,TEXT,true),new LinearLayout.LayoutParams(-1,dp(19)));
-                    card.addView(tv(weekday(d.date),9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(18)));
-                    TextView ic=tv(icon(d.e),29,TEXT,false);ic.setGravity(Gravity.CENTER);card.addView(ic,new LinearLayout.LayoutParams(-1,dp(39)));
-                    TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);card.addView(ev,new LinearLayout.LayoutParams(-1,dp(22)));
-                    card.addView(tv(d.ma+"°  "+d.mi+"°",11,GOLD,true),new LinearLayout.LayoutParams(-1,dp(20)));
-                    LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(70),dp(142));cp.setMargins(0,0,dp(4),0);days.addView(card,cp);
+                    card.addView(tv(dayLabel(d.date),11,TEXT,true),new LinearLayout.LayoutParams(-1,dp(17)));
+                    card.addView(tv(weekday(d.date),9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(16)));
+                    TextView ic=tv(icon(d.e),29,TEXT,false);ic.setGravity(Gravity.CENTER);card.addView(ic,new LinearLayout.LayoutParams(-1,dp(34)));
+                    TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);card.addView(ev,new LinearLayout.LayoutParams(-1,dp(19)));
+                    card.addView(tv(d.ma+"°  "+d.mi+"°",11,GOLD,true),new LinearLayout.LayoutParams(-1,dp(18)));
+                    LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(68),dp(126));cp.setMargins(0,0,dp(4),0);days.addView(card,cp);
                     if(++n>=5)break;
                 }
                 ds.addView(days);content.addView(ds,mp());
@@ -214,7 +214,7 @@ public class MainActivity extends Activity {
         return x+"°C";
     }
     void sectionPanel(String s){
-        TextView t=tv(s,17,Color.rgb(210,229,246),true);t.setPadding(dp(4),dp(17),dp(4),dp(8));content.addView(t,mp());
+        TextView t=tv(s,17,Color.rgb(210,229,246),true);t.setPadding(dp(19),dp(10),dp(19),dp(7));content.addView(t,mp());
     }
 
     TextView metric(String a,String b){TextView t=tv(a+"\n"+b,9,TEXT,true);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
@@ -409,12 +409,12 @@ void showDistricts(){
     }
 
     View hourCard(Hour h){
-        LinearLayout c=col(); c.setGravity(Gravity.CENTER); c.setPadding(dp(8),dp(10),dp(8),dp(10)); c.setBackground(bg(Color.rgb(19,59,91),18));
+        LinearLayout c=col(); c.setGravity(Gravity.CENTER); c.setPadding(dp(4),dp(3),dp(4),dp(3)); c.setBackground(bg(Color.rgb(19,59,91),18));
         c.addView(tv(h.time,10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(20)));
-        TextView wi=tv(icon(h.event),23,TEXT,false);wi.setGravity(Gravity.CENTER);c.addView(wi,new LinearLayout.LayoutParams(-1,dp(27)));
+        TextView wi=tv(icon(h.event),23,TEXT,false);wi.setGravity(Gravity.CENTER);c.addView(wi,new LinearLayout.LayoutParams(-1,dp(20)));
         TextView temp=tv(h.temp+"°",16,TEXT,true);temp.setGravity(Gravity.CENTER);c.addView(temp,new LinearLayout.LayoutParams(-1,dp(22)));
         TextView ev=tv(h.event,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(27)));
-        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(50),dp(94));p.setMargins(0,0,dp(4),0);c.setLayoutParams(p);return c;
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(68),dp(68));p.setMargins(0,0,dp(4),0);c.setLayoutParams(p);return c;
     }
     void showForecast(){
         content.removeAllViews();header("5 Günlük Tahmin",true,false);
