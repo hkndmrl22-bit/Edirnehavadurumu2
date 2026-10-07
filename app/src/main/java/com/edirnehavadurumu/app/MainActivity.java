@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
     LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     LinearLayout.LayoutParams mp(){return new LinearLayout.LayoutParams(-1,-2);}
     LinearLayout.LayoutParams w(int width){return new LinearLayout.LayoutParams(dp(width),-1);}
-    @Override public void onCreate(Bundle b){super.onCreate(b);refresh5m=()->{load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);}
+    @Override public void onCreate(Bundle b){super.onCreate(b); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0; if(Build.VERSION.SDK_INT>=30) nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; else if(Build.VERSION.SDK_INT>=23) nav=insets.getSystemWindowInsetBottom(); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);}
 
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
@@ -42,14 +42,14 @@ public class MainActivity extends Activity {
         content=col();content.setPadding(dp(16),dp(10),dp(16),dp(28));scroll.addView(content);
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
-        page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(92)));
+        page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(104)));
         setContentView(page);
     }
 
     LinearLayout nav(){
-        LinearLayout n=row();n.setGravity(Gravity.CENTER);n.setPadding(dp(8),dp(7),dp(8),dp(7));n.setBackground(bg(Color.rgb(8,38,68),0));
+        LinearLayout n=row();n.setGravity(Gravity.CENTER);n.setPadding(dp(8),dp(8),dp(8),dp(8));n.setBackground(bg(Color.rgb(8,38,68),0));
         String[] labels={"⌂\nAna Sayfa","●\nİlçeler","▥\nTahmin","⚠\nUyarılar"};
-        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],15,k==0?Color.WHITE:Color.rgb(210,228,245),true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(84));b.setPadding(0,dp(6),0,dp(6));if(k==0)b.setBackground(bg(Color.rgb(18,122,235),18));b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showForecast();else showWarnings();});LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(84),1);p.setMargins(dp(3),0,dp(3),0);n.addView(b,p);} n.setClickable(true);n.bringToFront();
+        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],16,k==0?Color.WHITE:Color.rgb(225,238,250),true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(92));b.setPadding(0,dp(4),0,dp(4));if(k==0)b.setBackground(bg(Color.rgb(18,122,235),18));b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showForecast();else showWarnings();});LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(92),1);p.setMargins(dp(3),0,dp(3),0);n.addView(b,p);} n.setClickable(true);n.bringToFront();
         return n;
     }
 
@@ -93,12 +93,12 @@ public class MainActivity extends Activity {
         if(center==null||center.hours.size()==0)hr.addView(tv("Saatlik tahmin yükleniyor…",12,MUTED,false));else for(Hour h:center.hours)hr.addView(hourCard(h));
         hs.addView(hr);content.addView(hs,mp());
         section("5 GÜNLÜK HAVA TAHMİNİ");
-        if(center!=null&&!center.days.isEmpty()){LinearLayout days=row();HorizontalScrollView ds=new HorizontalScrollView(this);for(Day d:center.days){TextView card=tv(dayLabel(d.date)+"\n"+icon(d.e)+"\n"+d.ma+"°  "+d.mi+"°\n"+d.e,11,TEXT,true);card.setGravity(Gravity.CENTER);card.setPadding(dp(10),dp(10),dp(10),dp(10));card.setBackground(bg(Color.rgb(7,48,82),17));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(112),dp(150));p.setMargins(0,0,dp(8),0);days.addView(card,p);}ds.addView(days);content.addView(ds,mp());}
+        if(center!=null&&!center.days.isEmpty()){LinearLayout days=row();HorizontalScrollView ds=new HorizontalScrollView(this);for(Day d:center.days){TextView card=tv(dayLabel(d.date)+"\n"+icon(d.e)+"\n"+d.ma+"°  "+d.mi+"°\n"+d.e,14,TEXT,true);card.setGravity(Gravity.CENTER);card.setPadding(dp(10),dp(10),dp(10),dp(10));card.setBackground(bg(Color.rgb(7,48,82),17));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(124),dp(158));p.setMargins(0,0,dp(8),0);days.addView(card,p);}ds.addView(days);content.addView(ds,mp());}
     }
 
     TextView metric(String a,String b){TextView t=tv(a+"\n"+b,10,TEXT,true);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
     TextView infoCard(String icon,String a,String b){TextView t=tv(icon+"  "+a+"\n      "+b,13,TEXT,true);t.setPadding(dp(12),dp(12),dp(12),dp(12));t.setBackground(bg(Color.rgb(12,58,94),17));return t;}
-    void section(String s){TextView t=tv(s,15,Color.rgb(188,213,239),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
+    void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
 
 void showDistricts(){
         content.removeAllViews();header("Edirne İlçeleri",false,false);
@@ -197,9 +197,13 @@ void showDistricts(){
     }
 
     View hourCard(Hour h){
-        TextView t=tv(h.time+"\n"+icon(h.event)+"\n"+h.temp+"°\n"+h.event,13,TEXT,true);t.setGravity(Gravity.CENTER);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setBackground(bg(Color.rgb(19,59,91),16));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(105),dp(150));p.setMargins(0,0,dp(8),0);t.setLayoutParams(p);return t;
+        LinearLayout c=col(); c.setGravity(Gravity.CENTER); c.setPadding(dp(8),dp(10),dp(8),dp(10)); c.setBackground(bg(Color.rgb(19,59,91),18));
+        c.addView(tv(h.time,17,TEXT,true),new LinearLayout.LayoutParams(-1,dp(28)));
+        TextView wi=tv(icon(h.event),34,TEXT,false);wi.setGravity(Gravity.CENTER);c.addView(wi,new LinearLayout.LayoutParams(-1,dp(50)));
+        TextView temp=tv(h.temp+"°",25,TEXT,true);temp.setGravity(Gravity.CENTER);c.addView(temp,new LinearLayout.LayoutParams(-1,dp(34)));
+        TextView ev=tv(h.event,14,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(38)));
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(118),dp(170));p.setMargins(0,0,dp(9),0);c.setLayoutParams(p);return c;
     }
-
     void showForecast(){
         content.removeAllViews();header("5 Günlük Tahmin",true,false);
         if(center==null){content.addView(tv("Veriler yükleniyor…",14,MUTED,false));return;}
