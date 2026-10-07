@@ -152,13 +152,7 @@ public class MainActivity extends Activity {
 
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
 
-        // Alt bölüm master tasarım sırası: 5 günlük tahmin üstte, saatlik tahmin hemen altında.
-        // Esnek boşluk grubun tamamını alt menüye yaslar; saatliği birkaç dp aşağı alırken
-        // 5 günlük paneli aynı miktarda yukarı taşır.
-        Space forecastSpacer=new Space(this);
-        content.addView(forecastSpacer,new LinearLayout.LayoutParams(1,0,1));
-
-        // 5 günlük tahmin — master panel.
+        // 5 günlük tahmin — güncel kartın hemen altında.
         LinearLayout forecast5=col();
         forecast5.setPadding(dp(6),dp(5),dp(6),dp(6));
         forecast5.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
@@ -169,9 +163,13 @@ public class MainActivity extends Activity {
             if(++n>=5)break;
         }
         forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(122)));
-        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),0,dp(8),0);content.addView(forecast5,dp5);
+        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(4),dp(8),0);content.addView(forecast5,dp5);
 
-        // Saatlik tahmin — 5 günlük panelin biraz altında, alt menüye sıfır.
+        // Esnek boşluk iki panelin arasına; saatlik paneli alt menünün hemen üstünde tutar.
+        Space hourlySpacer=new Space(this);
+        content.addView(hourlySpacer,new LinearLayout.LayoutParams(1,0,1));
+
+        // Saatlik tahmin — alt menünün hemen üstünde.
         LinearLayout hourly=col();hourly.setPadding(dp(6),dp(5),dp(6),dp(5));
         hourly.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
         sectionLabel(hourly,"SAATLİK TAHMİNLER ( EDİRNE MERKEZ )");
