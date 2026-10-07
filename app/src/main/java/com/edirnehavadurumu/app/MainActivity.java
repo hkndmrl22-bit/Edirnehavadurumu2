@@ -48,8 +48,8 @@ public class MainActivity extends Activity {
 
     LinearLayout nav(){
         LinearLayout n=row();n.setGravity(Gravity.CENTER);n.setPadding(dp(8),dp(8),dp(8),dp(8));n.setBackground(bg(Color.rgb(8,38,68),0));
-        String[] labels={"⌂\nAna Sayfa","●\nİlçeler","▥\nTahmin","⚠\nUyarılar"};
-        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],16,k==0?Color.WHITE:Color.rgb(225,238,250),true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(92));b.setPadding(0,dp(4),0,dp(4));if(k==0)b.setBackground(bg(Color.rgb(18,122,235),18));b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showForecast();else showWarnings();});LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(92),1);p.setMargins(dp(3),0,dp(3),0);n.addView(b,p);} n.setClickable(true);n.bringToFront();
+        String[] labels={"⌂\nAna Sayfa","●\nİlçeler","⚠\nUyarılar","⚙\nAyarlar"};
+        for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],16,k==0?Color.WHITE:Color.rgb(225,238,250),true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(92));b.setPadding(0,dp(4),0,dp(4));if(k==0)b.setBackground(bg(Color.rgb(18,122,235),18));b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showWarnings();else showSettings();});LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(92),1);p.setMargins(dp(3),0,dp(3),0);n.addView(b,p);} n.setClickable(true);n.bringToFront();
         return n;
     }
 
@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
         LinearLayout hero=col();hero.setPadding(dp(16),dp(14),dp(16),dp(16));
         GradientDrawable gd=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{Color.rgb(25,86,128),Color.rgb(8,31,61)});gd.setCornerRadius(dp(24));hero.setBackground(gd);
         LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);
-        ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_app);logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_real);logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         top.addView(logo,new LinearLayout.LayoutParams(dp(76),dp(76)));
         LinearLayout tx=col();tx.setPadding(dp(12),0,0,0);tx.addView(tv("EDİRNE",27,TEXT,true));tx.addView(tv("YEREL HAVA TAHMİN UYGULAMASI",11,MUTED,true));top.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
         hero.addView(top);
@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
     }
 
     void showHome(){
-        content.removeAllViews();header("EDİRNE",false,true);content.addView(logoHero(),mp());
+        content.removeAllViews();header("EDİRNE",false,false);content.addView(logoHero(),mp());
         LinearLayout weather=col();weather.setPadding(dp(18),dp(14),dp(18),dp(16));weather.setBackground(bg(Color.rgb(8,56,91),22));
         if(center==null){weather.addView(tv("Veriler yükleniyor…",17,MUTED,true));}
         else{
@@ -101,17 +101,86 @@ public class MainActivity extends Activity {
     void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
 
 void showDistricts(){
-        content.removeAllViews();header("Edirne İlçeleri",false,false);
-        section("İLÇE HAVA DURUMU");
-        for(int i=1;i<all.size();i++)districtCard(all.get(i));
+        content.removeAllViews();
+        header("Edirne İlçeleri",false,false);
+
+        section("İLÇELERDE ANLIK SON DURUM");
+        TextView upd=tv("Son güncelleme: "+currentTime(),12,MUTED,false);
+        upd.setPadding(dp(2),0,dp(2),dp(8));
+        content.addView(upd,mp());
+
+        LinearLayout tabs=row();
+        TextView instant=tv("◉  ANLIK DURUM",14,TEXT,true);
+        TextView five=tv("▦  5 GÜNLÜK TAHMİN",14,TEXT,true);
+        instant.setGravity(Gravity.CENTER); five.setGravity(Gravity.CENTER);
+        instant.setBackground(bg(Color.rgb(18,122,235),16));
+        five.setBackground(stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
+        tabs.addView(instant,new LinearLayout.LayoutParams(0,dp(58),1));
+        tabs.addView(five,new LinearLayout.LayoutParams(0,dp(58),1));
+        content.addView(tabs,mp());
+
+        LinearLayout body=col();
+        content.addView(body,mp());
+        if(all.size()>1) renderDistrictCurrent(body, all.get(1));
+        instant.setOnClickListener(v->{instant.setBackground(bg(Color.rgb(18,122,235),16));five.setBackground(stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));body.removeAllViews();if(all.size()>1)renderDistrictCurrent(body,all.get(1));});
+        five.setOnClickListener(v->{five.setBackground(bg(Color.rgb(18,122,235),16));instant.setBackground(stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));body.removeAllViews();if(all.size()>1)renderDistrictForecast(body,all.get(1));});
     }
 
-    void districtCard(Loc l){
-        LinearLayout c=row();c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(12),dp(10),dp(12),dp(10));c.setBackground(bg(CARD,18));
-        c.addView(tv(icon(l.nowEvent),30,TEXT,false),new LinearLayout.LayoutParams(dp(48),dp(58)));
-        LinearLayout tx=col();tx.addView(tv(l.name,15,TEXT,true));tx.addView(tv(val(l.nowEvent,"—"),11,MUTED,false));c.addView(tx,new LinearLayout.LayoutParams(0,-2,1));
-        c.addView(tv(val(l.now,"—"),22,GOLD,true));c.setOnClickListener(v->showDistrictDetail(l));
-        LinearLayout.LayoutParams p=mp();p.setMargins(0,0,0,dp(8));content.addView(c,p);
+    void renderDistrictCurrent(LinearLayout body, Loc selected){
+        LinearLayout split=row();
+        LinearLayout list=col(), detail=col();
+        split.addView(list,new LinearLayout.LayoutParams(0,-2,1));
+        split.addView(detail,new LinearLayout.LayoutParams(0,-2,1));
+        for(int i=1;i<all.size();i++){
+            final Loc l=all.get(i);
+            LinearLayout card=districtCardView(l, l==selected);
+            card.setOnClickListener(v->{detail.removeAllViews();renderDistrictDetailPanel(detail,l);});
+            list.addView(card,mp());
+        }
+        renderDistrictDetailPanel(detail,selected);
+        body.addView(split,mp());
+    }
+
+    LinearLayout districtCardView(Loc l, boolean selected){
+        LinearLayout c=col();c.setPadding(dp(7),dp(8),dp(7),dp(8));
+        c.setBackground(selected?bg(Color.rgb(18,122,235),16):bg(CARD,16));
+        c.addView(tv(icon(l.nowEvent),25,TEXT,false));
+        c.addView(tv(l.name,13,TEXT,true));
+        c.addView(tv(val(l.now,"—"),18,GOLD,true));
+        c.addView(tv(val(l.nowEvent,"—"),10,MUTED,false));
+        TextView u=tv("◷ "+currentTime(),8,MUTED,false);c.addView(u);
+        LinearLayout.LayoutParams p=mp();p.setMargins(0,0,dp(4),dp(6));c.setLayoutParams(p);return c;
+    }
+
+    void renderDistrictDetailPanel(LinearLayout d, Loc l){
+        LinearLayout hero=col();hero.setPadding(dp(9),dp(10),dp(9),dp(10));hero.setBackground(bg(Color.rgb(7,48,82),16));
+        hero.addView(tv(l.name,20,TEXT,true));
+        hero.addView(tv(icon(l.nowEvent),38,TEXT,false));
+        hero.addView(tv(val(l.now,"—"),27,GOLD,true));
+        hero.addView(tv(val(l.nowEvent,"—"),11,MUTED,false));
+        hero.addView(tv("Son güncelleme: "+currentTime(),8,MUTED,false));
+        d.addView(hero,mp());
+        TextView h=tv("5 GÜNLÜK TAHMİN",12,Color.rgb(205,224,244),true);h.setPadding(dp(2),dp(10),0,dp(5));d.addView(h,mp());
+        for(Day day:l.days){
+            LinearLayout x=row();x.setGravity(Gravity.CENTER_VERTICAL);x.setPadding(dp(5),dp(6),dp(4),dp(6));x.setBackground(bg(CARD,12));
+            x.addView(tv(dayLabel(day.date),8,TEXT,true),new LinearLayout.LayoutParams(dp(43),-2));
+            x.addView(tv(icon(day.e),20,TEXT,false),new LinearLayout.LayoutParams(dp(27),-2));
+            x.addView(tv(day.ma+"°",10,Color.rgb(255,105,80),true),new LinearLayout.LayoutParams(0,-2,1));
+            x.addView(tv(day.mi+"°",10,Color.rgb(70,180,255),true));
+            LinearLayout.LayoutParams xp=mp();xp.setMargins(0,0,0,dp(3));d.addView(x,xp);
+        }
+    }
+
+    void renderDistrictForecast(LinearLayout body, Loc selected){
+        TextView choose=tv("İlçe seçin",14,TEXT,true);choose.setPadding(dp(2),dp(12),0,dp(7));body.addView(choose,mp());
+        HorizontalScrollView hs=new HorizontalScrollView(this);LinearLayout chips=row();
+        for(Loc l:all.subList(1,all.size())){
+            TextView chip=tv(l.name,12,TEXT,true);chip.setGravity(Gravity.CENTER);chip.setPadding(dp(12),0,dp(12),0);chip.setBackground(l==selected?bg(Color.rgb(18,122,235),14):bg(CARD,14));
+            chip.setOnClickListener(v->{body.removeAllViews();renderDistrictForecast(body,l);});
+            chips.addView(chip,new LinearLayout.LayoutParams(-2,dp(42)));
+        }
+        hs.addView(chips);body.addView(hs,mp());
+        renderDistrictDetailPanel(body,selected);
     }
 
     void showDistrictDetail(Loc l){
@@ -182,7 +251,7 @@ void showDistricts(){
     String val(String x,String d){return x==null||x.isEmpty()?d:x;}
     String icon(String e){String x=val(e,"").toLowerCase(new Locale("tr"));if(x.contains("gök")||x.contains("şimşek"))return "⛈️";if(x.contains("kar"))return "🌨️";if(x.contains("yağ")||x.contains("sağanak"))return "🌧️";if(x.contains("sis"))return "🌫️";if(x.contains("rüz"))return "🌬️";if(x.contains("çok bulutlu"))return "☁️";if(x.contains("parçalı"))return "⛅";if(x.contains("az bulutlu"))return "🌤️";return "☀️";}
     void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception ignored){}}
-    String appVersion(){try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){return "10.5";}}
+    String appVersion(){try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){return "10.9";}}
     @Override protected void onDestroy(){timer.removeCallbacks(refresh5m);ex.shutdownNow();super.onDestroy();}
     static class Day{String date,e,mi,ma;Day(String d,String e,String mi,String ma){this.date=d;this.e=e;this.mi=mi;this.ma=ma;}}
     static class Hour{String time,temp,event,wind;Hour(String t,String v,String e,String w){time=t;temp=v;event=e;wind=w;}}
