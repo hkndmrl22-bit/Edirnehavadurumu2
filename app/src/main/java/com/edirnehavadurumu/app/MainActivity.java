@@ -17,7 +17,7 @@ import org.jsoup.*;
 
 public class MainActivity extends Activity {
     static final String API="https://servis.mgm.gov.tr/web/";
-    static final String HERO_URL="https://images.pexels.com/photos/9013874/pexels-photo-9013874.jpeg?auto=compress&cs=tinysrgb&w=1400";
+    static final String HERO_URL="https://images.pexels.com/photos/30789227/pexels-photo-30789227.jpeg?auto=compress&cs=tinysrgb&w=1600";
         final int NAVY=Color.rgb(4,28,50), CARD=Color.rgb(8,63,101), BLUE=Color.rgb(20,126,232);
     final int TEXT=Color.WHITE, MUTED=Color.rgb(175,198,220), GOLD=Color.rgb(255,194,55);
     ExecutorService ex=Executors.newSingleThreadExecutor();
@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
         ImageView photo=new ImageView(this);
         photo.setImageResource(R.drawable.edirne_hero);
         photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(337)));
+        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(337)));\n        loadHeroPhoto(photo);
 
         // Fotoğrafın üstündeki başlık alanı: masterdaki gibi fotoğrafın üzerinde.
         LinearLayout overlay=col();overlay.setPadding(dp(10),dp(18),dp(10),dp(8));
@@ -478,7 +478,7 @@ void showDistricts(){
     void loadHeroPhoto(ImageView target){
         ex.execute(()->{
             try{
-                java.io.File cache=new java.io.File(getCacheDir(),"edirne_hero_high.jpg");
+                java.io.File cache=new java.io.File(getCacheDir(),"edirne_hero_high_v2.jpg");
                 if(!cache.exists()){
                     java.net.URL u=new java.net.URL(HERO_URL);
                     java.net.HttpURLConnection c=(java.net.HttpURLConnection)u.openConnection();
