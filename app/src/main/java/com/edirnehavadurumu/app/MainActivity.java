@@ -161,23 +161,23 @@ public class MainActivity extends Activity {
             if(++hc>=6)break;
         }
         hourly.addView(hr,new LinearLayout.LayoutParams(-1,dp(76)));
-        LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(5),dp(8),0);content.addView(hourly,hp);
+        LinearLayout.LayoutParams hp=mp();hp.setMargins(dp(8),dp(3),dp(8),0);content.addView(hourly,hp);
 
         // 5 günlük tahmin
         sectionPanel("5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(139),1));
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(133),1));
             if(++n>=5)break;
         }
         LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),0,dp(8),0);content.addView(days,dp5);
     }
 
     View hourCardFlex(Hour h){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(3),dp(2),dp(3));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(2),dp(2),dp(2));
         c.setBackground(bg(Color.rgb(7,55,88),15));
         c.addView(tv(h.time,9,TEXT,true),new LinearLayout.LayoutParams(-1,dp(18)));
-        c.addView(weatherIconView(h.event,30),new LinearLayout.LayoutParams(-1,dp(34)));
+        c.addView(weatherIconView(h.event,24),new LinearLayout.LayoutParams(-1,dp(28)));
         TextView te=tv(h.temp+"°",17,TEXT,true);te.setGravity(Gravity.CENTER);
         c.addView(te,new LinearLayout.LayoutParams(-1,dp(24)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);
@@ -185,13 +185,18 @@ public class MainActivity extends Activity {
     }
 
     View dayCardFlex(Day d){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(5),dp(2),dp(5));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(2),dp(2),dp(2),dp(2));
         c.setBackground(stroke(Color.rgb(7,58,94),Color.rgb(24,111,171),14));
-        c.addView(tv(dayLabel(d.date),10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(17)));
-        c.addView(tv(weekday(d.date),9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(16)));
-        c.addView(weatherIconView(d.e,34),new LinearLayout.LayoutParams(-1,dp(44)));
-        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(27)));
-        c.addView(tv(d.ma+"°  "+d.mi+"°",11,GOLD,true),new LinearLayout.LayoutParams(-1,dp(22)));
+        c.addView(tv(dayLabel(d.date),10,TEXT,true),new LinearLayout.LayoutParams(-1,dp(15)));
+        c.addView(tv(weekday(d.date),9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(14)));
+        c.addView(weatherIconView(d.e,31),new LinearLayout.LayoutParams(-1,dp(42)));
+        TextView ev=tv(d.e,8,TEXT,true);ev.setGravity(Gravity.CENTER);c.addView(ev,new LinearLayout.LayoutParams(-1,dp(24)));
+        LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
+        TextView hi=tv(d.ma+"°",13,Color.rgb(255,65,65),true);hi.setGravity(Gravity.CENTER);
+        TextView lo=tv(d.mi+"°",13,Color.rgb(65,175,255),true);lo.setGravity(Gravity.CENTER);
+        temps.addView(hi,new LinearLayout.LayoutParams(0,dp(20),1));
+        temps.addView(lo,new LinearLayout.LayoutParams(0,dp(20),1));
+        c.addView(temps);
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);c.setLayoutParams(p);return c;
     }
 
@@ -217,7 +222,7 @@ public class MainActivity extends Activity {
         return x+"°C";
     }
     void sectionPanel(String s){
-        TextView t=tv(s,17,Color.rgb(210,229,246),true);t.setPadding(dp(19),dp(10),dp(19),dp(7));content.addView(t,mp());
+        TextView t=tv(s,17,Color.rgb(210,229,246),true);t.setPadding(dp(19),dp(5),dp(19),dp(4));content.addView(t,mp());
     }
 
     TextView metric(String a,String b){TextView t=tv(a+"\n"+b,9,TEXT,true);t.setPadding(dp(5),dp(4),dp(5),dp(4));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
