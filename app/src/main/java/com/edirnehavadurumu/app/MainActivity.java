@@ -88,13 +88,13 @@ public class MainActivity extends Activity {
 
         LinearLayout overlay=col();overlay.setPadding(dp(14),dp(12),dp(14),dp(10));
         GradientDrawable ov=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
-                new int[]{Color.argb(25,0,0,0),Color.argb(205,5,25,48)});
+                new int[]{Color.argb(15,0,0,0),Color.argb(145,5,25,48)});
         overlay.setBackground(ov);
         FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(214),Gravity.BOTTOM);
         hero.addView(overlay,op);
 
         LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);
-        ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_real);logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_real);logo.setScaleType(ImageView.ScaleType.CENTER_CROP);logo.setBackground(bg(Color.WHITE,50));logo.setClipToOutline(true);logo.setOutlineProvider(new ViewOutlineProvider(){@Override public void getOutline(View v,Outline o){o.setOval(0,0,v.getWidth(),v.getHeight());}});
         top.addView(logo,new LinearLayout.LayoutParams(dp(78),dp(78)));
         LinearLayout title=col();title.setPadding(dp(10),0,0,0);
         title.addView(tv("Edirne",29,TEXT,true));
@@ -117,11 +117,11 @@ public class MainActivity extends Activity {
             LinearLayout mainrow=row();mainrow.setGravity(Gravity.CENTER_VERTICAL);
             LinearLayout current=col();current.setGravity(Gravity.CENTER);
             LinearLayout cr=row();cr.setGravity(Gravity.CENTER);
-            cr.addView(tv(icon(center.nowEvent),52,TEXT,false),new LinearLayout.LayoutParams(dp(62),dp(62)));
-            cr.addView(tv(tempC(center.now,"—"),36,GOLD,true));
+            cr.addView(tv(icon(center.nowEvent),50,TEXT,false),new LinearLayout.LayoutParams(dp(58),dp(62)));
+            TextView bigTemp=tv(tempC(center.now,"—"),30,GOLD,true);bigTemp.setSingleLine(true);bigTemp.setIncludeFontPadding(false);cr.addView(bigTemp,new LinearLayout.LayoutParams(dp(104),dp(62)));
             current.addView(cr);
             current.addView(tv(val(center.nowEvent,"—"),14,TEXT,true));
-            mainrow.addView(current,new LinearLayout.LayoutParams(0,dp(132),0.48f));
+            mainrow.addView(current,new LinearLayout.LayoutParams(0,dp(132),0.52f));
 
             LinearLayout metrics=col();
             LinearLayout m1=row();
@@ -132,7 +132,7 @@ public class MainActivity extends Activity {
             m2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa "+val(center.windDir,"")),new LinearLayout.LayoutParams(0,-2,1));
             m2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,-2,1));
             metrics.addView(m2);
-            mainrow.addView(metrics,new LinearLayout.LayoutParams(0,dp(132),0.52f));
+            mainrow.addView(metrics,new LinearLayout.LayoutParams(0,dp(132),0.48f));
             weather.addView(mainrow);
 
             TextView upd=tv("Son güncelleme: "+currentTime(),10,MUTED,false);upd.setPadding(0,dp(3),0,dp(7));weather.addView(upd);
@@ -182,12 +182,13 @@ public class MainActivity extends Activity {
         content.addView(districtPanel,mp());
 
         sectionPanel("ÖNEMLİ BİLGİLER");
+        HorizontalScrollView infoScroll=new HorizontalScrollView(this);infoScroll.setHorizontalScrollBarEnabled(false);
         LinearLayout info=row();
-        info.addView(infoCard("🌡","Sıcaklık","Merkez"),new LinearLayout.LayoutParams(0,dp(78),1));
-        info.addView(infoCard("🌿","Hava","Kalitesi"),new LinearLayout.LayoutParams(0,dp(78),1));
-        info.addView(infoCard("💧","Nem",center==null?"—":val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(78),1));
-        info.addView(infoCard("≋","Rüzgâr",center==null?"—":val(center.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(0,dp(78),1));
-        content.addView(info,mp());
+        info.addView(infoCard("🌡","Sıcaklık","Merkez"),new LinearLayout.LayoutParams(dp(102),dp(78)));
+        info.addView(infoCard("🌿","Hava","Kalitesi"),new LinearLayout.LayoutParams(dp(102),dp(78)));
+        info.addView(infoCard("💧","Nem",center==null?"—":val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(dp(102),dp(78)));
+        info.addView(infoCard("≋","Rüzgâr",center==null?"—":val(center.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(dp(102),dp(78)));
+        infoScroll.addView(info);content.addView(infoScroll,mp());
     }
 
     String trDate(){
@@ -212,7 +213,7 @@ public class MainActivity extends Activity {
     }
 
     TextView metric(String a,String b){TextView t=tv(a+"\n"+b,9,TEXT,true);t.setPadding(dp(7),dp(9),dp(7),dp(9));t.setGravity(Gravity.CENTER);t.setBackground(bg(Color.rgb(20,69,105),14));return t;}
-    TextView infoCard(String icon,String a,String b){TextView t=tv(icon+"  "+a+"\n      "+b,13,TEXT,true);t.setPadding(dp(12),dp(12),dp(12),dp(12));t.setBackground(bg(Color.rgb(12,58,94),17));return t;}
+    TextView infoCard(String icon,String a,String b){TextView t=tv(icon+"  "+a+"\n      "+b,11,TEXT,true);t.setPadding(dp(12),dp(12),dp(12),dp(12));t.setBackground(bg(Color.rgb(12,58,94),17));return t;}
     void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
 
 void showDistricts(){
@@ -261,7 +262,7 @@ void showDistricts(){
         LinearLayout names=col();names.addView(tv(l.name,20,TEXT,true));names.addView(tv(val(l.nowEvent,"—"),11,MUTED,false));rt.addView(names,new LinearLayout.LayoutParams(0,-2,1));
         rt.addView(tv(icon(l.nowEvent),42,TEXT,false));hero.addView(rt);
         hero.addView(tv(tempC(l.now,"—"),30,GOLD,true));
-        LinearLayout mm=row();mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,-2,1));mm.addView(metric("≋ Rüzgâr",val(l.wind,"—")+" km/sa "+val(l.windDir,"")),new LinearLayout.LayoutParams(0,-2,1));mm.addView(metric("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,-2,1));hero.addView(mm);
+        LinearLayout mm=row();mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(64),1));mm.addView(metric("≋ Rüzgâr",val(l.wind,"—")+" km/sa "+val(l.windDir,"")),new LinearLayout.LayoutParams(0,dp(64),1));mm.addView(metric("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(64),1));hero.addView(mm);
         right.addView(hero,mp());
 
         TextView h=tv("5 GÜNLÜK HAVA TAHMİNİ",14,Color.rgb(205,224,244),true);h.setPadding(0,dp(10),0,dp(6));right.addView(h,mp());
@@ -310,7 +311,7 @@ void showDistricts(){
         section("TERCİHLER");content.addView(toggleSetting("Bildirimler",true));content.addView(toggleSetting("Konum",false));content.addView(toggleSetting("Anlık Güncelleme",true));
         section("HAKKINDA");content.addView(setting("ⓘ","Hakkında","Edirne Yerel Hava Tahmin Uygulaması"),mp());content.addView(setting("🔒","Gizlilik Politikası","Yerel uygulama"),mp());
         section("BİZİ TAKİP EDİN");LinearLayout socials=row();addSocial(socials,R.drawable.ic_facebook,"https://www.facebook.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_instagram,"https://www.instagram.com/edirnehavadurumu/");addSocial(socials,R.drawable.ic_x,"https://x.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_youtube,"https://www.youtube.com/@edirnehavadurumu");content.addView(socials,mp());
-        TextView foot=tv("Edirne Yerel Hava Tahmin Uygulaması\nSürüm "+appVersion(),11,MUTED,false);foot.setGravity(Gravity.CENTER);foot.setPadding(0,dp(25),0,dp(15));content.addView(foot,mp());
+        TextView foot=tv("Edirne Yerel Hava Tahmin Uygulaması\nSürüm "+appVersion()+"\nHero görseli: Pexels / Kaan Durmuş",10,MUTED,false);foot.setGravity(Gravity.CENTER);foot.setPadding(0,dp(25),0,dp(15));content.addView(foot,mp());
     }
 
     TextView setting(String i,String a,String b){TextView t=tv(i+"   "+a+"\n        "+b,13,TEXT,true);t.setPadding(dp(13),dp(12),dp(13),dp(12));t.setBackground(bg(CARD,16));return t;}
