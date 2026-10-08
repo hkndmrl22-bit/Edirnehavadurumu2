@@ -252,7 +252,23 @@ public class MainActivity extends Activity {
         card.addView(info,new LinearLayout.LayoutParams(0,-1,1));
         return card;
     }
-    void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
+         View metricCompact(String a,String b){
+         String iconText=a,label="";
+         int sp=a.indexOf(" ");
+         if(sp>0){iconText=a.substring(0,sp);label=a.substring(sp+1);}
+         LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);card.setPadding(dp(1),dp(2),dp(1),dp(2));
+         card.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),15));
+         TextView ic=tv(iconText,18,TEXT,false);ic.setGravity(Gravity.CENTER);ic.setIncludeFontPadding(false);
+         card.addView(ic,new LinearLayout.LayoutParams(dp(22),-1));
+         LinearLayout info=col();info.setGravity(Gravity.CENTER_VERTICAL);
+         TextView la=tv(label,8.5f,TEXT,true);la.setIncludeFontPadding(false);la.setSingleLine(true);la.setEllipsize(android.text.TextUtils.TruncateAt.END);
+         TextView va=tv(b,10.5f,TEXT,true);va.setIncludeFontPadding(false);va.setSingleLine(true);va.setEllipsize(android.text.TextUtils.TruncateAt.END);va.setGravity(Gravity.CENTER_VERTICAL);
+         info.addView(la,new LinearLayout.LayoutParams(-1,dp(17)));
+         info.addView(va,new LinearLayout.LayoutParams(-1,dp(25)));
+         card.addView(info,new LinearLayout.LayoutParams(0,-1,1));
+         return card;
+     }
+void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
 
 void showDistricts(){ showDistrictsTab(0); }
 
@@ -269,9 +285,9 @@ void showDistricts(){ showDistrictsTab(0); }
         LinearLayout.LayoutParams tp1=new LinearLayout.LayoutParams(0,dp(54),1);
         LinearLayout.LayoutParams tp2=new LinearLayout.LayoutParams(0,dp(54),1);
         tp1.setMargins(0,0,dp(2),0);tp2.setMargins(dp(2),0,0,0);
-        tabs.addView(instant,tp1);tabs.addView(five,tp2);LinearLayout.LayoutParams tabWrap=new LinearLayout.LayoutParams(-1,dp(56));tabWrap.setMargins(0,dp(12),0,0);content.addView(tabs,tabWrap);
+        tabs.addView(instant,tp1);tabs.addView(five,tp2);LinearLayout.LayoutParams tabWrap=new LinearLayout.LayoutParams(-1,dp(56));tabWrap.setMargins(0,dp(16),0,0);content.addView(tabs,tabWrap);
 
-        LinearLayout body=col();content.addView(body,mp());
+        LinearLayout body=col();body.setPadding(0,0,0,dp(14));content.addView(body,mp());
         if(tab==0)renderDistrictCurrent(body,all.size()>1?all.get(1):null);
         else renderDistrictForecast(body,all.size()>1?all.get(1):null);
 
@@ -400,9 +416,9 @@ void showDistricts(){ showDistrictsTab(0); }
         hero.addView(top);
         TextView temp=tv(tempC(l.now,"—"),31,GOLD,true);temp.setGravity(Gravity.CENTER_VERTICAL);temp.setPadding(dp(58),dp(3),0,dp(3));hero.addView(temp,new LinearLayout.LayoutParams(-1,dp(48)));
         LinearLayout mm=row();mm.setPadding(0,dp(4),0,0);mm.setGravity(Gravity.CENTER_VERTICAL);
-        mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(64),1));
-        mm.addView(metric("≋ Rüzgâr",val(l.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(0,dp(64),1));
-        mm.addView(metric("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(64),1));hero.addView(mm);
+        mm.addView(metricCompact("💧 Nem",val(l.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(64),1));
+        mm.addView(metricCompact("≋ Rüzgâr",val(l.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(0,dp(64),1));
+        mm.addView(metricCompact("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(64),1));hero.addView(mm);
         right.addView(hero,mp());
         TextView refresh=tv("⟳  Son Durumu Yenile",13,TEXT,true);refresh.setGravity(Gravity.CENTER);refresh.setBackground(bg(BLUE,20));refresh.setPadding(0,dp(8),0,dp(8));refresh.setOnClickListener(v->refreshDistricts(districtTab,refresh));
         LinearLayout.LayoutParams rp=mp();rp.setMargins(0,dp(8),0,0);right.addView(refresh,rp);
