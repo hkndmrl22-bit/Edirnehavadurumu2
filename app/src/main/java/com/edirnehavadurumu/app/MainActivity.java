@@ -171,10 +171,10 @@ public class MainActivity extends Activity {
         sectionLabel(forecast5,"5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(122),1));
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(118),1));
             if(++n>=5)break;
         }
-        forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(122)));
+        forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(118)));
         LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(4),dp(8),0);content.addView(forecast5,dp5);
     }
 
@@ -199,7 +199,7 @@ public class MainActivity extends Activity {
         c.addView(wd,new LinearLayout.LayoutParams(-1,dp(17)));
         c.addView(weatherIconView(d.e,17),new LinearLayout.LayoutParams(-1,dp(24)));
         TextView ev=tv(d.e,7.2f,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(2);
-        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(30)));
+        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(24)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
         TextView hi=tv(d.ma+"°",12.5f,Color.rgb(255,45,45),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);
         TextView lo=tv(d.mi+"°",12.5f,Color.rgb(45,150,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);
@@ -266,10 +266,10 @@ void showDistricts(){ showDistrictsTab(0); }
         instant.setGravity(Gravity.CENTER);five.setGravity(Gravity.CENTER);
         instant.setBackground(tab==0?bg(Color.rgb(18,122,235),16):stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
         five.setBackground(tab==1?bg(Color.rgb(18,122,235),16):stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
-        LinearLayout.LayoutParams tp1=new LinearLayout.LayoutParams(0,dp(58),1);
-        LinearLayout.LayoutParams tp2=new LinearLayout.LayoutParams(0,dp(58),1);
+        LinearLayout.LayoutParams tp1=new LinearLayout.LayoutParams(0,dp(54),1);
+        LinearLayout.LayoutParams tp2=new LinearLayout.LayoutParams(0,dp(54),1);
         tp1.setMargins(0,0,dp(2),0);tp2.setMargins(dp(2),0,0,0);
-        tabs.addView(instant,tp1);tabs.addView(five,tp2);LinearLayout.LayoutParams tabWrap=new LinearLayout.LayoutParams(-1,dp(60));tabWrap.setMargins(0,dp(12),0,0);content.addView(tabs,tabWrap);
+        tabs.addView(instant,tp1);tabs.addView(five,tp2);LinearLayout.LayoutParams tabWrap=new LinearLayout.LayoutParams(-1,dp(56));tabWrap.setMargins(0,dp(12),0,0);content.addView(tabs,tabWrap);
 
         LinearLayout body=col();content.addView(body,mp());
         if(tab==0)renderDistrictCurrent(body,all.size()>1?all.get(1):null);
