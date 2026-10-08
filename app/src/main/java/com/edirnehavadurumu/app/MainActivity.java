@@ -17,6 +17,7 @@ import org.jsoup.*;
 
 public class MainActivity extends Activity {
     static final String API="https://servis.mgm.gov.tr/web/";
+    static final String VERSION_URL="https://hkndmrl22-bit.github.io/Edirnehavadurumu2/version.json";
     static final String HERO_URL="https://images.pexels.com/photos/30789227/pexels-photo-30789227.jpeg?auto=compress&cs=tinysrgb&w=1600";
         final int NAVY=Color.rgb(4,28,50), CARD=Color.rgb(8,63,101), BLUE=Color.rgb(20,126,232);
     final int TEXT=Color.WHITE, MUTED=Color.rgb(175,198,220), GOLD=Color.rgb(255,194,55);
@@ -36,7 +37,7 @@ public class MainActivity extends Activity {
     LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     LinearLayout.LayoutParams mp(){return new LinearLayout.LayoutParams(-1,-2);}
     LinearLayout.LayoutParams w(int width){return new LinearLayout.LayoutParams(dp(width),-1);}
-    @Override public void onCreate(Bundle b){super.onCreate(b); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0; if(Build.VERSION.SDK_INT>=30) nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; else if(Build.VERSION.SDK_INT>=23) nav=insets.getSystemWindowInsetBottom(); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);}
+    @Override public void onCreate(Bundle b){super.onCreate(b); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0; if(Build.VERSION.SDK_INT>=30) nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; else if(Build.VERSION.SDK_INT>=23) nav=insets.getSystemWindowInsetBottom(); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
 
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
@@ -524,6 +525,18 @@ void showDistricts(){
     }
 
     String appVersion(){try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){return "10.9";}}
+
+    void checkForUpdate(){
+        ex.execute(()->{
+            try{
+                String json=Jsoup.connect(VERSION_URL).ignoreContentType(true).timeout(8000).execute().body();
+                JSONObject o=new JSONObject(json);
+                final int latest=o.optInt("versionCode",0); final String name=o.optString("versionName",""); final String url=o.optString("apkUrl","https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk");
+                int current=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;
+                if(latest>current) main.post(()->new AlertDialog.Builder(this).setTitle("Yeni sürüm var").setMessage("Yeni sürüm "+name+" yayınlandı. Şimdi indirmek ister misin?").setNegativeButton("Daha sonra",null).setPositiveButton("İndir", (d,w)->startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)))).show());
+            }catch(Exception ignored){}
+        });
+    }
     @Override protected void onDestroy(){timer.removeCallbacks(refresh5m);ex.shutdownNow();super.onDestroy();}
     static class Day{String date,e,mi,ma;Day(String d,String e,String mi,String ma){this.date=d;this.e=e;this.mi=mi;this.ma=ma;}}
     static class Hour{String time,temp,event,wind;Hour(String t,String v,String e,String w){time=t;temp=v;event=e;wind=w;}}
