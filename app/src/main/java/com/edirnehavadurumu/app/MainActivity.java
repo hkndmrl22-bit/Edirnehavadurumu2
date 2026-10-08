@@ -451,6 +451,25 @@ void showDistricts(){
         });
     }
 
+    View sized(View v,int ww,int hh){v.setLayoutParams(new LinearLayout.LayoutParams(ww,hh));return v;}
+
+    void renderDistrictForecast(LinearLayout body,Loc selected){
+        if(selected==null){body.addView(tv("İlçe verileri yükleniyor…",14,MUTED,false));return;}
+        LinearLayout split=row();split.setGravity(Gravity.TOP);
+        LinearLayout left=col();left.setPadding(0,dp(8),dp(4),0);
+        LinearLayout right=col();right.setPadding(dp(4),dp(8),0,0);
+        split.addView(left,new LinearLayout.LayoutParams(0,-2,0.49f));
+        split.addView(right,new LinearLayout.LayoutParams(0,-2,0.51f));
+        for(int i=1;i<all.size();i++){
+            final Loc l=all.get(i);
+            View card=districtMiniCard(l,l==selected);
+            card.setOnClickListener(v->{body.removeAllViews();renderDistrictForecast(body,l);});
+            left.addView(card);
+        }
+        renderSelectedDistrict(right,selected,true);
+        body.addView(split,mp());
+    }
+
     void showWarnings(){
         content.removeAllViews();setNavActive(2);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Meteorolojik Uyarılar",true,false);
         LinearLayout card=col();card.setPadding(dp(15),dp(15),dp(15),dp(15));card.setBackground(stroke(Color.rgb(72,57,15),Color.rgb(255,193,7),20));
