@@ -306,88 +306,94 @@ void showDistricts(){
 
     void districtHeader(){
         FrameLayout h=new FrameLayout(this);
-        ImageView photo=new ImageView(this);
-        photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        h.addView(photo,new FrameLayout.LayoutParams(-1,dp(158)));
-        loadRemoteImage(photo,districtPhotoUrl("Uzunköprü"));
-        GradientDrawable shade=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{Color.argb(25,0,0,0),Color.argb(210,3,28,48)});
-        View overlay=new View(this);overlay.setBackground(shade);
-        h.addView(overlay,new FrameLayout.LayoutParams(-1,dp(158)));
-        LinearLayout tx=col();tx.setPadding(dp(16),dp(18),dp(12),dp(12));
-        TextView title=tv("Edirne İlçeleri",25,TEXT,true);
-        TextView sub=tv("İLÇELERDE ANLIK SON DURUM",12,Color.rgb(220,235,248),true);
-        TextView upd=tv("Son güncelleme: "+currentTime(),10,MUTED,false);
-        tx.addView(title);tx.addView(sub);tx.addView(upd);
-        FrameLayout.LayoutParams tp=new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM);
-        h.addView(tx,tp);
+        LinearLayout collage=col();
+        collage.setBackground(bg(Color.rgb(3,28,48),0));
+        String[] names={"Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
+        LinearLayout r1=row(),r2=row();
+        for(int i=0;i<8;i++){
+            LinearLayout cell=photoCollageCell(names[i]);
+            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(92),1);
+            cp.setMargins(dp(1),dp(1),dp(1),dp(1));
+            if(i<4)r1.addView(cell,cp);else r2.addView(cell,cp);
+        }
+        collage.addView(r1,new LinearLayout.LayoutParams(-1,dp(94)));
+        collage.addView(r2,new LinearLayout.LayoutParams(-1,dp(94)));
+        h.addView(collage,new FrameLayout.LayoutParams(-1,dp(190)));
+        View shade=new View(this);
+        GradientDrawable shadeBg=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{Color.argb(15,0,0,0),Color.argb(175,3,28,48)});
+        shade.setBackground(shadeBg);h.addView(shade,new FrameLayout.LayoutParams(-1,dp(190)));
+        LinearLayout tx=col();tx.setPadding(dp(16),dp(10),dp(12),dp(10));
+        tx.addView(tv("Edirne İlçeleri",25,TEXT,true));
+        tx.addView(tv("İLÇELERDE ANLIK SON DURUM",12,Color.rgb(220,235,248),true));
+        tx.addView(tv("Son güncelleme: "+currentTime(),10,MUTED,false));
+        h.addView(tx,new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM));
         content.addView(h,mp());
     }
 
-    View districtMiniCard(Loc l,boolean active){
-        FrameLayout card=new FrameLayout(this);
-        card.setBackground(active?stroke(Color.rgb(18,122,235),Color.rgb(72,178,255),14):bg(CARD,14));
+    LinearLayout photoCollageCell(String name){
+        LinearLayout cell=col();cell.setGravity(Gravity.BOTTOM);
+        cell.setBackground(bg(Color.rgb(8,63,101),0));
+        FrameLayout frame=new FrameLayout(this);
         ImageView img=new ImageView(this);img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        card.addView(img,new FrameLayout.LayoutParams(-1,dp(78)));
-        loadRemoteImage(img,districtPhotoUrl(l.name));
-        View shade=new View(this);
-        GradientDrawable gd=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{Color.argb(25,0,0,0),Color.argb(220,3,25,45)});
-        shade.setBackground(gd);card.addView(shade,new FrameLayout.LayoutParams(-1,dp(78)));
-        LinearLayout tx=col();tx.setGravity(Gravity.BOTTOM);tx.setPadding(dp(9),dp(6),dp(7),dp(6));
+        frame.addView(img,new FrameLayout.LayoutParams(-1,-1));
+        loadRemoteImage(img,districtPhotoUrl(name));
+        View sh=new View(this);
+        GradientDrawable g=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{Color.argb(15,0,0,0),Color.argb(185,3,28,48)});
+        sh.setBackground(g);frame.addView(sh,new FrameLayout.LayoutParams(-1,-1));
+        TextView label=tv(name.toUpperCase(new Locale("tr","TR")),10,TEXT,true);
+        label.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL);label.setPadding(dp(2),0,dp(2),dp(5));
+        frame.addView(label,new FrameLayout.LayoutParams(-1,-1,Gravity.BOTTOM));
+        cell.addView(frame,new LinearLayout.LayoutParams(-1,-1));
+        return cell;
+    }
+
+    View districtMiniCard(Loc l,boolean active){
+        LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);card.setPadding(dp(8),dp(7),dp(8),dp(7));
+        card.setBackground(active?stroke(Color.rgb(18,122,235),Color.rgb(72,178,255),14):bg(CARD,14));
+        TextView ic=tv(districtIcon(l.name),25,TEXT,true);ic.setGravity(Gravity.CENTER);
+        card.addView(ic,new LinearLayout.LayoutParams(dp(45),dp(58)));
+        LinearLayout tx=col();tx.setGravity(Gravity.CENTER_VERTICAL);
         tx.addView(tv(l.name,12,TEXT,true));
         tx.addView(tv(tempC(l.now,"—")+"  •  "+val(l.nowEvent,"—"),9,Color.rgb(225,240,250),true));
-        FrameLayout.LayoutParams tp=new FrameLayout.LayoutParams(-1,dp(78),Gravity.BOTTOM);
-        card.addView(tx,tp);
-        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(82));
-        p.setMargins(0,0,0,dp(6));card.setLayoutParams(p);
+        card.addView(tx,new LinearLayout.LayoutParams(0,dp(58),1));
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(70));p.setMargins(0,0,0,dp(6));card.setLayoutParams(p);
         return card;
+    }
+
+    String districtIcon(String name){
+        if(name==null)return "●";
+        String n=name.toLowerCase(new Locale("tr","TR"));
+        if(n.equals("enez"))return "🏰";
+        if(n.equals("havsa"))return "🕌";
+        if(n.equals("i̇psala")||n.equals("ipsala"))return "🌾";
+        if(n.equals("keşan"))return "🗼";
+        if(n.equals("lalapaşa"))return "🏛";
+        if(n.equals("meriç"))return "🌉";
+        if(n.equals("süloğlu"))return "🌿";
+        if(n.equals("uzunköprü"))return "🌉";
+        return "📍";
     }
 
     void renderSelectedDistrict(LinearLayout right,Loc l,boolean forecastOnly){
         if(forecastOnly){
-            LinearLayout photoCard=col();
-            photoCard.setBackground(bg(Color.rgb(8,55,88),18));
-            photoCard.setPadding(dp(0),dp(0),dp(0),dp(8));
-            FrameLayout ph=new FrameLayout(this);
-            ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            ph.addView(image,new FrameLayout.LayoutParams(-1,dp(116)));
-            loadRemoteImage(image,districtPhotoUrl(l.name));
-            GradientDrawable shade=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                    new int[]{Color.argb(15,0,0,0),Color.argb(205,3,27,47)});
-            View sh=new View(this);sh.setBackground(shade);ph.addView(sh,new FrameLayout.LayoutParams(-1,dp(116)));
-            TextView nm=tv(l.name,21,TEXT,true);nm.setGravity(Gravity.BOTTOM);nm.setPadding(dp(12),0,dp(10),dp(12));
-            ph.addView(nm,new FrameLayout.LayoutParams(-1,-1,Gravity.BOTTOM));
-            photoCard.addView(ph,new LinearLayout.LayoutParams(-1,dp(116)));
-            for(Day d:l.days)photoCard.addView(dayCompact(d),mp());
-            right.addView(photoCard,mp());
-            return;
+            LinearLayout panel=col();panel.setPadding(dp(10),dp(10),dp(10),dp(8));panel.setBackground(bg(Color.rgb(8,55,88),18));
+            LinearLayout title=row();title.setGravity(Gravity.CENTER_VERTICAL);
+            title.addView(tv(districtIcon(l.name),30,TEXT,true),new LinearLayout.LayoutParams(dp(48),dp(48)));
+            LinearLayout tt=col();tt.addView(tv(l.name,21,TEXT,true));tt.addView(tv("5 GÜNLÜK TAHMİN",10,MUTED,true));
+            title.addView(tt,new LinearLayout.LayoutParams(0,-2,1));panel.addView(title);
+            for(Day d:l.days)panel.addView(dayCompact(d),mp());
+            right.addView(panel,mp());return;
         }
-
-        LinearLayout hero=col();
-        hero.setBackground(bg(Color.rgb(10,59,94),18));
-        FrameLayout ph=new FrameLayout(this);
-        ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        ph.addView(image,new FrameLayout.LayoutParams(-1,dp(112)));
-        loadRemoteImage(image,districtPhotoUrl(l.name));
-        GradientDrawable shade=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{Color.argb(10,0,0,0),Color.argb(205,3,27,47)});
-        View sh=new View(this);sh.setBackground(shade);ph.addView(sh,new FrameLayout.LayoutParams(-1,dp(112)));
-        LinearLayout nm=col();nm.setPadding(dp(12),0,dp(10),dp(10));nm.setGravity(Gravity.BOTTOM);
-        nm.addView(tv(l.name,20,TEXT,true));nm.addView(tv(val(l.nowEvent,"—"),11,Color.rgb(218,235,249),false));
-        ph.addView(nm,new FrameLayout.LayoutParams(-1,-1,Gravity.BOTTOM));
-        hero.addView(ph,new LinearLayout.LayoutParams(-1,dp(112)));
-
-        LinearLayout tempRow=row();tempRow.setGravity(Gravity.CENTER_VERTICAL);tempRow.setPadding(dp(12),dp(5),dp(10),dp(3));
-        tempRow.addView(tv(tempC(l.now,"—"),29,GOLD,true),new LinearLayout.LayoutParams(0,dp(48),1));
-        tempRow.addView(weatherIconView(l.nowEvent,42),new LinearLayout.LayoutParams(dp(58),dp(48)));
-        hero.addView(tempRow);
-
-        LinearLayout mm=row();mm.setPadding(dp(7),dp(4),dp(7),dp(8));mm.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout hero=col();hero.setPadding(dp(10),dp(10),dp(10),dp(8));hero.setBackground(bg(Color.rgb(10,59,94),18));
+        LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);
+        top.addView(tv(districtIcon(l.name),38,TEXT,true),new LinearLayout.LayoutParams(dp(58),dp(58)));
+        LinearLayout nm=col();nm.addView(tv(l.name,21,TEXT,true));nm.addView(tv(val(l.nowEvent,"—"),11,Color.rgb(218,235,249),false));
+        top.addView(nm,new LinearLayout.LayoutParams(0,-2,1));top.addView(weatherIconView(l.nowEvent,42),new LinearLayout.LayoutParams(dp(58),dp(58)));hero.addView(top);
+        TextView temp=tv(tempC(l.now,"—"),31,GOLD,true);temp.setGravity(Gravity.CENTER_VERTICAL);temp.setPadding(dp(58),dp(3),0,dp(3));hero.addView(temp,new LinearLayout.LayoutParams(-1,dp(48)));
+        LinearLayout mm=row();mm.setPadding(0,dp(4),0,0);mm.setGravity(Gravity.CENTER_VERTICAL);
         mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(64),1));
         mm.addView(metric("≋ Rüzgâr",val(l.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(0,dp(64),1));
-        mm.addView(metric("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(64),1));
-        hero.addView(mm);
+        mm.addView(metric("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(64),1));hero.addView(mm);
         right.addView(hero,mp());
     }
 
