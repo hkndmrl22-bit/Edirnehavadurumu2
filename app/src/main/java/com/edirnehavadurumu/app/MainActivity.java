@@ -260,8 +260,6 @@ void showDistricts(){ showDistrictsTab(0); }
         districtTab=tab;
         content.removeAllViews();setNavActive(1);content.setPadding(0,0,0,0);
 
-        districtHeader();
-
         TextView sectionTitle=tv(tab==0?"İLÇELERDE ANLIK SON DURUM":"İLÇELERDE 5 GÜNLÜK HAVA TAHMİNİ",17,Color.rgb(210,229,246),true);
         sectionTitle.setPadding(dp(2),dp(12),dp(2),dp(4));content.addView(sectionTitle,mp());
 
@@ -359,15 +357,13 @@ void showDistricts(){ showDistrictsTab(0); }
     }
 
     View districtMiniCard(Loc l,boolean active){
-        LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);card.setPadding(dp(8),dp(7),dp(8),dp(7));
+        LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);card.setPadding(dp(12),dp(7),dp(12),dp(7));
         card.setBackground(active?stroke(Color.rgb(18,122,235),Color.rgb(72,178,255),14):bg(CARD,14));
-        TextView ic=tv(districtIcon(l.name),32,TEXT,true);ic.setGravity(Gravity.CENTER);
-        card.addView(ic,new LinearLayout.LayoutParams(dp(52),dp(68)));
         LinearLayout tx=col();tx.setGravity(Gravity.CENTER_VERTICAL);
-        tx.addView(tv(l.name,16,TEXT,true));
-        tx.addView(tv(tempC(l.now,"—")+"  •  "+val(l.nowEvent,"—"),11.5f,Color.rgb(225,240,250),true));
+        tx.addView(tv(l.name,18,TEXT,true));
+        tx.addView(tv(tempC(l.now,"—")+"  •  "+val(l.nowEvent,"—"),12.5f,Color.rgb(225,240,250),true));
         card.addView(tx,new LinearLayout.LayoutParams(0,dp(58),1));
-        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(82));p.setMargins(0,0,0,dp(7));card.setLayoutParams(p);
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(72));p.setMargins(0,0,0,dp(7));card.setLayoutParams(p);
         return card;
     }
 
