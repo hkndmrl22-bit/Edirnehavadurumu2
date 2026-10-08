@@ -18,7 +18,7 @@ import org.jsoup.*;
 public class MainActivity extends Activity {
     static final String API="https://servis.mgm.gov.tr/web/";
     static final String VERSION_URL="https://hkndmrl22-bit.github.io/Edirnehavadurumu2/version.json";
-    static final String HERO_URL="https://images.pexels.com/photos/30789227/pexels-photo-30789227.jpeg?auto=compress&cs=tinysrgb&w=1600";
+    static final String HERO_URL="https://www.edirne.com.tr/img/assets/upload/place/meric-koprusu-5.jpg?h=800";
         final int NAVY=Color.rgb(4,28,50), CARD=Color.rgb(8,63,101), BLUE=Color.rgb(20,126,232);
     final int TEXT=Color.WHITE, MUTED=Color.rgb(175,198,220), GOLD=Color.rgb(255,194,55);
     ExecutorService ex=Executors.newSingleThreadExecutor();
@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
         ImageView photo=new ImageView(this);
         photo.setImageDrawable(null);
         photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(210)));
+        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(296)));
         loadHeroPhoto(photo);
 
         // Fotoğrafın üstündeki başlık alanı: masterdaki gibi fotoğrafın üzerinde.
@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
         GradientDrawable ov=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 new int[]{Color.argb(45,0,0,0),Color.argb(30,0,0,0)});
         overlay.setBackground(ov);
-        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(210),Gravity.TOP);
+        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(296),Gravity.TOP);
         hero.addView(overlay,op);
 
         LinearLayout top=row();top.setGravity(Gravity.TOP);
@@ -179,7 +179,7 @@ public class MainActivity extends Activity {
             if(++n>=5)break;
         }
         forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(122)));
-        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(6),dp(8),0);content.addView(forecast5,dp5);
+        LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(4),dp(8),0);content.addView(forecast5,dp5);
     }
 
     View hourCardFlex(Hour h){
@@ -210,7 +210,7 @@ public class MainActivity extends Activity {
         temps.addView(hi,new LinearLayout.LayoutParams(0,dp(20),1));
         temps.addView(lo,new LinearLayout.LayoutParams(0,dp(20),1));
         c.addView(temps);
-        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);c.setLayoutParams(p);return c;
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(1),0,dp(1),0);c.setLayoutParams(p);return c;
     }
 
     void sectionLabel(LinearLayout parent,String s){
