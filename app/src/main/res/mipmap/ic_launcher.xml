@@ -1,13 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp"
-    android:viewportWidth="512" android:viewportHeight="512">
-    <path android:fillColor="#0B4F7A" android:pathData="M0,0h512v512h-512z"/>
-    <path android:fillColor="#D6A21E" android:pathData="M38,38h436v436h-436zM58,58v396h396v-396z"/>
-    <path android:fillColor="#F2C14E" android:pathData="M256,154 L224,154 L224,130 L232,130 L232,112 L240,112 L240,84 L248,84 L248,48 L256,48 L264,48 L264,84 L272,84 L272,112 L280,112 L280,130 L288,130 L288,154 Z"/>
-    <path android:fillColor="#F2C14E" android:pathData="M118,166 L126,166 L126,92 L134,92 L134,166 L142,166 L142,116 L150,116 L150,166 L158,166 L158,102 L166,102 L166,166 L174,166 L174,126 L182,126 L182,166 L330,166 L330,126 L338,126 L338,166 L346,166 L346,102 L354,102 L354,166 L362,166 L362,116 L370,116 L370,166 L378,166 L378,92 L386,92 L386,166 L394,166 L394,182 L118,182z"/>
-    <path android:fillColor="#F2C14E" android:pathData="M112,188h288v24h-288zM128,212h256v24h-256zM144,236h224v24h-224zM104,260h304v34h-304zM90,294h332v48h-332zM72,342h368v30h-368z"/>
-    <path android:fillColor="#0B4F7A" android:pathData="M224,188h64v106h-64zM184,260h144v34h-144zM104,294h304v48h-304z"/>
-    <path android:fillColor="#F2C14E" android:pathData="M112,294h288v12h-288zM128,318h256v10h-256zM144,342h224v10h-224z"/>
-    <path android:fillColor="#D6A21E" android:pathData="M70,372h372v28h-372z"/>
-</vector>
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/edirne_logo_exact"
+    android:gravity="fill" />
