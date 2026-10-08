@@ -148,8 +148,7 @@ public class MainActivity extends Activity {
         r1.addView(metric("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(58),1));
         r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r1);
         LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
-        r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa
-"+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(58),1));
+        r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa\n"+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(58),1));
         r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r2);
         main.addView(met,new LinearLayout.LayoutParams(0,dp(116),0.50f));
         weather.addView(main);
