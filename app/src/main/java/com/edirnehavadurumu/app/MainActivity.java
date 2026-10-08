@@ -255,7 +255,7 @@ public class MainActivity extends Activity {
 void showDistricts(){
         content.removeAllViews();setNavActive(1);content.setPadding(0,0,0,0);
 
-        header("Edirne İlçeleri",false,false);
+        districtHeader();
         section("İLÇELERDE ANLIK SON DURUM");
         TextView upd=tv("Son güncelleme: "+currentTime(),12,MUTED,false);
         upd.setPadding(dp(2),0,dp(2),dp(8));content.addView(upd,mp());
@@ -296,7 +296,7 @@ void showDistricts(){
 
         for(int i=1;i<all.size();i++){
             final Loc l=all.get(i);
-            final TextView card=districtMiniCard(l,l==selected);
+            final View card=districtMiniCard(l,l==selected);
             card.setOnClickListener(v->{body.removeAllViews();renderDistrictCurrent(body,l);});
             left.addView(card);
         }
@@ -304,44 +304,91 @@ void showDistricts(){
         body.addView(split,mp());
     }
 
-    TextView districtMiniCard(Loc l,boolean active){
-        TextView c=tv(icon(l.nowEvent)+"  "+l.name+"\n"+val(l.nowEvent,"—")+"   "+tempC(l.now,"—"),10,TEXT,true);
-        c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(8),dp(6),dp(5),dp(6));
-        c.setBackground(active?bg(Color.rgb(18,122,235),14):bg(CARD,14));
-        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(76));
-        p.setMargins(0,0,0,dp(6));c.setLayoutParams(p);return c;
+    void districtHeader(){
+        FrameLayout h=new FrameLayout(this);
+        ImageView photo=new ImageView(this);
+        photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        h.addView(photo,new FrameLayout.LayoutParams(-1,dp(158)));
+        loadRemoteImage(photo,districtPhotoUrl("Uzunköprü"));
+        GradientDrawable shade=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{Color.argb(25,0,0,0),Color.argb(210,3,28,48)});
+        View overlay=new View(this);overlay.setBackground(shade);
+        h.addView(overlay,new FrameLayout.LayoutParams(-1,dp(158)));
+        LinearLayout tx=col();tx.setPadding(dp(16),dp(18),dp(12),dp(12));
+        TextView title=tv("Edirne İlçeleri",25,TEXT,true);
+        TextView sub=tv("İLÇELERDE ANLIK SON DURUM",12,Color.rgb(220,235,248),true);
+        TextView upd=tv("Son güncelleme: "+currentTime(),10,MUTED,false);
+        tx.addView(title);tx.addView(sub);tx.addView(upd);
+        FrameLayout.LayoutParams tp=new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM);
+        h.addView(tx,tp);
+        content.addView(h,mp());
+    }
+
+    View districtMiniCard(Loc l,boolean active){
+        FrameLayout card=new FrameLayout(this);
+        card.setBackground(active?stroke(Color.rgb(18,122,235),Color.rgb(72,178,255),14):bg(CARD,14));
+        ImageView img=new ImageView(this);img.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        card.addView(img,new FrameLayout.LayoutParams(-1,dp(78)));
+        loadRemoteImage(img,districtPhotoUrl(l.name));
+        View shade=new View(this);
+        GradientDrawable gd=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{Color.argb(25,0,0,0),Color.argb(220,3,25,45)});
+        shade.setBackground(gd);card.addView(shade,new FrameLayout.LayoutParams(-1,dp(78)));
+        LinearLayout tx=col();tx.setGravity(Gravity.BOTTOM);tx.setPadding(dp(9),dp(6),dp(7),dp(6));
+        tx.addView(tv(l.name,12,TEXT,true));
+        tx.addView(tv(tempC(l.now,"—")+"  •  "+val(l.nowEvent,"—"),9,Color.rgb(225,240,250),true));
+        FrameLayout.LayoutParams tp=new FrameLayout.LayoutParams(-1,dp(78),Gravity.BOTTOM);
+        card.addView(tx,tp);
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(82));
+        p.setMargins(0,0,0,dp(6));card.setLayoutParams(p);
+        return card;
     }
 
     void renderSelectedDistrict(LinearLayout right,Loc l,boolean forecastOnly){
-        LinearLayout hero=col();hero.setPadding(dp(10),dp(9),dp(10),dp(9));
+        if(forecastOnly){
+            LinearLayout photoCard=col();
+            photoCard.setBackground(bg(Color.rgb(8,55,88),18));
+            photoCard.setPadding(dp(0),dp(0),dp(0),dp(8));
+            FrameLayout ph=new FrameLayout(this);
+            ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            ph.addView(image,new FrameLayout.LayoutParams(-1,dp(116)));
+            loadRemoteImage(image,districtPhotoUrl(l.name));
+            GradientDrawable shade=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                    new int[]{Color.argb(15,0,0,0),Color.argb(205,3,27,47)});
+            View sh=new View(this);sh.setBackground(shade);ph.addView(sh,new FrameLayout.LayoutParams(-1,dp(116)));
+            TextView nm=tv(l.name,21,TEXT,true);nm.setGravity(Gravity.BOTTOM);nm.setPadding(dp(12),0,dp(10),dp(12));
+            ph.addView(nm,new FrameLayout.LayoutParams(-1,-1,Gravity.BOTTOM));
+            photoCard.addView(ph,new LinearLayout.LayoutParams(-1,dp(116)));
+            for(Day d:l.days)photoCard.addView(dayCompact(d),mp());
+            right.addView(photoCard,mp());
+            return;
+        }
+
+        LinearLayout hero=col();
         hero.setBackground(bg(Color.rgb(10,59,94),18));
+        FrameLayout ph=new FrameLayout(this);
+        ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        ph.addView(image,new FrameLayout.LayoutParams(-1,dp(112)));
+        loadRemoteImage(image,districtPhotoUrl(l.name));
+        GradientDrawable shade=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{Color.argb(10,0,0,0),Color.argb(205,3,27,47)});
+        View sh=new View(this);sh.setBackground(shade);ph.addView(sh,new FrameLayout.LayoutParams(-1,dp(112)));
+        LinearLayout nm=col();nm.setPadding(dp(12),0,dp(10),dp(10));nm.setGravity(Gravity.BOTTOM);
+        nm.addView(tv(l.name,20,TEXT,true));nm.addView(tv(val(l.nowEvent,"—"),11,Color.rgb(218,235,249),false));
+        ph.addView(nm,new FrameLayout.LayoutParams(-1,-1,Gravity.BOTTOM));
+        hero.addView(ph,new LinearLayout.LayoutParams(-1,dp(112)));
 
-        LinearLayout rt=row();rt.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout names=col();
-        names.addView(tv(l.name,20,TEXT,true));
-        names.addView(tv(val(l.nowEvent,"—"),11,MUTED,false));
-        rt.addView(names,new LinearLayout.LayoutParams(0,-2,1));
-        rt.addView(weatherIconView(l.nowEvent,42),new LinearLayout.LayoutParams(dp(58),dp(58)));
-        hero.addView(rt);
+        LinearLayout tempRow=row();tempRow.setGravity(Gravity.CENTER_VERTICAL);tempRow.setPadding(dp(12),dp(5),dp(10),dp(3));
+        tempRow.addView(tv(tempC(l.now,"—"),29,GOLD,true),new LinearLayout.LayoutParams(0,dp(48),1));
+        tempRow.addView(weatherIconView(l.nowEvent,42),new LinearLayout.LayoutParams(dp(58),dp(48)));
+        hero.addView(tempRow);
 
-        TextView temp=tv(tempC(l.now,"—"),30,GOLD,true);
-        temp.setPadding(0,dp(2),0,dp(2));hero.addView(temp);
-
-        LinearLayout mm=row();mm.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout mm=row();mm.setPadding(dp(7),dp(4),dp(7),dp(8));mm.setGravity(Gravity.CENTER_VERTICAL);
         mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(64),1));
         mm.addView(metric("≋ Rüzgâr",val(l.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(0,dp(64),1));
         mm.addView(metric("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(64),1));
-        hero.addView(mm);right.addView(hero,mp());
-
-        TextView h=tv("5 GÜNLÜK HAVA TAHMİNİ",14,Color.rgb(205,224,244),true);
-        h.setPadding(0,dp(10),0,dp(6));right.addView(h,mp());
-        for(Day d:l.days)right.addView(dayCompact(d),mp());
-
-        TextView sh=tv("SAATLİK TAHMİN",14,Color.rgb(205,224,244),true);
-        sh.setPadding(0,dp(10),0,dp(6));right.addView(sh,mp());
-        LinearLayout hours=row();
-        for(Hour h2:l.hours){hours.addView(hourCompact(h2));if(hours.getChildCount()>=4)break;}
-        right.addView(hours,mp());
+        hero.addView(mm);
+        right.addView(hero,mp());
     }
 
     View dayCompact(Day d){
@@ -368,22 +415,40 @@ void showDistricts(){
         return sized(c,dp(62),dp(80));
     }
 
-    View sized(View v,int ww,int hh){v.setLayoutParams(new LinearLayout.LayoutParams(ww,hh));return v;}
+    String districtPhotoUrl(String name){
+        if(name==null)return "";
+        String n=name.toLowerCase(new Locale("tr","TR"));
+        if(n.equals("enez"))return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Enez%20-%20panoramio%20%281%29.jpg";
+        if(n.equals("havsa"))return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Fatih%20Caddesi%2C%20Havsa.jpg";
+        if(n.equals("i̇psala")||n.equals("ipsala"))return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Pasakoy%20fields%2020230624.jpg";
+        if(n.equals("keşan"))return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Kesan%20Turkey.JPG";
+        if(n.equals("lalapaşa"))return "https://commons.wikimedia.org/wiki/Special:Redirect/file/HamzabeyliKapisi.jpg";
+        if(n.equals("meriç"))return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Meri%C3%A7%20Nehri%20ve%20Meri%C3%A7%20K%C3%B6pr%C3%BCs%C3%BC%202015.jpg";
+        if(n.equals("süloğlu"))return "https://foto.haberler.com/haber/2021/06/07/edirne-de-kanocular-normallesme-surecinin-ilk-14183804_amp.jpg";
+        if(n.equals("uzunköprü"))return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Uzunk%C3%B6pr%C3%BC%20%281%29.jpg";
+        return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Uzunk%C3%B6pr%C3%BC%20%281%29.jpg";
+    }
 
-    void renderDistrictForecast(LinearLayout body,Loc selected){
-        if(selected==null){body.addView(tv("İlçe verileri yükleniyor…",14,MUTED,false));return;}
-        LinearLayout split=row();split.setGravity(Gravity.TOP);
-        LinearLayout left=col();left.setPadding(0,dp(8),dp(4),0);
-        LinearLayout right=col();right.setPadding(dp(4),dp(8),0,0);
-        split.addView(left,new LinearLayout.LayoutParams(0,-2,0.49f));
-        split.addView(right,new LinearLayout.LayoutParams(0,-2,0.51f));
-        for(int i=1;i<all.size();i++){
-            final Loc l=all.get(i);
-            TextView card=districtMiniCard(l,l==selected);
-            card.setOnClickListener(v->{body.removeAllViews();renderDistrictForecast(body,l);});
-            left.addView(card);
-        }
-        renderSelectedDistrict(right,selected,true);body.addView(split,mp());
+    void loadRemoteImage(ImageView target,String url){
+        if(url==null||url.isEmpty())return;
+        ex.execute(()->{
+            try{
+                String key="district_"+Integer.toHexString(url.hashCode())+".img";
+                java.io.File cache=new java.io.File(getCacheDir(),key);
+                if(!cache.exists()){
+                    java.net.URL u=new java.net.URL(url);
+                    java.net.HttpURLConnection c=(java.net.HttpURLConnection)u.openConnection();
+                    c.setConnectTimeout(12000);c.setReadTimeout(20000);c.setInstanceFollowRedirects(true);
+                    java.io.InputStream in=c.getInputStream();
+                    java.io.FileOutputStream out=new java.io.FileOutputStream(cache);
+                    byte[] buf=new byte[8192];int n;
+                    while((n=in.read(buf))!=-1)out.write(buf,0,n);
+                    out.close();in.close();c.disconnect();
+                }
+                final Bitmap b=BitmapFactory.decodeFile(cache.getAbsolutePath());
+                if(b!=null)main.post(()->target.setImageBitmap(b));
+            }catch(Exception ignored){}
+        });
     }
 
     void showWarnings(){
