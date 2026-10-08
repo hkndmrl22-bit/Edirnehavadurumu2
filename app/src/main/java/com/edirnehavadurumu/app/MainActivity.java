@@ -305,29 +305,29 @@ void showDistricts(){
     }
 
     void districtHeader(){
-        FrameLayout h=new FrameLayout(this);
+        // İlçeler sayfası başlığı artık kolajın üzerine binmiyor.
+        LinearLayout wrap=col();
         LinearLayout collage=col();
         collage.setBackground(bg(Color.rgb(3,28,48),0));
         String[] names={"Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
         LinearLayout r1=row(),r2=row();
         for(int i=0;i<8;i++){
             LinearLayout cell=photoCollageCell(names[i]);
-            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(92),1);
+            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(62),1);
             cp.setMargins(dp(1),dp(1),dp(1),dp(1));
             if(i<4)r1.addView(cell,cp);else r2.addView(cell,cp);
         }
-        collage.addView(r1,new LinearLayout.LayoutParams(-1,dp(94)));
-        collage.addView(r2,new LinearLayout.LayoutParams(-1,dp(94)));
-        h.addView(collage,new FrameLayout.LayoutParams(-1,dp(190)));
-        View shade=new View(this);
-        GradientDrawable shadeBg=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{Color.argb(15,0,0,0),Color.argb(175,3,28,48)});
-        shade.setBackground(shadeBg);h.addView(shade,new FrameLayout.LayoutParams(-1,dp(190)));
-        LinearLayout tx=col();tx.setPadding(dp(16),dp(10),dp(12),dp(10));
-        tx.addView(tv("Edirne İlçeleri",25,TEXT,true));
-        tx.addView(tv("İLÇELERDE ANLIK SON DURUM",12,Color.rgb(220,235,248),true));
-        tx.addView(tv("Son güncelleme: "+currentTime(),10,MUTED,false));
-        h.addView(tx,new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM));
-        content.addView(h,mp());
+        collage.addView(r1,new LinearLayout.LayoutParams(-1,dp(64)));
+        collage.addView(r2,new LinearLayout.LayoutParams(-1,dp(64)));
+        wrap.addView(collage,new LinearLayout.LayoutParams(-1,dp(128)));
+
+        LinearLayout title=col();
+        title.setPadding(dp(16),dp(9),dp(12),dp(5));
+        title.setBackgroundColor(NAVY);
+        title.addView(tv("Edirne İlçeleri",25,TEXT,true));
+        wrap.addView(title,mp());
+
+        content.addView(wrap,mp());
     }
 
     LinearLayout photoCollageCell(String name){
