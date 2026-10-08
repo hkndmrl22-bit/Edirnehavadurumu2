@@ -260,9 +260,6 @@ void showDistricts(){ showDistrictsTab(0); }
         districtTab=tab;
         content.removeAllViews();setNavActive(1);content.setPadding(0,0,0,0);
 
-        TextView sectionTitle=tv(tab==0?"İLÇELERDE ANLIK SON DURUM":"İLÇELERDE 5 GÜNLÜK HAVA TAHMİNİ",17,Color.rgb(210,229,246),true);
-        sectionTitle.setPadding(dp(2),dp(12),dp(2),dp(4));content.addView(sectionTitle,mp());
-
         TextView upd=tv("⟳  Son güncelleme: "+currentTime(),12,MUTED,true);
         upd.setGravity(Gravity.CENTER_VERTICAL);
         upd.setPadding(dp(4),0,dp(4),dp(8));
@@ -385,7 +382,6 @@ void showDistricts(){ showDistrictsTab(0); }
         if(forecastOnly){
             LinearLayout panel=col();panel.setPadding(dp(10),dp(10),dp(10),dp(8));panel.setBackground(bg(Color.rgb(8,55,88),18));
             LinearLayout title=row();title.setGravity(Gravity.CENTER_VERTICAL);
-            title.addView(tv(districtIcon(l.name),30,TEXT,true),new LinearLayout.LayoutParams(dp(48),dp(48)));
             LinearLayout tt=col();tt.addView(tv(l.name,21,TEXT,true));tt.addView(tv("5 GÜNLÜK TAHMİN",10,MUTED,true));
             title.addView(tt,new LinearLayout.LayoutParams(0,-2,1));panel.addView(title);
             for(Day d:l.days)panel.addView(dayCompact(d),mp());
@@ -393,7 +389,6 @@ void showDistricts(){ showDistrictsTab(0); }
         }
         LinearLayout hero=col();hero.setPadding(dp(10),dp(10),dp(10),dp(8));hero.setBackground(bg(Color.rgb(10,59,94),18));
         LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);
-        top.addView(tv(districtIcon(l.name),38,TEXT,true),new LinearLayout.LayoutParams(dp(58),dp(58)));
         LinearLayout nm=col();nm.addView(tv(l.name,21,TEXT,true));nm.addView(tv(val(l.nowEvent,"—"),11,Color.rgb(218,235,249),false));
         top.addView(nm,new LinearLayout.LayoutParams(0,-2,1));top.addView(weatherIconView(l.nowEvent,42),new LinearLayout.LayoutParams(dp(58),dp(58)));hero.addView(top);
         TextView temp=tv(tempC(l.now,"—"),31,GOLD,true);temp.setGravity(Gravity.CENTER_VERTICAL);temp.setPadding(dp(58),dp(3),0,dp(3));hero.addView(temp,new LinearLayout.LayoutParams(-1,dp(48)));
