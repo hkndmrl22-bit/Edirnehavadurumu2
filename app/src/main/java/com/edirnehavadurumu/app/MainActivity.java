@@ -104,11 +104,9 @@ public class MainActivity extends Activity {
         LinearLayout title=col();title.setPadding(dp(11),dp(0),0,0);
         title.addView(tv("Edirne",31,TEXT,true));
         title.addView(tv("HAVA DURUMU",20,TEXT,true));
-        title.addView(tv(trDate(),11,Color.WHITE,false));
-        title.addView(tv("◷  "+new SimpleDateFormat("HH:mm",new Locale("tr","TR")).format(new Date()),11,TEXT,true));
+        
         top.addView(title,new LinearLayout.LayoutParams(0,-2,1));
-        overlay.addView(top);
-        content.addView(hero,mp());
+        overlay.addView(top);\n        TextView photoDate=tv(trDate()+"  •  "+new SimpleDateFormat("HH:mm",new Locale("tr","TR")).format(new Date()),12,Color.WHITE,true);\n        photoDate.setGravity(Gravity.CENTER);\n        photoDate.setShadowLayer(dp(3),0,dp(1),Color.BLACK);\n        FrameLayout.LayoutParams datep=new FrameLayout.LayoutParams(-1,dp(30),Gravity.BOTTOM);\n        datep.setMargins(dp(8),0,dp(8),dp(8));\n        hero.addView(photoDate,datep);\n        content.addView(hero,mp());
 
         if(center==null){content.addView(tv("Veriler yükleniyor…",15,MUTED,true),mp());return;}
 
