@@ -118,9 +118,9 @@ public class MainActivity extends Activity {
         LinearLayout wh=row();wh.setGravity(Gravity.CENTER_VERTICAL);
         wh.addView(tv("EDİRNE MERKEZ",16,Color.rgb(231,242,250),true),
                 new LinearLayout.LayoutParams(0,dp(24),1));
-        TextView upd=tv("⟳  Son Güncelleme: "+lastUpdate,8,TEXT,true);
+        TextView upd=tv("⟳  Son Güncelleme: "+lastUpdate,10,TEXT,true);
         upd.setGravity(Gravity.CENTER);upd.setSingleLine(true);
-        upd.setBackground(bg(Color.rgb(18,75,115),14));
+        upd.setBackground(bg(Color.rgb(18,75,115),14));\n        upd.setClickable(true);\n        upd.setOnClickListener(v->{ lastUpdate=currentTime(); upd.setText("⟳  Güncelleniyor…"); load(); });
         wh.addView(upd,new LinearLayout.LayoutParams(dp(174),dp(24)));
         weather.addView(wh);
 
