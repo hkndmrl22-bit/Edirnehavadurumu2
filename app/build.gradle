@@ -8,8 +8,8 @@ android {
         applicationId 'com.edirnehavadurumu.app'
         minSdk 23
         targetSdk 35
-        versionCode 88
-        versionName '10.78'
+        versionCode 89
+        versionName '10.79'
     }
 
     signingConfigs {
@@ -28,6 +28,97 @@ android {
         }
     }
 }
+
+
+// İlçeler ekranı son görsel düzeltmeleri: kart metin taşması, ilçe kartı simgeleri,
+// sağ panel ölçüleri ve tahmin ikonları. Kaynak dosyayı bozmadan build öncesi uygulanır.
+tasks.register("fixDistrictUi") {
+    doLast {
+        File src = file("src/main/java/com/edirnehavadurumu/app/MainActivity.java")
+        String text = src.getText("UTF-8")
+
+        String oldMini = '''    View districtMiniCard(Loc l,boolean active){
+        LinearLayout card=col();
+        card.setPadding(dp(12),dp(7),dp(8),dp(7));
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setBackground(active?stroke(Color.rgb(18,122,235),Color.rgb(72,178,255),14):bg(CARD,14));
+
+        card.addView(tv(l.name,18,TEXT,true),new LinearLayout.LayoutParams(-1,dp(27)));
+
+        LinearLayout info=row();
+        info.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView temp=tv(tempC(l.now,"—"),15,GOLD,true);
+        temp.setGravity(Gravity.CENTER_VERTICAL);
+        info.addView(temp,new LinearLayout.LayoutParams(dp(68),dp(34)));
+
+        info.addView(weatherIconView(l.nowEvent,20),new LinearLayout.LayoutParams(dp(36),dp(34)));
+
+        TextView ev=tv(val(l.nowEvent,"—"),9.5f,Color.rgb(225,240,250),true);
+        ev.setGravity(Gravity.CENTER_VERTICAL);
+        ev.setMaxLines(2);
+        ev.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        info.addView(ev,new LinearLayout.LayoutParams(0,dp(34),1));
+
+        card.addView(info,new LinearLayout.LayoutParams(-1,dp(34)));
+
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(82));
+        p.setMargins(0,0,0,dp(7));
+        card.setLayoutParams(p);
+        return card;
+    }
+'''
+        String newMini = '''    View districtMiniCard(Loc l,boolean active){
+        LinearLayout card=col();
+        card.setPadding(dp(12),dp(7),dp(8),dp(7));
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setBackground(active?stroke(Color.rgb(18,122,235),Color.rgb(72,178,255),14):bg(CARD,14));
+
+        // İlçe kartları sade: isim + sıcaklık + hava açıklaması. Alakasız küçük simge yok.
+        TextView name=tv(l.name,20,TEXT,true);
+        name.setSingleLine(true);
+        name.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        card.addView(name,new LinearLayout.LayoutParams(-1,dp(29)));
+
+        LinearLayout info=row();
+        info.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView temp=tv(tempC(l.now,"—"),15,GOLD,true);
+        temp.setGravity(Gravity.CENTER_VERTICAL);
+        info.addView(temp,new LinearLayout.LayoutParams(dp(76),dp(34)));
+
+        TextView ev=tv(val(l.nowEvent,"—"),10.5f,Color.rgb(225,240,250),true);
+        ev.setGravity(Gravity.CENTER_VERTICAL|Gravity.START);
+        ev.setMaxLines(2);
+        ev.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        info.addView(ev,new LinearLayout.LayoutParams(0,dp(34),1));
+
+        card.addView(info,new LinearLayout.LayoutParams(-1,dp(34)));
+
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(82));
+        p.setMargins(0,0,0,dp(7));
+        card.setLayoutParams(p);
+        return card;
+    }
+'''
+        if (!text.contains(oldMini)) throw new GradleException("districtMiniCard block not found")
+        text=text.replace(oldMini,newMini)
+
+        text=text.replace('condition.addView(weatherIconView(l.nowEvent,32),new LinearLayout.LayoutParams(dp(50),dp(50)));',
+                          'condition.addView(weatherIconView(l.nowEvent,25),new LinearLayout.LayoutParams(dp(42),dp(50)));')
+        text=text.replace('TextView ce=tv(val(l.nowEvent,"—"),11,TEXT,true);',
+                          'TextView ce=tv(val(l.nowEvent,"—"),10.5f,TEXT,true);')
+        text=text.replace('c.addView(weatherIconView(d.e,25),new LinearLayout.LayoutParams(dp(48),dp(66)));',
+                          'c.addView(weatherIconView(d.e,20),new LinearLayout.LayoutParams(dp(42),dp(66)));')
+        text=text.replace('LinearLayout left=col();left.setPadding(0,dp(8),dp(4),0);\n        LinearLayout right=col();right.setPadding(dp(4),dp(8),0,0);',
+                          'LinearLayout left=col();left.setPadding(0,dp(8),dp(2),0);\n        LinearLayout right=col();right.setPadding(dp(2),dp(8),0,0);')
+        text=text.replace('mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%")', 'mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%")')
+        src.setText(text, "UTF-8")
+    }
+}
+
+// Ensure the UI correction runs before Java compilation.
+tasks.named("preBuild").configure { dependsOn("fixDistrictUi") }
 
 dependencies {
     implementation 'org.jsoup:jsoup:1.18.3'
