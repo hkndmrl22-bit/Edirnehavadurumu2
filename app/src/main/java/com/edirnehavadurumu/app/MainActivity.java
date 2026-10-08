@@ -101,11 +101,6 @@ public class MainActivity extends Activity {
         hero.addView(overlay,op);
 
         LinearLayout top=row();top.setGravity(Gravity.TOP);
-        ImageView logo=new ImageView(this);logo.setImageResource(R.drawable.edirne_logo_real);
-        logo.setScaleType(ImageView.ScaleType.CENTER_CROP);logo.setBackground(bg(Color.WHITE,50));logo.setClipToOutline(true);
-        logo.setOutlineProvider(new ViewOutlineProvider(){@Override public void getOutline(View v,Outline o){o.setOval(0,0,v.getWidth(),v.getHeight());}});
-        top.addView(logo,new LinearLayout.LayoutParams(dp(78),dp(78)));
-
         LinearLayout title=col();title.setPadding(dp(11),dp(0),0,0);
         title.addView(tv("Edirne",31,TEXT,true));
         title.addView(tv("HAVA DURUMU",20,TEXT,true));
