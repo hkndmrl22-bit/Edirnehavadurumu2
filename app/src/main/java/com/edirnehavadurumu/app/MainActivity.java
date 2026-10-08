@@ -51,11 +51,7 @@ public class MainActivity extends Activity {
 
     LinearLayout nav(){
         LinearLayout n=row();n.setGravity(Gravity.CENTER);n.setPadding(dp(6),dp(2),dp(6),dp(2));n.setBackground(bg(Color.rgb(8,38,68),0));
-        String[] labels={"⌂
-Ana Sayfa","●
-İlçeler","⚠
-Uyarılar","⚙
-Ayarlar"};
+        String[] labels={"⌂\nAna Sayfa","●\nİlçeler","⚠\nUyarılar","⚙\nAyarlar"};
         for(int i=0;i<4;i++){final int k=i;TextView b=tv(labels[i],14,Color.rgb(225,238,250),true);b.setGravity(Gravity.CENTER);b.setClickable(true);b.setFocusable(true);b.setMinHeight(dp(46));b.setPadding(0,dp(1),0,dp(1));navButtons[i]=b;b.setOnClickListener(v->{if(k==0)showHome();else if(k==1)showDistricts();else if(k==2)showWarnings();else showSettings();});LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(46),1);p.setMargins(dp(3),0,dp(3),0);n.addView(b,p);} n.setClickable(true);n.bringToFront();return n;
     }
     void setNavActive(int active){
@@ -297,8 +293,7 @@ void showDistricts(){
     }
 
     TextView districtMiniCard(Loc l,boolean active){
-        TextView c=tv(icon(l.nowEvent)+"  "+l.name+"
-"+val(l.nowEvent,"—")+"   "+tempC(l.now,"—"),10,TEXT,true);
+        TextView c=tv(icon(l.nowEvent)+"  "+l.name+"\n"+val(l.nowEvent,"—")+"   "+tempC(l.now,"—"),10,TEXT,true);
         c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(8),dp(7),dp(6),dp(7));
         c.setBackground(active?bg(Color.rgb(18,122,235),14):bg(CARD,14));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(76));p.setMargins(0,0,0,dp(6));c.setLayoutParams(p);return c;
@@ -359,12 +354,10 @@ void showDistricts(){
         section("TERCİHLER");content.addView(toggleSetting("Bildirimler",true));content.addView(toggleSetting("Konum",false));content.addView(toggleSetting("Anlık Güncelleme",true));
         section("HAKKINDA");content.addView(setting("ⓘ","Hakkında","Edirne Yerel Hava Tahmin Uygulaması"),mp());content.addView(setting("🔒","Gizlilik Politikası","Yerel uygulama"),mp());
         section("BİZİ TAKİP EDİN");LinearLayout socials=row();addSocial(socials,R.drawable.ic_facebook,"https://www.facebook.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_instagram,"https://www.instagram.com/edirnehavadurumu/");addSocial(socials,R.drawable.ic_x,"https://x.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_youtube,"https://www.youtube.com/@edirnehavadurumu");content.addView(socials,mp());
-        TextView foot=tv("Edirne Yerel Hava Tahmin Uygulaması
-Sürüm "+appVersion()+"",10,MUTED,false);foot.setGravity(Gravity.CENTER);foot.setPadding(0,dp(25),0,dp(15));content.addView(foot,mp());
+        TextView foot=tv("Edirne Yerel Hava Tahmin Uygulaması\nSürüm "+appVersion()+"",10,MUTED,false);foot.setGravity(Gravity.CENTER);foot.setPadding(0,dp(25),0,dp(15));content.addView(foot,mp());
     }
 
-    TextView setting(String i,String a,String b){TextView t=tv(i+"   "+a+"
-        "+b,13,TEXT,true);t.setPadding(dp(13),dp(12),dp(13),dp(12));t.setBackground(bg(CARD,16));return t;}
+    TextView setting(String i,String a,String b){TextView t=tv(i+"   "+a+"\n        "+b,13,TEXT,true);t.setPadding(dp(13),dp(12),dp(13),dp(12));t.setBackground(bg(CARD,16));return t;}
     View toggleSetting(String name,boolean checked){Switch s=new Switch(this);s.setText(name);s.setTextColor(TEXT);s.setTextSize(14);s.setChecked(checked);s.setPadding(dp(10),dp(8),dp(10),dp(8));s.setBackground(bg(CARD,16));LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(5),0,0);s.setLayoutParams(p);return s;}
     void addSocial(LinearLayout p,int res,String url){ImageButton b=new ImageButton(this);b.setImageResource(res);b.setBackgroundColor(Color.TRANSPARENT);b.setOnClickListener(v->open(url));p.addView(b,new LinearLayout.LayoutParams(0,dp(55),1));}
 
