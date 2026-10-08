@@ -100,7 +100,8 @@ public class MainActivity extends Activity {
         FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(296),Gravity.TOP);
         hero.addView(overlay,op);
 
-        // Fotoğraf üzerindeki "EDİRNE HAVA DURUMU" başlığı kaldırıldı.\n        TextView photoDate=tv(trDate()+"  •  "+new SimpleDateFormat("HH:mm",new Locale("tr","TR")).format(new Date()),12,Color.WHITE,true);
+        // Fotoğraf üzerindeki "EDİRNE HAVA DURUMU" başlığı kaldırıldı.
+        TextView photoDate=tv(trDate()+"  •  "+new SimpleDateFormat("HH:mm",new Locale("tr","TR")).format(new Date()),12,Color.WHITE,true);
         photoDate.setGravity(Gravity.CENTER);
         photoDate.setShadowLayer(dp(3),0,dp(1),Color.BLACK);
         FrameLayout.LayoutParams datep=new FrameLayout.LayoutParams(-1,dp(30),Gravity.BOTTOM);
