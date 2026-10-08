@@ -260,13 +260,6 @@ void showDistricts(){ showDistrictsTab(0); }
         districtTab=tab;
         content.removeAllViews();setNavActive(1);content.setPadding(0,0,0,0);
 
-        TextView upd=tv("⟳  Son güncelleme: "+currentTime(),12,MUTED,true);
-        upd.setGravity(Gravity.CENTER_VERTICAL);
-        upd.setPadding(dp(4),0,dp(4),dp(8));
-        upd.setClickable(true);
-        upd.setOnClickListener(v->refreshDistricts(tab,upd));
-        content.addView(upd,mp());
-
         LinearLayout tabs=row();tabs.setPadding(0,0,0,dp(2));
         TextView instant=tv("◉  ANLIK DURUM",14,TEXT,true);
         TextView five=tv("▦  5 GÜNLÜK TAHMİN",14,TEXT,true);
@@ -358,7 +351,11 @@ void showDistricts(){ showDistrictsTab(0); }
         card.setBackground(active?stroke(Color.rgb(18,122,235),Color.rgb(72,178,255),14):bg(CARD,14));
         LinearLayout tx=col();tx.setGravity(Gravity.CENTER_VERTICAL);
         tx.addView(tv(l.name,18,TEXT,true));
-        tx.addView(tv(tempC(l.now,"—")+"  •  "+val(l.nowEvent,"—"),12.5f,Color.rgb(225,240,250),true));
+        LinearLayout sub=row();sub.setGravity(Gravity.CENTER_VERTICAL);
+        sub.addView(tv(tempC(l.now,"—"),15,GOLD,true),new LinearLayout.LayoutParams(dp(82),dp(24)));
+        sub.addView(tv("•  "+val(l.nowEvent,"—"),11.5f,Color.rgb(225,240,250),true),new LinearLayout.LayoutParams(0,dp(24),1));
+        sub.addView(tv("⟳ "+shortTime(l.lastUpdate),10,MUTED,false),new LinearLayout.LayoutParams(dp(48),dp(24)));
+        tx.addView(sub);
         card.addView(tx,new LinearLayout.LayoutParams(0,dp(58),1));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(72));p.setMargins(0,0,0,dp(7));card.setLayoutParams(p);
         return card;
@@ -382,21 +379,27 @@ void showDistricts(){ showDistrictsTab(0); }
         if(forecastOnly){
             LinearLayout panel=col();panel.setPadding(dp(10),dp(10),dp(10),dp(8));panel.setBackground(bg(Color.rgb(8,55,88),18));
             LinearLayout title=row();title.setGravity(Gravity.CENTER_VERTICAL);
-            LinearLayout tt=col();tt.addView(tv(l.name,21,TEXT,true));tt.addView(tv("5 GÜNLÜK TAHMİN",10,MUTED,true));
-            title.addView(tt,new LinearLayout.LayoutParams(0,-2,1));panel.addView(title);
+            LinearLayout tt=col();tt.addView(tv(l.name,21,TEXT,true));tt.addView(tv("5 GÜNLÜK TAHMİN",10,MUTED,true));tt.addView(tv("Son güncelleme: "+l.lastUpdate,9.5f,MUTED,false));
+            title.addView(tt,new LinearLayout.LayoutParams(0,-2,1));
+            TextView rb=tv("⟳",25,TEXT,true);rb.setGravity(Gravity.CENTER);rb.setBackground(bg(BLUE,22));rb.setOnClickListener(v->refreshDistricts(districtTab,rb));title.addView(rb,new LinearLayout.LayoutParams(dp(46),dp(46)));
+            panel.addView(title);
             for(Day d:l.days)panel.addView(dayCompact(d),mp());
             right.addView(panel,mp());return;
         }
         LinearLayout hero=col();hero.setPadding(dp(10),dp(10),dp(10),dp(8));hero.setBackground(bg(Color.rgb(10,59,94),18));
         LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout nm=col();nm.addView(tv(l.name,21,TEXT,true));nm.addView(tv(val(l.nowEvent,"—"),11,Color.rgb(218,235,249),false));
-        top.addView(nm,new LinearLayout.LayoutParams(0,-2,1));top.addView(weatherIconView(l.nowEvent,42),new LinearLayout.LayoutParams(dp(58),dp(58)));hero.addView(top);
+        LinearLayout nm=col();nm.addView(tv(l.name,21,TEXT,true));nm.addView(tv("Son güncelleme: "+l.lastUpdate,9.5f,MUTED,false));nm.addView(tv(val(l.nowEvent,"—"),11,Color.rgb(218,235,249),false));
+        top.addView(nm,new LinearLayout.LayoutParams(0,-2,1));
+        TextView rb=tv("⟳",25,TEXT,true);rb.setGravity(Gravity.CENTER);rb.setBackground(bg(BLUE,22));rb.setOnClickListener(v->refreshDistricts(districtTab,rb));top.addView(rb,new LinearLayout.LayoutParams(dp(46),dp(46)));
+        top.addView(weatherIconView(l.nowEvent,34),new LinearLayout.LayoutParams(dp(50),dp(50)));hero.addView(top);
         TextView temp=tv(tempC(l.now,"—"),31,GOLD,true);temp.setGravity(Gravity.CENTER_VERTICAL);temp.setPadding(dp(58),dp(3),0,dp(3));hero.addView(temp,new LinearLayout.LayoutParams(-1,dp(48)));
         LinearLayout mm=row();mm.setPadding(0,dp(4),0,0);mm.setGravity(Gravity.CENTER_VERTICAL);
         mm.addView(metric("💧 Nem",val(l.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(64),1));
         mm.addView(metric("≋ Rüzgâr",val(l.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(0,dp(64),1));
         mm.addView(metric("◉ Basınç",val(l.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(64),1));hero.addView(mm);
         right.addView(hero,mp());
+        TextView refresh=tv("⟳  Son Durumu Yenile",13,TEXT,true);refresh.setGravity(Gravity.CENTER);refresh.setBackground(bg(BLUE,20));refresh.setPadding(0,dp(8),0,dp(8));refresh.setOnClickListener(v->refreshDistricts(districtTab,refresh));
+        LinearLayout.LayoutParams rp=mp();rp.setMargins(0,dp(8),0,0);right.addView(refresh,rp);
     }
 
     View dayCompact(Day d){
@@ -542,7 +545,7 @@ void showDistricts(){ showDistrictsTab(0); }
         }catch(Exception ignored){}
 
         // First card is always today. Current observation is also MGM data.
-        String today=new SimpleDateFormat("dd MMM",new Locale("tr","TR")).format(new Date());
+        String today=new SimpleDateFormat("dd",new Locale("tr","TR")).format(new Date())+" "+new SimpleDateFormat("MMMM",new Locale("tr","TR")).format(new Date());
         String todayTemp=val(l.now,"—");
         String todayMin=todayTemp, todayMax=todayTemp;
         try{
@@ -579,9 +582,10 @@ void showDistricts(){ showDistrictsTab(0); }
     }
     String condition(String c){String[] k={"PB","GSY","HSY","SY","A","AB","CB","HY","Y","K","R","SIS","KY","KSY","YKY","KGY"};String[] v={"Parçalı Bulutlu","Gökgürültülü Sağanak Yağışlı","Hafif Sağanak Yağışlı","Sağanak Yağışlı","Açık","Az Bulutlu","Çok Bulutlu","Hafif Yağmurlu","Yağmurlu","Kar Yağışlı","Rüzgarlı","Sis","Kuvvetli Yağmurlu","Kuvvetli Sağanak Yağışlı","Yoğun Kar Yağışlı","Kuvvetli Gökgürültülü Sağanak Yağışlı"};for(int i=0;i<k.length;i++)if(k[i].equalsIgnoreCase(c))return v[i];return c;}
     String formatUtc(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat o=new SimpleDateFormat("dd.MM.yyyy HH:mm",new Locale("tr","TR"));o.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return o.format(d);}catch(Exception e){return s;}}
-    String formatDay(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat o=new SimpleDateFormat("dd MMM",new Locale("tr","TR"));o.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return o.format(d);}catch(Exception e){return s;}}
+    String formatDay(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);Calendar c=Calendar.getInstance(TimeZone.getTimeZone("Europe/Istanbul"));c.setTime(d);String[] ay={"Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"};return String.format(Locale.TR," %02d %s",c.get(Calendar.DAY_OF_MONTH),ay[c.get(Calendar.MONTH)]).trim();}catch(Exception e){return s;}}
     String timeOnly(String s){if(s==null)return "";java.util.regex.Matcher m=java.util.regex.Pattern.compile("(\\d{2}:\\d{2})").matcher(s);return m.find()?m.group(1):"";}
-    String currentTime(){return new SimpleDateFormat("d MMM yyyy HH:mm",new Locale("tr","TR")).format(new Date());}
+    String currentTime(){return new SimpleDateFormat("d MMMM yyyy HH:mm",new Locale("tr","TR")).format(new Date());}
+    String shortTime(String x){if(x==null||x.isEmpty()||x.equals("—"))return "—";int p=x.lastIndexOf(" ");return p>=0&&p+1<x.length()?x.substring(p+1):x;}
     String dayLabel(String s){if(s==null||s.isEmpty())return "Bugün";return s;}
     String val(String x,String d){return x==null||x.isEmpty()?d:x;}
     View weatherIconView(String event,int sizeDp){
@@ -674,7 +678,7 @@ void showDistricts(){ showDistrictsTab(0); }
     @Override protected void onDestroy(){timer.removeCallbacks(refresh5m);ex.shutdownNow();imgEx.shutdownNow();super.onDestroy();}
     static class Day{String date,e,mi,ma;Day(String d,String e,String mi,String ma){this.date=d;this.e=e;this.mi=mi;this.ma=ma;}}
     static class Hour{String time,temp,event,wind;Hour(String t,String v,String e,String w){time=t;temp=v;event=e;wind=w;}}
-    static class Loc{String name,now="",nowEvent="",humidity="",pressure="",wind="",feels="",windDir="";ArrayList<Day>days=new ArrayList<>();ArrayList<Hour>hours=new ArrayList<>();Loc(String n){name=n;}}
+    static class Loc{String name,now="",nowEvent="",humidity="",pressure="",wind="",feels="",windDir="",lastUpdate="—";ArrayList<Day>days=new ArrayList<>();ArrayList<Hour>hours=new ArrayList<>();Loc(String n){name=n;}}
 
     View dayCard(Day d){
         LinearLayout c=row();c.setGravity(Gravity.CENTER_VERTICAL);c.setPadding(dp(14),dp(10),dp(14),dp(10));c.setBackground(bg(CARD,17));
