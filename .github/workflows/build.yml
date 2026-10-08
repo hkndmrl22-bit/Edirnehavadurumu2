@@ -56,7 +56,6 @@ jobs:
           else
             gh release create "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --title "Edirne Hava Durumu ${VERSION_NAME}" --notes "EDİRNE YEREL HAVA TAHMİN UYGULAMASI"
           fi
-
       - name: Update website version data
         run: |
           VERSION_NAME=$(awk -F"'" '/versionName/{print $2}' app/build.gradle)
@@ -70,5 +69,5 @@ jobs:
           git diff --cached --quiet || git commit -m "Site surum bilgisini guncelle [skip ci]"
           git push
 
-# Trigger 10.57 APK build
-# Build trigger: 2026-10-08T11:30:00Z
+# Trigger 10.71 APK build
+# Build trigger: 2026-10-08T16:10:00+03:00
