@@ -2,22 +2,6 @@
         String iconText=a, label="";
         int sp=a.indexOf(" ");
         if(sp>0){iconText=a.substring(0,sp);label=a.substring(sp+1);}
-        LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);card.setPadding(dp(2),dp(3),dp(2),dp(3));
-        card.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),15));
-        TextView ic=tv(iconText,22,TEXT,false);ic.setGravity(Gravity.CENTER);ic.setIncludeFontPadding(false);
-        card.addView(ic,new LinearLayout.LayoutParams(dp(28),-1));
-        LinearLayout info=col();info.setGravity(Gravity.CENTER_VERTICAL);
-        TextView la=tv(label,9.5f,TEXT,true);la.setIncludeFontPadding(false);la.setSingleLine(true);la.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        TextView va=tv(b,12f,TEXT,true);va.setIncludeFontPadding(false);va.setMaxLines(2);va.setGravity(Gravity.CENTER_VERTICAL);
-        info.addView(la,new LinearLayout.LayoutParams(-1,dp(18)));
-        info.addView(va,new LinearLayout.LayoutParams(-1,dp(30)));
-        card.addView(info,new LinearLayout.LayoutParams(0,-1,1));
-        return card;
-    }
-    View metric(String a,String b){
-        String iconText=a, label="";
-        int sp=a.indexOf(" ");
-        if(sp>0){iconText=a.substring(0,sp);label=a.substring(sp+1);}
         LinearLayout card=col();
         card.setGravity(Gravity.CENTER);
         card.setPadding(dp(2),dp(3),dp(2),dp(3));
