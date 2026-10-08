@@ -22,6 +22,8 @@ public class MainActivity extends Activity {
         final int NAVY=Color.rgb(4,28,50), CARD=Color.rgb(8,63,101), BLUE=Color.rgb(20,126,232);
     final int TEXT=Color.WHITE, MUTED=Color.rgb(175,198,220), GOLD=Color.rgb(255,194,55);
     ExecutorService ex=Executors.newSingleThreadExecutor();
+    ExecutorService imgEx=Executors.newFixedThreadPool(4);
+    int districtTab=0;
     Handler main=new Handler(Looper.getMainLooper()), timer=new Handler(Looper.getMainLooper());
     Runnable refresh5m;
     LinearLayout page,content,bottomNav;
@@ -243,8 +245,8 @@ public class MainActivity extends Activity {
         TextView ic=tv(iconText,22,TEXT,false);ic.setGravity(Gravity.CENTER);ic.setIncludeFontPadding(false);
         card.addView(ic,new LinearLayout.LayoutParams(dp(28),-1));
         LinearLayout info=col();info.setGravity(Gravity.CENTER_VERTICAL);
-        TextView la=tv(label,8.5f,TEXT,true);la.setIncludeFontPadding(false);la.setSingleLine(true);la.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        TextView va=tv(b,10.5f,TEXT,true);va.setIncludeFontPadding(false);va.setMaxLines(2);va.setGravity(Gravity.CENTER_VERTICAL);
+        TextView la=tv(label,9.5f,TEXT,true);la.setIncludeFontPadding(false);la.setSingleLine(true);la.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        TextView va=tv(b,12f,TEXT,true);va.setIncludeFontPadding(false);va.setMaxLines(2);va.setGravity(Gravity.CENTER_VERTICAL);
         info.addView(la,new LinearLayout.LayoutParams(-1,dp(18)));
         info.addView(va,new LinearLayout.LayoutParams(-1,dp(30)));
         card.addView(info,new LinearLayout.LayoutParams(0,-1,1));
@@ -252,37 +254,56 @@ public class MainActivity extends Activity {
     }
     void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadding(dp(2),dp(18),dp(2),dp(9));content.addView(t,mp());}
 
-void showDistricts(){
+void showDistricts(){ showDistrictsTab(0); }
+
+    void showDistrictsTab(int tab){
+        districtTab=tab;
         content.removeAllViews();setNavActive(1);content.setPadding(0,0,0,0);
 
         districtHeader();
-        section("İLÇELERDE ANLIK SON DURUM");
-        TextView upd=tv("Son güncelleme: "+currentTime(),12,MUTED,false);
-        upd.setPadding(dp(2),0,dp(2),dp(8));content.addView(upd,mp());
+
+        TextView sectionTitle=tv(tab==0?"İLÇELERDE ANLIK SON DURUM":"İLÇELERDE 5 GÜNLÜK HAVA TAHMİNİ",17,Color.rgb(210,229,246),true);
+        sectionTitle.setPadding(dp(2),dp(12),dp(2),dp(4));content.addView(sectionTitle,mp());
+
+        TextView upd=tv("⟳  Son güncelleme: "+currentTime(),12,MUTED,true);
+        upd.setGravity(Gravity.CENTER_VERTICAL);
+        upd.setPadding(dp(4),0,dp(4),dp(8));
+        upd.setClickable(true);
+        upd.setOnClickListener(v->refreshDistricts(tab,upd));
+        content.addView(upd,mp());
 
         LinearLayout tabs=row();tabs.setPadding(0,0,0,dp(2));
         TextView instant=tv("◉  ANLIK DURUM",14,TEXT,true);
         TextView five=tv("▦  5 GÜNLÜK TAHMİN",14,TEXT,true);
         instant.setGravity(Gravity.CENTER);five.setGravity(Gravity.CENTER);
-        instant.setBackground(bg(Color.rgb(18,122,235),16));
-        five.setBackground(stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
+        instant.setBackground(tab==0?bg(Color.rgb(18,122,235),16):stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
+        five.setBackground(tab==1?bg(Color.rgb(18,122,235),16):stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
         LinearLayout.LayoutParams tp1=new LinearLayout.LayoutParams(0,dp(58),1);
         LinearLayout.LayoutParams tp2=new LinearLayout.LayoutParams(0,dp(58),1);
         tp1.setMargins(0,0,dp(2),0);tp2.setMargins(dp(2),0,0,0);
         tabs.addView(instant,tp1);tabs.addView(five,tp2);content.addView(tabs,mp());
 
         LinearLayout body=col();content.addView(body,mp());
-        renderDistrictCurrent(body,all.size()>1?all.get(1):null);
+        if(tab==0)renderDistrictCurrent(body,all.size()>1?all.get(1):null);
+        else renderDistrictForecast(body,all.size()>1?all.get(1):null);
 
-        instant.setOnClickListener(v->{
-            instant.setBackground(bg(Color.rgb(18,122,235),16));
-            five.setBackground(stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
-            body.removeAllViews();renderDistrictCurrent(body,all.size()>1?all.get(1):null);
-        });
-        five.setOnClickListener(v->{
-            five.setBackground(bg(Color.rgb(18,122,235),16));
-            instant.setBackground(stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
-            body.removeAllViews();renderDistrictForecast(body,all.size()>1?all.get(1):null);
+        instant.setOnClickListener(v->{if(districtTab!=0)showDistrictsTab(0);});
+        five.setOnClickListener(v->{if(districtTab!=1)showDistrictsTab(1);});
+    }
+
+    void refreshDistricts(int tab,TextView button){
+        button.setText("⟳  Güncelleniyor…");
+        ex.execute(()->{
+            try{
+                Loc cen=apiLocation("Edirne Merkez","merkez");
+                String[] D={"Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
+                String[] Q={"ENEZ","HAVSA","IPSALA","KESAN","LALAPASA","MERIC","SULOGLU","UZUNKOPRU"};
+                ArrayList<Loc> tmp=new ArrayList<>();tmp.add(cen);
+                for(int i=0;i<D.length;i++){try{tmp.add(apiLocation(D[i],Q[i].toLowerCase(Locale.ROOT)));}catch(Exception ignored){}}
+                main.post(()->{center=cen;all=tmp;lastUpdate=currentTime();showDistrictsTab(tab);});
+            }catch(Exception e){
+                main.post(()->button.setText("⟳  Güncelleme başarısız — tekrar dene"));
+            }
         });
     }
 
@@ -305,29 +326,19 @@ void showDistricts(){
     }
 
     void districtHeader(){
-        // İlçeler sayfası başlığı artık kolajın üzerine binmiyor.
-        LinearLayout wrap=col();
         LinearLayout collage=col();
         collage.setBackground(bg(Color.rgb(3,28,48),0));
         String[] names={"Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
         LinearLayout r1=row(),r2=row();
         for(int i=0;i<8;i++){
             LinearLayout cell=photoCollageCell(names[i]);
-            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(62),1);
+            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(70),1);
             cp.setMargins(dp(1),dp(1),dp(1),dp(1));
             if(i<4)r1.addView(cell,cp);else r2.addView(cell,cp);
         }
-        collage.addView(r1,new LinearLayout.LayoutParams(-1,dp(64)));
-        collage.addView(r2,new LinearLayout.LayoutParams(-1,dp(64)));
-        wrap.addView(collage,new LinearLayout.LayoutParams(-1,dp(128)));
-
-        LinearLayout title=col();
-        title.setPadding(dp(16),dp(9),dp(12),dp(5));
-        title.setBackgroundColor(NAVY);
-        title.addView(tv("Edirne İlçeleri",25,TEXT,true));
-        wrap.addView(title,mp());
-
-        content.addView(wrap,mp());
+        collage.addView(r1,new LinearLayout.LayoutParams(-1,dp(72)));
+        collage.addView(r2,new LinearLayout.LayoutParams(-1,dp(72)));
+        content.addView(collage,new LinearLayout.LayoutParams(-1,dp(144)));
     }
 
     LinearLayout photoCollageCell(String name){
@@ -350,13 +361,13 @@ void showDistricts(){
     View districtMiniCard(Loc l,boolean active){
         LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);card.setPadding(dp(8),dp(7),dp(8),dp(7));
         card.setBackground(active?stroke(Color.rgb(18,122,235),Color.rgb(72,178,255),14):bg(CARD,14));
-        TextView ic=tv(districtIcon(l.name),25,TEXT,true);ic.setGravity(Gravity.CENTER);
-        card.addView(ic,new LinearLayout.LayoutParams(dp(45),dp(58)));
+        TextView ic=tv(districtIcon(l.name),32,TEXT,true);ic.setGravity(Gravity.CENTER);
+        card.addView(ic,new LinearLayout.LayoutParams(dp(52),dp(68)));
         LinearLayout tx=col();tx.setGravity(Gravity.CENTER_VERTICAL);
-        tx.addView(tv(l.name,12,TEXT,true));
-        tx.addView(tv(tempC(l.now,"—")+"  •  "+val(l.nowEvent,"—"),9,Color.rgb(225,240,250),true));
+        tx.addView(tv(l.name,16,TEXT,true));
+        tx.addView(tv(tempC(l.now,"—")+"  •  "+val(l.nowEvent,"—"),11.5f,Color.rgb(225,240,250),true));
         card.addView(tx,new LinearLayout.LayoutParams(0,dp(58),1));
-        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(70));p.setMargins(0,0,0,dp(6));card.setLayoutParams(p);
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(82));p.setMargins(0,0,0,dp(7));card.setLayoutParams(p);
         return card;
     }
 
@@ -401,13 +412,13 @@ void showDistricts(){
         LinearLayout c=row();c.setGravity(Gravity.CENTER_VERTICAL);
         c.setPadding(dp(7),dp(6),dp(5),dp(6));c.setBackground(bg(CARD,12));
         LinearLayout a=col();
-        a.addView(tv(dayLabel(d.date),11,TEXT,true));
-        a.addView(tv(d.e,8.5f,MUTED,false));
+        a.addView(tv(dayLabel(d.date),12,TEXT,true));
+        a.addView(tv(d.e,9.5f,MUTED,false));
         c.addView(a,new LinearLayout.LayoutParams(0,dp(51),1));
         c.addView(weatherIconView(d.e,24),new LinearLayout.LayoutParams(dp(34),dp(51)));
         LinearLayout b=col();b.setGravity(Gravity.CENTER);
-        b.addView(tv(d.ma+"°",12,Color.rgb(255,100,90),true));
-        b.addView(tv(d.mi+"°",12,Color.rgb(90,190,255),true));
+        b.addView(tv(d.ma+"°",13,Color.rgb(255,100,90),true));
+        b.addView(tv(d.mi+"°",13,Color.rgb(90,190,255),true));
         c.addView(b,new LinearLayout.LayoutParams(dp(43),dp(51)));
         LinearLayout.LayoutParams p=mp();p.setMargins(0,0,0,dp(4));c.setLayoutParams(p);return c;
     }
@@ -437,17 +448,18 @@ void showDistricts(){
 
     void loadRemoteImage(ImageView target,String url){
         if(url==null||url.isEmpty())return;
-        ex.execute(()->{
+        imgEx.execute(()->{
             try{
                 String key="district_"+Integer.toHexString(url.hashCode())+".img";
                 java.io.File cache=new java.io.File(getCacheDir(),key);
                 if(!cache.exists()){
                     java.net.URL u=new java.net.URL(url);
                     java.net.HttpURLConnection c=(java.net.HttpURLConnection)u.openConnection();
-                    c.setConnectTimeout(12000);c.setReadTimeout(20000);c.setInstanceFollowRedirects(true);
+                    c.setConnectTimeout(8000);c.setReadTimeout(12000);c.setInstanceFollowRedirects(true);
+                    c.setRequestProperty("User-Agent","EdirneHavaDurumu/10.73");
                     java.io.InputStream in=c.getInputStream();
                     java.io.FileOutputStream out=new java.io.FileOutputStream(cache);
-                    byte[] buf=new byte[8192];int n;
+                    byte[] buf=new byte[16384];int n;
                     while((n=in.read(buf))!=-1)out.write(buf,0,n);
                     out.close();in.close();c.disconnect();
                 }
@@ -668,7 +680,7 @@ void showDistricts(){
             }catch(Exception ignored){}
         });
     }
-    @Override protected void onDestroy(){timer.removeCallbacks(refresh5m);ex.shutdownNow();super.onDestroy();}
+    @Override protected void onDestroy(){timer.removeCallbacks(refresh5m);ex.shutdownNow();imgEx.shutdownNow();super.onDestroy();}
     static class Day{String date,e,mi,ma;Day(String d,String e,String mi,String ma){this.date=d;this.e=e;this.mi=mi;this.ma=ma;}}
     static class Hour{String time,temp,event,wind;Hour(String t,String v,String e,String w){time=t;temp=v;event=e;wind=w;}}
     static class Loc{String name,now="",nowEvent="",humidity="",pressure="",wind="",feels="",windDir="";ArrayList<Day>days=new ArrayList<>();ArrayList<Hour>hours=new ArrayList<>();Loc(String n){name=n;}}
