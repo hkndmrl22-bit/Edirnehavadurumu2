@@ -157,12 +157,12 @@ public class MainActivity extends Activity {
 
         LinearLayout met=col();met.setPadding(0,0,0,0);
         LinearLayout r1=row();r1.setGravity(Gravity.CENTER_VERTICAL);
-        r1.addView(metricCompact("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(64),1));
-        r1.addView(metricCompact("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(64),1));met.addView(r1);
+        r1.addView(metricCompact("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(70),1));
+        r1.addView(metricCompact("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(70),1));met.addView(r1);
         LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
-        r2.addView(metricCompact("≋ Rüzgâr",unitValue(center.wind," km/sa")+" "+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(64),1));
-        r2.addView(metricCompact("◉ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(64),1));met.addView(r2);
-        main.addView(met,new LinearLayout.LayoutParams(0,dp(128),0.50f));
+        r2.addView(metricCompact("≋ Rüzgâr",unitValue(center.wind," km/sa")+" "+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(70),1));
+        r2.addView(metricCompact("◉ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(70),1));met.addView(r2);
+        main.addView(met,new LinearLayout.LayoutParams(0,dp(140),0.50f));
         weather.addView(main);
 
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
@@ -221,13 +221,13 @@ public class MainActivity extends Activity {
     View dayCardFlex(Day d){
         LinearLayout c=col();c.setGravity(Gravity.CENTER_HORIZONTAL);c.setPadding(dp(2),dp(2),dp(2),dp(2));
         c.setBackground(stroke(Color.rgb(7,58,94),Color.rgb(24,111,171),13));
-        TextView dl=tv(dayLabel(d.date),10.5f,TEXT,true);dl.setGravity(Gravity.CENTER);dl.setIncludeFontPadding(false);
-        c.addView(dl,new LinearLayout.LayoutParams(-1,dp(18)));
-        TextView wd=tv(weekday(d.date),9.5f,MUTED,true);wd.setGravity(Gravity.CENTER);wd.setIncludeFontPadding(false);
-        c.addView(wd,new LinearLayout.LayoutParams(-1,dp(17)));
+        TextView dl=tv(dayLabel(d.date),12f,TEXT,true);dl.setGravity(Gravity.CENTER);dl.setIncludeFontPadding(false);
+        c.addView(dl,new LinearLayout.LayoutParams(-1,dp(21)));
+        TextView wd=tv(weekday(d.date),11f,MUTED,true);wd.setGravity(Gravity.CENTER);wd.setIncludeFontPadding(false);
+        c.addView(wd,new LinearLayout.LayoutParams(-1,dp(20)));
         LinearLayout iconSlot=col();iconSlot.setGravity(Gravity.CENTER);
-        iconSlot.addView(weatherIconView(d.e,20),new LinearLayout.LayoutParams(-1,dp(30)));
-        c.addView(iconSlot,new LinearLayout.LayoutParams(-1,dp(34)));
+        iconSlot.addView(weatherIconView(d.e,15),new LinearLayout.LayoutParams(-1,dp(24)));
+        c.addView(iconSlot,new LinearLayout.LayoutParams(-1,dp(26)));
         TextView ev=tv(d.e,7.2f,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(2);
         c.addView(ev,new LinearLayout.LayoutParams(-1,dp(28)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
@@ -302,10 +302,10 @@ public class MainActivity extends Activity {
          TextView ic=tv(iconText,18,TEXT,false);ic.setGravity(Gravity.CENTER);ic.setIncludeFontPadding(false);
          card.addView(ic,new LinearLayout.LayoutParams(dp(22),-1));
          LinearLayout info=col();info.setGravity(Gravity.CENTER_VERTICAL);
-         TextView la=tv(label,8.5f,TEXT,true);la.setIncludeFontPadding(false);la.setSingleLine(true);la.setEllipsize(android.text.TextUtils.TruncateAt.END);
-         TextView va=tv(b,10.5f,TEXT,true);va.setIncludeFontPadding(false);va.setSingleLine(true);va.setEllipsize(android.text.TextUtils.TruncateAt.END);va.setGravity(Gravity.CENTER_VERTICAL);
-         info.addView(la,new LinearLayout.LayoutParams(-1,dp(17)));
-         info.addView(va,new LinearLayout.LayoutParams(-1,dp(25)));
+         TextView la=tv(label,10f,TEXT,true);la.setIncludeFontPadding(false);la.setSingleLine(true);la.setEllipsize(android.text.TextUtils.TruncateAt.END);
+         TextView va=tv(b,12.5f,TEXT,true);va.setIncludeFontPadding(false);va.setSingleLine(true);va.setEllipsize(android.text.TextUtils.TruncateAt.END);va.setGravity(Gravity.CENTER_VERTICAL);
+         info.addView(la,new LinearLayout.LayoutParams(-1,dp(20)));
+         info.addView(va,new LinearLayout.LayoutParams(-1,dp(29)));
          card.addView(info,new LinearLayout.LayoutParams(0,-1,1));
          return card;
      }
@@ -813,11 +813,12 @@ void showWarnings(){
         todayFormat.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
         String today=todayFormat.format(new Date());
         if(l.nowEvent==null||l.nowEvent.isEmpty())l.nowEvent="Durum bilgisi yok";
-        if(!l.days.isEmpty()&&!l.days.get(0).date.equals(today)&&!l.now.isEmpty()){
-            String currentTemp=val(l.now,"—");
+        // Keep MGM daily dates intact: show five actual future forecast days, not four plus today.
+        if(!l.days.isEmpty()&&!l.days.get(0).date.equals(today)){
             ArrayList<Day> next=new ArrayList<>();
-            next.add(new Day(today,condition(l.nowEvent),currentTemp,currentTemp,true));
-            for(int i=0;i<l.days.size()&&next.size()<5;i++)next.add(l.days.get(i));
+            for(int i=0;i<l.days.size()&&next.size()<5;i++){
+                if(!l.days.get(i).date.equals(today)) next.add(l.days.get(i));
+            }
             l.days.clear();l.days.addAll(next);
         }
         return l;
