@@ -132,7 +132,7 @@ public class MainActivity extends Activity {
         upd.setGravity(Gravity.CENTER);upd.setSingleLine(true);upd.setEllipsize(android.text.TextUtils.TruncateAt.END);
         upd.setBackground(bg(Color.rgb(18,75,115),14));
         upd.setClickable(true);
-        upd.setOnClickListener(v->{ lastUpdate=currentTime(); upd.setText("⟳  Güncelleniyor…"); load(); });
+        upd.setOnClickListener(v->{ upd.setText("⟳  Güncelleniyor…"); load(); });
         wh.addView(upd,new LinearLayout.LayoutParams(dp(198),dp(24)));
         weather.addView(wh);
 
@@ -326,7 +326,12 @@ void showDistricts(){ showDistrictsTab(0); }
         LinearLayout body=col();
         content.addView(body,mp());
         Loc selected=findSelectedDistrict();
-        if(selected==null){body.addView(tv("İlçe verileri yükleniyor…",14,MUTED,false),mp());return;}
+        if(selected==null){
+            TextView loading=tv(loadError.isEmpty()?"İlçe verileri yükleniyor…":loadError,14,MUTED,false);
+            loading.setPadding(dp(12),dp(16),dp(12),dp(16));
+            loading.setOnClickListener(v->{loadError="";loading.setText("MGM ilçe verileri yeniden alınıyor…");load();});
+            body.addView(loading,mp());return;
+        }
         if(tab==0)renderDistrictCurrent(body,selected);
         else renderDistrictForecast(body,selected);
     }
@@ -361,8 +366,15 @@ void refreshDistricts(int tab,TextView button){
                 String[] D={"Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
                 String[] Q={"ENEZ","HAVSA","IPSALA","KESAN","LALAPASA","MERIC","SULOGLU","UZUNKOPRU"};
                 ArrayList<Loc> tmp=new ArrayList<>();tmp.add(cen);
-                for(int i=0;i<D.length;i++){try{tmp.add(apiLocation(D[i],Q[i].toLowerCase(Locale.ROOT)));}catch(Exception ignored){}}
-                main.post(()->{center=cen;all=tmp;lastUpdate=currentTime();showDistrictsTab(tab);});
+                for(int i=0;i<D.length;i++){
+                    try{tmp.add(apiLocation(D[i],Q[i].toLowerCase(Locale.ROOT)));}
+                    catch(Exception ignored){Loc missing=new Loc(D[i]);missing.nowEvent="Veri alınamadı";missing.lastUpdate="—";tmp.add(missing);}
+                }
+                main.post(()->{
+                    center=cen;all=tmp;lastUpdate=cen.lastUpdate;
+                    if(currentScreen==1)showDistrictsTab(tab);
+                    else if(currentScreen==0)showHome();
+                });
             }catch(Exception e){
                 main.post(()->button.setText("⟳  Güncelleme başarısız — tekrar dene"));
             }
@@ -563,7 +575,9 @@ void districtHeader(){
         hero.addView(summary);
         TextView condition=tv(val(selected.nowEvent,"Durum bilgisi yok"),17,TEXT,true);
         condition.setPadding(0,0,0,dp(3));hero.addView(condition);
-        String updateDate=new SimpleDateFormat("dd MMM",new Locale("tr","TR")).format(new Date());
+        SimpleDateFormat updateDateFormat=new SimpleDateFormat("dd MMM",new Locale("tr","TR"));
+        updateDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
+        String updateDate=updateDateFormat.format(new Date());
         LinearLayout updateRow=row();updateRow.setGravity(Gravity.CENTER_VERTICAL);
         TextView updated=tv("Son güncelleme: "+updateDate+" · "+shortTime(val(selected.lastUpdate,"—")),10f,MUTED,false);
         updated.setSingleLine(true);updated.setEllipsize(android.text.TextUtils.TruncateAt.END);
@@ -689,17 +703,32 @@ void showWarnings(){
     void addSocial(LinearLayout p,int res,String url){ImageButton b=new ImageButton(this);b.setImageResource(res);b.setBackgroundColor(Color.TRANSPARENT);b.setOnClickListener(v->open(url));p.addView(b,new LinearLayout.LayoutParams(0,dp(55),1));}
 
     void load(){
-        if(status!=null)status.setText("Veriler güncelleniyor…");
         ex.execute(()->{
             try{
                 final Loc cen=apiLocation("Edirne Merkez","merkez");
-                main.post(()->{center=cen;all=new ArrayList<>();all.add(cen);lastUpdate=currentTime();if(status!=null)status.setText("Veriler güncellendi.");showHome();});
+                main.post(()->{
+                    center=cen;lastUpdate=cen.lastUpdate;loadError="";
+                    if(currentScreen==0)showHome();
+                    else if(currentScreen==1&&all.size()<=1)showDistrictsTab(districtTab);
+                });
                 String[] D={"Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
                 String[] Q={"ENEZ","HAVSA","IPSALA","KESAN","LALAPASA","MERIC","SULOGLU","UZUNKOPRU"};
                 ArrayList<Loc> tmp=new ArrayList<>();tmp.add(cen);
-                for(int i=0;i<D.length;i++){try{tmp.add(apiLocation(D[i],Q[i].toLowerCase(Locale.ROOT)));}catch(Exception ignored){}}
-                main.post(()->{all=tmp;if(center==null)center=tmp.get(0);});
-            }catch(Exception e){main.post(()->{if(status!=null)status.setText("Veriler alınamadı.");showHome();});}
+                for(int i=0;i<D.length;i++){
+                    try{tmp.add(apiLocation(D[i],Q[i].toLowerCase(Locale.ROOT)));}
+                    catch(Exception ignored){
+                        Loc missing=new Loc(D[i]);missing.nowEvent="Veri alınamadı";missing.lastUpdate="—";tmp.add(missing);
+                    }
+                }
+                main.post(()->{all=tmp;if(currentScreen==1)showDistrictsTab(districtTab);});
+            }catch(Exception e){
+                main.post(()->{
+                    loadError="MGM verileri alınamadı. Yeniden denemek için dokunun.";
+                    if(center==null&&currentScreen==0)showHome();
+                    else if(center==null&&currentScreen==1)showDistrictsTab(districtTab);
+                    Toast.makeText(this,"MGM verileri alınamadı. Önceki veriler korunuyor.",Toast.LENGTH_SHORT).show();
+                });
+            }
         });
     }
 
@@ -708,17 +737,25 @@ void showWarnings(){
         JSONArray stations=new JSONArray(apiGet(API+"merkezler?"+q));if(stations.length()==0)throw new Exception("MGM istasyon yok");
         JSONObject st=stations.getJSONObject(0);int merkezId=st.optInt("merkezId",0),istNo=st.optInt("gunlukTahminIstNo",0),hourly=st.optInt("saatlikTahminIstNo",0);
         if(merkezId==0)merkezId=istNo;if(istNo==0)istNo=merkezId;Loc l=new Loc(name);
-        l.lastUpdate=currentTime();
-        JSONArray cur=new JSONArray(apiGet(API+"sondurumlar?merkezid="+merkezId));
-        if(cur.length()>0){JSONObject c=cur.getJSONObject(0);l.now=num(c,"sicaklik");l.nowEvent=condition(c.optString("hadiseKodu",""));l.humidity=num(c,"nem");l.pressure=pressure(c);l.wind=num(c,"ruzgarHiz");l.feels=num(c,"hissedilenSicaklik");l.windDir=c.optString("ruzgarYon","");}
-        JSONArray days=new JSONArray(apiGet(API+"tahminler/gunluk?istno="+istNo));
-        if(days.length()>0){
-            JSONObject j=days.getJSONObject(0);
-            for(int i=1;i<=5;i++){
-                String lo=num(j,"enDusukGun"+i),hi=num(j,"enYuksekGun"+i);
-                if(!lo.isEmpty()&&!hi.isEmpty())l.days.add(new Day(formatDay(j.optString("tarihGun"+i,"")),condition(j.optString("hadiseGun"+i,"")),lo,hi));
+        try{
+            JSONArray cur=new JSONArray(apiGet(API+"sondurumlar?merkezid="+merkezId));
+            if(cur.length()>0){
+                JSONObject c=cur.getJSONObject(0);l.now=num(c,"sicaklik");l.nowEvent=condition(c.optString("hadiseKodu",""));
+                l.humidity=num(c,"nem");l.pressure=pressure(c);l.wind=num(c,"ruzgarHiz");l.feels=num(c,"hissedilenSicaklik");l.windDir=c.optString("ruzgarYon","");
+            }else l.nowEvent="Veri alınamadı";
+        }catch(Exception ignored){l.nowEvent="Veri alınamadı";}
+        try{
+            JSONArray days=new JSONArray(apiGet(API+"tahminler/gunluk?istno="+istNo));
+            if(days.length()>0){
+                JSONObject j=days.getJSONObject(0);
+                for(int i=1;i<=5;i++){
+                    String date=formatDay(j.optString("tarihGun"+i,""));
+                    String lo=num(j,"enDusukGun"+i),hi=num(j,"enYuksekGun"+i);
+                    if(!date.isEmpty()&&(!lo.isEmpty()||!hi.isEmpty()||!j.optString("hadiseGun"+i,"").isEmpty()))
+                        l.days.add(new Day(date,condition(j.optString("hadiseGun"+i,"")),lo,hi));
+                }
             }
-        }
+        }catch(Exception ignored){}
         try{
             int hno=hourly>0?hourly:istNo;
             JSONArray ha=new JSONArray(apiGet(API+"tahminler/saatlik?istno="+hno));
@@ -733,7 +770,10 @@ void showWarnings(){
 
         // MGM daily forecast stays authoritative. If it starts tomorrow, today's card
         // is clearly marked as a current observation instead of inventing daily min/max.
-        String today=new SimpleDateFormat("dd MMMM yyyy",new Locale("tr","TR")).format(new Date());
+        SimpleDateFormat todayFormat=new SimpleDateFormat("dd MMMM yyyy",new Locale("tr","TR"));
+        todayFormat.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
+        String today=todayFormat.format(new Date());
+        if(l.nowEvent==null||l.nowEvent.isEmpty())l.nowEvent="Durum bilgisi yok";
         if(l.days.isEmpty()||!l.days.get(0).date.equals(today)){
             String currentTemp=val(l.now,"—");
             ArrayList<Day> next=new ArrayList<>();
@@ -741,6 +781,7 @@ void showWarnings(){
             for(int i=0;i<l.days.size()&&next.size()<5;i++)next.add(l.days.get(i));
             l.days.clear();l.days.addAll(next);
         }
+        l.lastUpdate=currentTime();
         return l;
     }
     String apiGet(String u)throws Exception{return Jsoup.connect(u).ignoreContentType(true).timeout(20000).userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu").header("Accept","application/json, text/plain, */*").header("Origin","https://www.mgm.gov.tr").header("Referer","https://www.mgm.gov.tr/").execute().body();}
