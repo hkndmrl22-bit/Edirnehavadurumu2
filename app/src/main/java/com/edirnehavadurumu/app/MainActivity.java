@@ -860,7 +860,7 @@ void showWarnings(){
                     return;
                 }
                 p.setStrokeWidth(Math.max(2,dp(2)));p.setStrokeCap(Paint.Cap.ROUND);
-                if(e.contains("gök")||e.contains("şimşek")||e.contains("sağanak")||e.contains("yağ")){
+                if(!e.contains("kar")&&(e.contains("gök")||e.contains("şimşek")||e.contains("sağanak")||e.contains("yağ"))){
                     // güneş/yağışlı ikon
                     if(e.contains("sağanak")||e.contains("yağ")||e.contains("gök")){
                         p.setColor(Color.rgb(255,196,32));p.setStyle(Paint.Style.FILL);
@@ -869,6 +869,12 @@ void showWarnings(){
                         c.drawCircle(cx+dp(4),cy+dp(1),dp(12),p);c.drawCircle(cx-dp(8),cy+dp(3),dp(10),p);c.drawRoundRect(cx-dp(18),cy, cx+dp(18),cy+dp(11),dp(6),dp(6),p);
                         p.setColor(Color.rgb(40,155,235));p.setStrokeWidth(dp(3));p.setStyle(Paint.Style.STROKE);
                         for(int i=-1;i<=1;i++)c.drawLine(cx+dp(i*9),cy+dp(14),cx+dp(i*9-2),cy+dp(21),p);
+                        if(e.contains("gök")){
+                            p.setColor(Color.rgb(255,210,35));p.setStyle(Paint.Style.FILL);
+                            Path bolt=new Path();bolt.moveTo(cx+dp(3),cy+dp(8));bolt.lineTo(cx-dp(2),cy+dp(17));
+                            bolt.lineTo(cx+dp(2),cy+dp(17));bolt.lineTo(cx-dp(1),cy+dp(25));
+                            bolt.lineTo(cx+dp(8),cy+dp(14));bolt.lineTo(cx+dp(4),cy+dp(14));bolt.close();c.drawPath(bolt,p);
+                        }
                     }else{
                         p.setColor(Color.WHITE);p.setStyle(Paint.Style.FILL);
                         c.drawCircle(cx,cy,dp(15),p);
@@ -886,6 +892,13 @@ void showWarnings(){
                 if(e.contains("sis")||e.contains("pus")||e.contains("duman")){
                     p.setColor(Color.rgb(210,230,245));p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(dp(3));p.setStrokeCap(Paint.Cap.ROUND);
                     for(int i=-1;i<=1;i++){float yy=cy+dp(i*7);c.drawLine(cx-dp(18),yy,cx+dp(18),yy,p);}
+                    if(sizeDp<=18)c.restore();
+                    return;
+                }
+                if(e.contains("çok bulutlu")){
+                    p.setColor(Color.WHITE);p.setStyle(Paint.Style.FILL);
+                    c.drawCircle(cx-dp(7),cy+dp(1),dp(10),p);c.drawCircle(cx+dp(5),cy-dp(3),dp(12),p);
+                    c.drawRoundRect(cx-dp(18),cy, cx+dp(18),cy+dp(12),dp(6),dp(6),p);
                     if(sizeDp<=18)c.restore();
                     return;
                 }
