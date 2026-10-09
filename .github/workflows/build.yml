@@ -19,33 +19,46 @@ jobs:
         run: |
           set -e
           mkdir -p app/src/main/res/drawable-xxxhdpi app/src/main/res/drawable-nodpi
-          base64 -d build/icon/edirne_launcher_foreground.webp.b64 > app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
-          # Remove the baked-in circular halo outside the sunburst. The adaptive
-          # icon background is already solid black; this lets that background fill
-          # Samsung's rounded-square mask instead of leaving a smaller black circle.
           python -m pip install --quiet Pillow
           python - <<'PY'
-          from PIL import Image, ImageDraw, ImageChops
+          from PIL import Image, ImageDraw
           import math
-          p = "app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp"
-          im = Image.open(p).convert("RGBA")
-          w, h = im.size
-          scale = 4
-          cx, cy = w / 2, h / 2
-          outer = min(w, h) * 0.345
-          inner = min(w, h) * 0.255
-          pts = []
-          for i in range(32):
-              a = -math.pi / 2 + i * math.pi / 16
-              r = outer if i % 2 == 0 else inner
-              pts.append(((cx + math.cos(a) * r) * scale, (cy + math.sin(a) * r) * scale))
-          mask_big = Image.new("L", (w * scale, h * scale), 0)
-          ImageDraw.Draw(mask_big).polygon(pts, fill=255)
-          mask = mask_big.resize((w, h), Image.Resampling.LANCZOS)
-          im.putalpha(ImageChops.multiply(im.getchannel("A"), mask))
-          im.save(p, "WEBP", lossless=True, quality=100)
+
+          # Use the original square Edirne launcher artwork, not the smaller
+          # circular foreground asset that caused the icon to look undersized.
+          src = Image.open("app/src/main/res/drawable/edirne_launcher_512.jpg").convert("RGB")
+          w, h = src.size
+          if w != h:
+              side = min(w, h)
+              left = (w - side) // 2
+              top = (h - side) // 2
+              src = src.crop((left, top, left + side, top + side))
+          # Remove the one-pixel pale edge present in the source JPEG.
+          src = src.crop((2, 2, src.width - 2, src.height - 2)).resize((512, 512), Image.Resampling.LANCZOS)
+
+          # Keep the photo and sunburst intact, while making the dark outer
+          # field pure black. Do not darken the central photo.
+          pixels = src.load()
+          cx = cy = 255.5
+          photo_radius = 181
+          for y in range(512):
+              for x in range(512):
+                  r, g, b = pixels[x, y]
+                  if (x - cx) ** 2 + (y - cy) ** 2 > photo_radius ** 2 and max(r, g, b) < 90:
+                      pixels[x, y] = (0, 0, 0)
+
+          # Make the source's outside corners transparent so the launcher's
+          # own adaptive rounded-square mask and black background define the edge.
+          rgba = src.convert("RGBA")
+          mask = Image.new("L", (512, 512), 0)
+          ImageDraw.Draw(mask).rounded_rectangle((0, 0, 511, 511), radius=52, fill=255)
+          rgba.putalpha(mask)
+
+          out = "app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp"
+          rgba.save(out, "WEBP", lossless=True, quality=100)
+          rgba.save("app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp", "WEBP", lossless=True, quality=100)
+          print("Generated full-size rounded-square launcher artwork:", rgba.size)
           PY
-          cp app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp
           file app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
           test -s app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
           test -s app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp
