@@ -167,8 +167,8 @@ public class MainActivity extends Activity {
         r1.addView(metricCompact("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(70),1));
         r1.addView(metricCompact("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(70),1));met.addView(r1);
         LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
-        r2.addView(metricCompact("≋ Rüzgâr",unitValue(center.wind," km/sa")+" "+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(70),1));
-        r2.addView(metricCompact("◉ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(70),1));met.addView(r2);
+        r2.addView(metricCompact("🌬 Rüzgâr",unitValue(center.wind," km/sa")+" "+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(70),1));
+        r2.addView(metricCompact("⏱ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(70),1));met.addView(r2);
         main.addView(met,new LinearLayout.LayoutParams(0,dp(140),0.50f));
         weather.addView(main);
 
@@ -226,23 +226,23 @@ public class MainActivity extends Activity {
     }
 
     View dayCardFlex(Day d){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER_HORIZONTAL);c.setPadding(dp(2),dp(2),dp(2),dp(2));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER_HORIZONTAL);c.setPadding(dp(2),dp(3),dp(2),dp(3));
         c.setBackground(stroke(Color.rgb(7,58,94),Color.rgb(24,111,171),13));
-        TextView dl=tv(dayLabel(d.date),12f,TEXT,true);dl.setGravity(Gravity.CENTER);dl.setIncludeFontPadding(false);
-        c.addView(dl,new LinearLayout.LayoutParams(-1,dp(21)));
-        TextView wd=tv(weekday(d.date),11f,MUTED,true);wd.setGravity(Gravity.CENTER);wd.setIncludeFontPadding(false);
-        c.addView(wd,new LinearLayout.LayoutParams(-1,dp(20)));
-        LinearLayout iconSlot=col();iconSlot.setGravity(Gravity.CENTER);
-        iconSlot.addView(weatherIconView(d.e,15),new LinearLayout.LayoutParams(-1,dp(24)));
-        c.addView(iconSlot,new LinearLayout.LayoutParams(-1,dp(26)));
-        TextView ev=tv(d.e,7.2f,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(2);
-        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(28)));
+        TextView dl=tv(dayLabel(d.date),11.5f,TEXT,true);dl.setGravity(Gravity.CENTER);dl.setIncludeFontPadding(false);dl.setSingleLine(true);dl.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        c.addView(dl,new LinearLayout.LayoutParams(-1,dp(19)));
+        TextView wd=tv(weekday(d.date),10.5f,MUTED,true);wd.setGravity(Gravity.CENTER);wd.setIncludeFontPadding(false);wd.setSingleLine(true);
+        c.addView(wd,new LinearLayout.LayoutParams(-1,dp(18)));
+        FrameLayout iconSlot=new FrameLayout(this);
+        iconSlot.addView(weatherIconView(d.e,16),new FrameLayout.LayoutParams(dp(34),dp(28),Gravity.CENTER));
+        c.addView(iconSlot,new LinearLayout.LayoutParams(-1,dp(29)));
+        TextView ev=tv(d.e,7.2f,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(1);ev.setSingleLine(true);ev.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(18)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
-        TextView hi=tv(d.observedOnly?"Anlık":unitValue(d.ma,"°"),d.observedOnly?10.5f:12.5f,Color.rgb(255,120,100),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);hi.setSingleLine(true);
-        TextView lo=tv(d.observedOnly?unitValue(d.ma,"°"):unitValue(d.mi,"°"),12.5f,Color.rgb(110,195,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);lo.setSingleLine(true);
-        temps.addView(hi,new LinearLayout.LayoutParams(dp(34),dp(20)));
-        temps.addView(lo,new LinearLayout.LayoutParams(dp(34),dp(20)));
-        c.addView(temps,new LinearLayout.LayoutParams(-2,dp(20)));
+        TextView hi=tv(d.observedOnly?"Anlık":unitValue(d.ma,"°"),d.observedOnly?10.5f:12f,Color.rgb(255,120,100),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);hi.setSingleLine(true);
+        TextView lo=tv(d.observedOnly?unitValue(d.ma,"°"):unitValue(d.mi,"°"),12f,Color.rgb(110,195,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);lo.setSingleLine(true);
+        temps.addView(hi,new LinearLayout.LayoutParams(0,dp(19),1));
+        temps.addView(lo,new LinearLayout.LayoutParams(0,dp(19),1));
+        c.addView(temps,new LinearLayout.LayoutParams(-1,dp(19)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(1),0,dp(1),0);c.setLayoutParams(p);return c;
     }
 
@@ -705,70 +705,68 @@ void showWarnings(){
         currentScreen=2;
         content.removeAllViews();setNavActive(2);
         content.setPadding(dp(12),dp(14),dp(12),dp(20));
-        header("Meteorolojik Uyarılar",true,false);
+        header("Uyarılar",true,false);
 
-        LinearLayout intro=col();
-        intro.setPadding(dp(14),dp(13),dp(14),dp(13));
-        intro.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),18));
-        intro.addView(tv("EDİRNE • MGM METEOUYARI",15,TEXT,true));
-        TextView note=tv("MGM'nin resmî uyarı haritası aşağıda açılır. Haritadan Edirne'yi seçerek il ve ilçe bazındaki uyarıları görüntüleyebilirsin. Uyarılar yalnızca MGM kaynağından gösterilir.",12.5f,MUTED,false);
-        note.setPadding(0,dp(7),0,dp(8));
-        intro.addView(note,mp());
+        LinearLayout panel=col();
+        panel.setPadding(dp(14),dp(14),dp(14),dp(14));
+        panel.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),18));
+        TextView state=tv("Uyarılar kontrol ediliyor…",14,TEXT,true);
+        state.setGravity(Gravity.CENTER);
+        state.setPadding(dp(8),dp(20),dp(8),dp(20));
+        panel.addView(state,mp());
+        content.addView(panel,mp());
 
         LinearLayout days=row();
-        TextView today=tv("BUGÜN",13,TEXT,true);today.setGravity(Gravity.CENTER);
+        TextView today=tv("Bugün",13,TEXT,true);today.setGravity(Gravity.CENTER);
         today.setBackground(bg(BLUE,12));today.setPadding(dp(8),dp(10),dp(8),dp(10));
-        TextView tomorrow=tv("YARIN",13,TEXT,true);tomorrow.setGravity(Gravity.CENTER);
+        TextView tomorrow=tv("Yarın",13,TEXT,true);tomorrow.setGravity(Gravity.CENTER);
         tomorrow.setBackground(bg(Color.rgb(11,48,76),12));tomorrow.setPadding(dp(8),dp(10),dp(8),dp(10));
-        LinearLayout.LayoutParams dayP=new LinearLayout.LayoutParams(0,dp(42),1);
-        dayP.setMargins(0,0,dp(5),0);days.addView(today,dayP);
-        LinearLayout.LayoutParams dayP2=new LinearLayout.LayoutParams(0,dp(42),1);
-        dayP2.setMargins(dp(5),0,0,0);days.addView(tomorrow,dayP2);
-        intro.addView(days,mp());
+        LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,dp(42),1);p1.setMargins(0,dp(10),dp(5),0);
+        LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,dp(42),1);p2.setMargins(dp(5),dp(10),0,0);
+        content.addView(days,mp());days.addView(today,p1);days.addView(tomorrow,p2);
 
-        TextView state=tv("MGM uyarı haritası yükleniyor…",12.5f,MUTED,false);
-        state.setPadding(0,dp(9),0,dp(2));intro.addView(state,mp());
-        content.addView(intro,mp());
-
-        WebView mgm=new WebView(this);
-        mgm.setBackgroundColor(Color.WHITE);
-        mgm.getSettings().setJavaScriptEnabled(true);
-        mgm.getSettings().setDomStorageEnabled(true);
-        mgm.getSettings().setLoadsImagesAutomatically(true);
-        mgm.setWebViewClient(new WebViewClient(){
-            @Override public void onPageFinished(WebView view,String url){
-                super.onPageFinished(view,url);
-                view.evaluateJavascript("(function(){return document.body?document.body.innerText:''})()", result->{
-                    if(isFinishing()||isDestroyed())return;
-                    String text=result==null?"":result.toLowerCase(new Locale("tr","TR"));
-                    if(text.contains("herhangi bir meteorolojik uyarı bulunmamaktadır")){
-                        state.setText("Şu anda güncel bir meteorolojik uyarı yok.");
-                    }else{
-                        state.setText("MGM haritası yüklendi. Edirne'yi seçerek il ve ilçe uyarılarını kontrol et.");
+        final int[] selectedDay={1};
+        Runnable[] loadAlerts=new Runnable[1];
+        loadAlerts[0]=()->{
+            state.setText("Kontrol ediliyor…");
+            ex.execute(()->{
+                String message;
+                try{
+                    String url="https://www.mgm.gov.tr/Meteouyari/il.aspx?Gun="+selectedDay[0]+"&id=92201";
+                    org.jsoup.nodes.Document doc=Jsoup.connect(url).timeout(15000).userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu").get();
+                    String pageText=doc.body()==null?"":doc.body().text();
+                    String normalized=pageText.toLowerCase(new Locale("tr","TR"));
+                    StringBuilder details=new StringBuilder();
+                    org.jsoup.select.Elements rows=doc.select("table tr, .alert, .uyari, .warning, [class*=uyari], [class*=Uyari]");
+                    for(org.jsoup.nodes.Element el:rows){
+                        String t=el.text().trim();
+                        if(t.length()>0 && t.length()<500 && !t.toLowerCase(new Locale("tr","TR")).contains("yeşil renkli ilçelerimizde")
+                           && !t.equalsIgnoreCase("YEŞİL") && !t.equalsIgnoreCase("SARI")
+                           && !t.equalsIgnoreCase("TURUNCU") && !t.equalsIgnoreCase("KIRMIZI")){
+                            if(details.length()>0)details.append("\\n\\n");
+                            details.append(t);
+                        }
                     }
-                });
-            }
-            @Override public boolean shouldOverrideUrlLoading(WebView view,WebResourceRequest request){
-                Uri uri=request.getUrl();
-                if(uri!=null && uri.getHost()!=null && uri.getHost().endsWith("mgm.gov.tr"))return false;
-                return true;
-            }
-        });
-        LinearLayout.LayoutParams webP=new LinearLayout.LayoutParams(-1,dp(570));
-        webP.setMargins(0,dp(10),0,0);
-        content.addView(mgm,webP);
-
+                    boolean noWarning=normalized.contains("herhangi bir meteorolojik uyarı bulunmamaktadır")
+                        || (normalized.contains("yeşil renkli ilçelerimizde meteorolojik uyarı olmadığından")
+                            && !normalized.contains("edirne için uyarı"));
+                    if(noWarning || details.length()==0){
+                        message="Şu anda güncel bir uyarı yok.";
+                    }else{
+                        message=details.toString();
+                    }
+                }catch(Exception e){message="Uyarı bilgisi şu anda alınamıyor. Tekrar deneyin.";}
+                final String result=message;
+                main.post(()->{if(currentScreen==2)state.setText(result);});
+            });
+        };
         today.setOnClickListener(v->{
-            today.setBackground(bg(BLUE,12));tomorrow.setBackground(bg(Color.rgb(11,48,76),12));
-            state.setText("Bugünün MGM uyarıları yükleniyor…");
-            mgm.loadUrl("https://www.mgm.gov.tr/Meteouyari/turkiye.aspx?Gun=1");
+            selectedDay[0]=1;today.setBackground(bg(BLUE,12));tomorrow.setBackground(bg(Color.rgb(11,48,76),12));loadAlerts[0].run();
         });
         tomorrow.setOnClickListener(v->{
-            tomorrow.setBackground(bg(BLUE,12));today.setBackground(bg(Color.rgb(11,48,76),12));
-            state.setText("Yarının MGM uyarıları yükleniyor…");
-            mgm.loadUrl("https://www.mgm.gov.tr/Meteouyari/turkiye.aspx?Gun=2");
+            selectedDay[0]=2;tomorrow.setBackground(bg(BLUE,12));today.setBackground(bg(Color.rgb(11,48,76),12));loadAlerts[0].run();
         });
-        mgm.loadUrl("https://www.mgm.gov.tr/Meteouyari/turkiye.aspx?Gun=1");
+        loadAlerts[0].run();
     }
 
     void showSettings(){
