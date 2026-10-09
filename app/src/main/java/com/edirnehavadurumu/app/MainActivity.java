@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
     LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     LinearLayout.LayoutParams mp(){return new LinearLayout.LayoutParams(-1,-2);}
     LinearLayout.LayoutParams w(int width){return new LinearLayout.LayoutParams(dp(width),-1);}
-    @Override public void onCreate(Bundle b){super.onCreate(b); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0; if(Build.VERSION.SDK_INT>=30) nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; else if(Build.VERSION.SDK_INT>=23) nav=insets.getSystemWindowInsetBottom(); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
+    @Override public void onCreate(Bundle b){super.onCreate(b); autoRefreshEnabled=settingsPrefs().getBoolean("auto_refresh",true); selectedDistrictName=settingsPrefs().getString("selected_district","Enez"); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0; if(Build.VERSION.SDK_INT>=30) nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; else if(Build.VERSION.SDK_INT>=23) nav=insets.getSystemWindowInsetBottom(); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
 
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
@@ -769,32 +769,204 @@ void showWarnings(){
         loadAlerts[0].run();
     }
 
+    android.content.SharedPreferences settingsPrefs(){return getSharedPreferences("app_settings",MODE_PRIVATE);}
+
     void showSettings(){
         currentScreen=3;
-        content.removeAllViews();setNavActive(3);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Ayarlar",true,false);
-        section("UYGULAMA TEMASI");content.addView(setting("◐","Tema","Koyu tema bu sürümde sabit"),mp());
+        content.removeAllViews();setNavActive(3);
+        content.setPadding(dp(12),dp(10),dp(12),dp(20));
+        header("Ayarlar",false,false);
+
+        section("UYGULAMA TEMASI");
+        LinearLayout themeRow=row();themeRow.setGravity(Gravity.CENTER_VERTICAL);
+        themeRow.addView(settingsAction("☀","Tema Seçimi","Koyu veya açık tema tercihini yönet",()->showThemeOptions()),new LinearLayout.LayoutParams(0,-2,1));
+        LinearLayout.LayoutParams contrastP=new LinearLayout.LayoutParams(0,-2,1);contrastP.setMargins(dp(6),0,0,0);
+        themeRow.addView(settingsAction("◉","Karanlık Mod Kontrastı","Koyu temanın okunabilirliği",()->showContrastOptions()),contrastP);
+        content.addView(themeRow,mp());
+
         section("TERCİHLER");
-        content.addView(setting("🔔","Bildirimler","Bu sürümde bildirimler etkin değil"),mp());
-        content.addView(setting("⌖","Konum","Edirne Merkez ve ilçeleri sabit konum olarak kullanılır"),mp());
-        content.addView(toggleSetting("Otomatik yenileme (5 dk.)",autoRefreshEnabled));
-        section("HAKKINDA");content.addView(setting("ⓘ","Hakkında","Edirne Yerel Hava Tahmin Uygulaması"),mp());content.addView(setting("🔒","Gizlilik","Ayrı bir gizlilik sayfası bu sürümde bulunmuyor"),mp());
-        section("BİZİ TAKİP EDİN");LinearLayout socials=row();addSocial(socials,R.drawable.ic_facebook,"https://www.facebook.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_instagram,"https://www.instagram.com/edirnehavadurumu/");addSocial(socials,R.drawable.ic_x,"https://x.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_youtube,"https://www.youtube.com/@edirnehavadurumu");content.addView(socials,mp());
-        TextView foot=tv("Edirne Yerel Hava Tahmin Uygulaması\nSürüm "+appVersion()+"",10,MUTED,false);foot.setGravity(Gravity.CENTER);foot.setPadding(0,dp(25),0,dp(15));content.addView(foot,mp());
+        LinearLayout notifications=settingsGroup();
+        notifications.addView(settingsSwitchRow("🔔","Hava Durumu Uyarıları","Şiddetli rüzgâr, yağmur veya kar için bildirim.", "weather_alerts",false));
+        notifications.addView(settingsSwitchRow("▣","Günlük Hava Özeti","Her sabah 08:00'de günün hava özeti.", "daily_summary",false));
+        content.addView(notifications,mp());
+
+        LinearLayout location=settingsGroup();
+        location.addView(settingsActionRow("⌖","Konum Değiştir","Edirne Merkez veya ilçelerini manuel seçin.",()->showLocationPicker()));
+        location.addView(settingsSwitchRow("◎","Anlık Konum Kullan","Konumu GPS ile otomatik algıla.", "use_gps",false));
+        content.addView(location,mp());
+
+        content.addView(settingsSwitchRow("⟳","Otomatik yenileme (5 dk.)","Hava durumu verilerini otomatik yenile.", "auto_refresh",true));
+
+        section("HAKKINDA");
+        LinearLayout about=settingsGroup();
+        about.addView(settingsActionRow("ⓘ","Hakkında","Edirne Yerel Hava Tahmin Uygulaması",()->showAboutDialog()));
+        about.addView(settingsActionRow("🔒","Gizlilik","Gizlilik ve veri kullanımı hakkında",()->showPrivacyDialog()));
+        about.addView(settingsActionRow("▤","Veri Kaynağı / Lisanslar","MGM ve uygulamada kullanılan kaynaklar",()->showSourcesDialog()));
+        content.addView(about,mp());
+
+        section("DESTEK VE GERİ BİLDİRİM");
+        LinearLayout support=settingsGroup();
+        support.addView(settingsActionRow("★","Uygulamayı Puanla","Uygulamayı geliştirmemize yardımcı olun.",()->showRateDialog()));
+        support.addView(settingsActionRow("☏","Hata Bildir / Öneri Yap","Görüş ve önerilerinizi bizimle paylaşın.",()->showFeedback()));
+        support.addView(settingsActionRow("?","Sıkça Sorulan Sorular","Veri doğruluğu ve güncelleme sıklığı.",()->showFaqDialog()));
+        content.addView(support,mp());
+
+        section("SOSYAL MEDYA VE PAYLAŞIM");
+        LinearLayout socials=row();socials.setGravity(Gravity.CENTER);
+        addSocial(socials,R.drawable.ic_facebook,"https://www.facebook.com/edirnehavadurumu");
+        addSocial(socials,R.drawable.ic_instagram,"https://www.instagram.com/edirnehavadurumu/");
+        addSocial(socials,R.drawable.ic_x,"https://x.com/edirnehavadurumu");
+        addSocial(socials,R.drawable.ic_youtube,"https://www.youtube.com/@edirnehavadurumu");
+        content.addView(socials,mp());
+        content.addView(settingsActionRow("•","Uygulamayı Paylaş","Edirne Hava Durumu'nu arkadaşlarınızla paylaşın.",()->shareApp()),mp());
+
+        TextView foot=tv("Edirne Yerel Hava Tahmin Uygulaması | Sürüm "+appVersion(),10,MUTED,false);
+        foot.setGravity(Gravity.CENTER);foot.setPadding(0,dp(14),0,dp(8));content.addView(foot,mp());
     }
 
-    TextView setting(String i,String a,String b){TextView t=tv(i+"   "+a+"\n        "+b,13,TEXT,true);t.setPadding(dp(13),dp(12),dp(13),dp(12));t.setBackground(bg(CARD,16));return t;}
-    View toggleSetting(String name,boolean checked){
-        Switch s=new Switch(this);s.setText(name);s.setTextColor(TEXT);s.setTextSize(14);s.setChecked(checked);
-        s.setPadding(dp(10),dp(8),dp(10),dp(8));s.setBackground(bg(CARD,16));
-        LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(5),0,0);s.setLayoutParams(p);
-        s.setOnCheckedChangeListener((button,isChecked)->{
-            if(name.equals("Otomatik yenileme (5 dk.)")){
-                autoRefreshEnabled=isChecked;
-                if(isChecked)load();
+    LinearLayout settingsGroup(){
+        LinearLayout group=col();group.setPadding(dp(10),dp(4),dp(10),dp(4));
+        group.setBackground(stroke(Color.rgb(8,63,101),Color.rgb(25,104,154),18));
+        LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(4),0,dp(5));group.setLayoutParams(p);return group;
+    }
+
+    View settingsAction(String icon,String title,String subtitle,Runnable action){
+        LinearLayout card=col();card.setPadding(dp(10),dp(10),dp(10),dp(10));
+        card.setBackground(stroke(Color.rgb(8,63,101),Color.rgb(25,104,154),16));
+        LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(2),0,dp(2));card.setLayoutParams(p);
+        TextView ic=tv(icon,22,TEXT,true);ic.setGravity(Gravity.CENTER);
+        card.addView(ic,new LinearLayout.LayoutParams(-1,dp(28)));
+        TextView titleView=tv(title,13.5f,TEXT,true);titleView.setGravity(Gravity.CENTER_VERTICAL);
+        card.addView(titleView,mp());
+        TextView sub=tv(subtitle,10.5f,MUTED,false);sub.setMaxLines(2);
+        card.addView(sub,mp());card.setClickable(true);card.setFocusable(true);card.setOnClickListener(v->action.run());return card;
+    }
+
+    View settingsActionRow(String icon,String title,String subtitle,Runnable action){
+        LinearLayout row=row();row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(dp(4),dp(7),dp(3),dp(7));
+        TextView ic=tv(icon,23,TEXT,true);ic.setGravity(Gravity.CENTER);
+        row.addView(ic,new LinearLayout.LayoutParams(dp(38),dp(48)));
+        LinearLayout text=col();text.setGravity(Gravity.CENTER_VERTICAL);
+        text.addView(tv(title,13.5f,TEXT,true),mp());
+        TextView sub=tv(subtitle,10.5f,MUTED,false);sub.setMaxLines(2);sub.setEllipsize(android.text.TextUtils.TruncateAt.END);text.addView(sub,mp());
+        row.addView(text,new LinearLayout.LayoutParams(0,-2,1));
+        TextView chevron=tv("›",25,TEXT,false);chevron.setGravity(Gravity.CENTER);
+        row.addView(chevron,new LinearLayout.LayoutParams(dp(25),dp(42)));
+        row.setClickable(true);row.setFocusable(true);row.setOnClickListener(v->action.run());return row;
+    }
+
+    View settingsSwitchRow(String icon,String title,String subtitle,String key,boolean enabledFeature){
+        LinearLayout row=row();row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(dp(4),dp(6),dp(2),dp(6));
+        TextView ic=tv(icon,22,key.equals("weather_alerts")||key.equals("daily_summary")?GOLD:TEXT,true);ic.setGravity(Gravity.CENTER);
+        row.addView(ic,new LinearLayout.LayoutParams(dp(38),dp(54)));
+        LinearLayout text=col();text.setGravity(Gravity.CENTER_VERTICAL);
+        text.addView(tv(title,13.5f,TEXT,true),mp());
+        TextView sub=tv(subtitle,10.5f,MUTED,false);sub.setMaxLines(2);text.addView(sub,mp());
+        row.addView(text,new LinearLayout.LayoutParams(0,-2,1));
+        Switch sw=new Switch(this);sw.setChecked(settingsPrefs().getBoolean(key,key.equals("auto_refresh")?autoRefreshEnabled:false));
+        row.addView(sw,new LinearLayout.LayoutParams(-2,dp(48)));
+        sw.setOnCheckedChangeListener((button,checked)->{
+            settingsPrefs().edit().putBoolean(key,checked).apply();
+            if(key.equals("auto_refresh")){
+                autoRefreshEnabled=checked;
+                if(checked)load();
+            }else if(key.equals("weather_alerts")||key.equals("daily_summary")){
+                new AlertDialog.Builder(this).setTitle("Bildirim ayarı")
+                    .setMessage("Tercihin kaydedildi. Bu bildirim türü için otomatik bildirim altyapısı henüz tamamlanmadı; hazır olduğunda etkinleştirilecek.")
+                    .setPositiveButton("Tamam",null).show();
+            }else if(key.equals("use_gps")){
+                if(checked){
+                    sw.setChecked(false);
+                    settingsPrefs().edit().putBoolean(key,false).apply();
+                    new AlertDialog.Builder(this).setTitle("GPS konumu")
+                        .setMessage("GPS konumunu etkinleştirmek için konum izni ve konum tabanlı MGM istasyon eşleştirmesi eklenmesi gerekiyor. Bu özellik henüz etkin değil.")
+                        .setPositiveButton("Tamam",null).show();
+                }
             }
         });
-        return s;
+        return row;
     }
+
+    void showThemeOptions(){
+        new AlertDialog.Builder(this).setTitle("Tema Seçimi")
+            .setMessage("Mevcut sürüm koyu mavi tasarımla çalışıyor. Açık tema için uygulama genelindeki renklerin birlikte dönüştürülmesi gerekiyor; henüz kaydetmiyorum.")
+            .setPositiveButton("Tamam",null).show();
+    }
+
+    void showContrastOptions(){
+        boolean high=settingsPrefs().getBoolean("high_contrast",true);
+        new AlertDialog.Builder(this).setTitle("Karanlık Mod Kontrastı")
+            .setSingleChoiceItems(new String[]{"Standart","Yüksek kontrast"},high?1:0,(d,which)->{
+                settingsPrefs().edit().putBoolean("high_contrast",which==1).apply();
+                d.dismiss();
+                Toast.makeText(this,which==1?"Yüksek kontrast tercihi kaydedildi.":"Standart kontrast tercihi kaydedildi.",Toast.LENGTH_SHORT).show();
+            }).setNegativeButton("İptal",null).show();
+    }
+
+    void showLocationPicker(){
+        String[] names={"Edirne Merkez","Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
+        String current=selectedDistrictName.equals("Edirne Merkez")?"Edirne Merkez":selectedDistrictName;
+        int selected=0;for(int i=0;i<names.length;i++)if(names[i].equals(current))selected=i;
+        final int[] choice={selected};
+        new AlertDialog.Builder(this).setTitle("Konum Değiştir").setSingleChoiceItems(names,selected,(d,which)->choice[0]=which)
+            .setNegativeButton("İptal",null).setPositiveButton("Seç", (d,w)->{
+                selectedDistrictName=names[choice[0]];
+                settingsPrefs().edit().putString("selected_district",selectedDistrictName).apply();
+                Toast.makeText(this,selectedDistrictName+" seçildi.",Toast.LENGTH_SHORT).show();
+                showDistrictsTab(0);
+            }).show();
+    }
+
+    void showAboutDialog(){
+        new AlertDialog.Builder(this).setTitle("Hakkında")
+            .setMessage("Edirne Yerel Hava Tahmin Uygulaması\nSürüm: "+appVersion()+"\nEdirne ve ilçeleri için hava durumu bilgileri.")
+            .setPositiveButton("Tamam",null).show();
+    }
+
+    void showPrivacyDialog(){
+        new AlertDialog.Builder(this).setTitle("Gizlilik")
+            .setMessage("Uygulama hava durumu verilerini görüntülemek için internet bağlantısı kullanır. GPS ile otomatik konum bu sürümde etkin değildir. Bildirim tercihleri için gerekli altyapı tamamlanma aşamasındadır.")
+            .setPositiveButton("Tamam",null).show();
+    }
+
+    void showSourcesDialog(){
+        new AlertDialog.Builder(this).setTitle("Veri Kaynağı / Lisanslar")
+            .setMessage("Hava durumu verileri Meteoroloji Genel Müdürlüğü (MGM) servislerinden alınır. Fotoğraf ve açık kaynak bileşenlerinin lisans bilgileri uygulama geliştirmesinde ayrıca belgelenmelidir.")
+            .setPositiveButton("MGM sitesini aç",(d,w)->open("https://www.mgm.gov.tr/"))
+            .setNegativeButton("Kapat",null).show();
+    }
+
+    void showRateDialog(){
+        new AlertDialog.Builder(this).setTitle("Uygulamayı Puanla")
+            .setMessage("Uygulama şu anda doğrudan mağazada yayımlanmıyor. İstersen geri bildirim göndererek destek olabilirsin.")
+            .setPositiveButton("Geri bildirim gönder",(d,w)->showFeedback())
+            .setNegativeButton("Kapat",null).show();
+    }
+
+    void showFeedback(){
+        try{
+            Intent intent=new Intent(Intent.ACTION_SENDTO,Uri.parse("mailto:"));
+            intent.putExtra(Intent.EXTRA_SUBJECT,"Edirne Hava Durumu - Hata / Öneri");
+            intent.putExtra(Intent.EXTRA_TEXT,"Uygulama sürümü: "+appVersion()+"\nCihaz: "+Build.MANUFACTURER+" "+Build.MODEL+"\n\nMesajım:\n");
+            startActivity(Intent.createChooser(intent,"Geri bildirim gönder"));
+        }catch(Exception e){
+            new AlertDialog.Builder(this).setTitle("Geri Bildirim").setMessage("Cihazda e-posta uygulaması bulunamadı.").setPositiveButton("Tamam",null).show();
+        }
+    }
+
+    void showFaqDialog(){
+        new AlertDialog.Builder(this).setTitle("Sıkça Sorulan Sorular")
+            .setMessage("• Veriler nereden geliyor? MGM servislerinden.\n\n• Ne sıklıkla yenileniyor? Otomatik yenileme açıkken uygulama çalışırken 5 dakikada bir kontrol edilir.\n\n• İlçeyi nasıl değiştiririm? Ayarlar > Konum Değiştir bölümünden seçebilirsin.\n\n• Uyarılar neden görünmeyebilir? MGM'de ilgili il için güncel uyarı yoksa uyarı gösterilmez.")
+            .setPositiveButton("Tamam",null).show();
+    }
+
+    void shareApp(){
+        Intent send=new Intent(Intent.ACTION_SEND);send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_SUBJECT,"Edirne Hava Durumu");
+        send.putExtra(Intent.EXTRA_TEXT,"Edirne Hava Durumu uygulamasını buradan indir: https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/download/v10.99/app-release.apk");
+        startActivity(Intent.createChooser(send,"Uygulamayı paylaş"));
+    }
+
     void addSocial(LinearLayout p,int res,String url){ImageButton b=new ImageButton(this);b.setImageResource(res);b.setBackgroundColor(Color.TRANSPARENT);b.setOnClickListener(v->open(url));p.addView(b,new LinearLayout.LayoutParams(0,dp(55),1));}
 
     void load(){
