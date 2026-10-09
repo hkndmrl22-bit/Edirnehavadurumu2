@@ -24,6 +24,7 @@ public class MainActivity extends Activity {
     ExecutorService ex=Executors.newSingleThreadExecutor();
     ExecutorService imgEx=Executors.newFixedThreadPool(4);
     int districtTab=0;
+    String selectedDistrictName="Enez";
     Handler main=new Handler(Looper.getMainLooper()), timer=new Handler(Looper.getMainLooper());
     Runnable refresh5m;
     LinearLayout page,content,bottomNav;
@@ -274,28 +275,41 @@ void showDistricts(){ showDistrictsTab(0); }
 
     void showDistrictsTab(int tab){
         districtTab=tab;
-        content.removeAllViews();setNavActive(1);content.setPadding(0,0,0,0);
+        content.removeAllViews();setNavActive(1);
+        // Safe top inset for Android edge-to-edge status bar; keeps controls clear of clock/battery.
+        content.setPadding(dp(12),dp(34),dp(12),dp(16));
 
-        LinearLayout tabs=row();tabs.setPadding(0,0,0,dp(2));
-        TextView instant=tv("◉  ANLIK DURUM",14,TEXT,true);
-        TextView five=tv("▦  5 GÜNLÜK TAHMİN",14,TEXT,true);
-        instant.setGravity(Gravity.CENTER);five.setGravity(Gravity.CENTER);
-        instant.setBackground(tab==0?bg(Color.rgb(18,122,235),16):stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
-        five.setBackground(tab==1?bg(Color.rgb(18,122,235),16):stroke(Color.rgb(20,69,105),Color.rgb(35,125,190),16));
-        LinearLayout.LayoutParams tp1=new LinearLayout.LayoutParams(0,dp(54),1);
-        LinearLayout.LayoutParams tp2=new LinearLayout.LayoutParams(0,dp(54),1);
-        tp1.setMargins(0,0,dp(2),0);tp2.setMargins(dp(2),0,0,0);
-        tabs.addView(instant,tp1);tabs.addView(five,tp2);LinearLayout.LayoutParams tabWrap=new LinearLayout.LayoutParams(-1,dp(56));tabWrap.setMargins(0,dp(16),0,0);content.addView(tabs,tabWrap);
-
-        LinearLayout body=col();body.setPadding(0,0,0,dp(14));content.addView(body,mp());
-        if(tab==0)renderDistrictCurrent(body,all.size()>1?all.get(1):null);
-        else renderDistrictForecast(body,all.size()>1?all.get(1):null);
-
-        instant.setOnClickListener(v->{if(districtTab!=0)showDistrictsTab(0);});
-        five.setOnClickListener(v->{if(districtTab!=1)showDistrictsTab(1);});
+        LinearLayout body=col();
+        content.addView(body,mp());
+        Loc selected=findSelectedDistrict();
+        if(selected==null){body.addView(tv("İlçe verileri yükleniyor…",14,MUTED,false),mp());return;}
+        if(tab==0)renderDistrictCurrent(body,selected);
+        else renderDistrictForecast(body,selected);
     }
 
-    void refreshDistricts(int tab,TextView button){
+    Loc findSelectedDistrict(){
+        for(int i=1;i<all.size();i++)if(all.get(i).name.equals(selectedDistrictName))return all.get(i);
+        if(all.size()>1){selectedDistrictName=all.get(1).name;return all.get(1);}
+        return null;
+    }
+
+    void selectDistrict(Loc l){
+        if(l==null)return;
+        selectedDistrictName=l.name;
+        showDistrictsTab(districtTab);
+    }
+
+    View districtSegment(String label,boolean active,Runnable click){
+        TextView t=tv(label,13,TEXT,true);t.setGravity(Gravity.CENTER);
+        t.setPadding(dp(4),dp(11),dp(4),dp(11));
+        t.setBackground(active?bg(BLUE,13):bg(Color.rgb(11,48,76),13));
+        t.setOnClickListener(v->click.run());
+        return t;
+    }
+
+    
+
+void refreshDistricts(int tab,TextView button){
         button.setText("⟳  Güncelleniyor…");
         ex.execute(()->{
             try{
@@ -312,24 +326,12 @@ void showDistricts(){ showDistrictsTab(0); }
     }
 
     void renderDistrictCurrent(LinearLayout body,Loc selected){
-        if(selected==null){body.addView(tv("İlçe verileri yükleniyor…",14,MUTED,false));return;}
-        LinearLayout split=row();split.setGravity(Gravity.TOP);
-        LinearLayout left=col();left.setPadding(0,dp(8),dp(4),0);
-        LinearLayout right=col();right.setPadding(dp(4),dp(8),0,0);
-        split.addView(left,new LinearLayout.LayoutParams(0,-2,0.49f));
-        split.addView(right,new LinearLayout.LayoutParams(0,-2,0.51f));
-
-        for(int i=1;i<all.size();i++){
-            final Loc l=all.get(i);
-            final View card=districtMiniCard(l,l==selected);
-            card.setOnClickListener(v->{body.removeAllViews();renderDistrictCurrent(body,l);});
-            left.addView(card);
-        }
-        renderSelectedDistrict(right,selected,false);
-        body.addView(split,mp());
+        renderDistrictLayout(body,selected,false);
     }
 
-    void districtHeader(){
+    
+
+void districtHeader(){
         LinearLayout collage=col();
         collage.setBackground(bg(Color.rgb(3,28,48),0));
         String[] names={"Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Süloğlu","Uzunköprü"};
@@ -489,23 +491,145 @@ void showDistricts(){ showDistrictsTab(0); }
     View sized(View v,int ww,int hh){v.setLayoutParams(new LinearLayout.LayoutParams(ww,hh));return v;}
 
     void renderDistrictForecast(LinearLayout body,Loc selected){
-        if(selected==null){body.addView(tv("İlçe verileri yükleniyor…",14,MUTED,false));return;}
-        LinearLayout split=row();split.setGravity(Gravity.TOP);
-        LinearLayout left=col();left.setPadding(0,dp(8),dp(4),0);
-        LinearLayout right=col();right.setPadding(dp(4),dp(8),0,0);
-        split.addView(left,new LinearLayout.LayoutParams(0,-2,0.49f));
-        split.addView(right,new LinearLayout.LayoutParams(0,-2,0.51f));
-        for(int i=1;i<all.size();i++){
-            final Loc l=all.get(i);
-            View card=districtMiniCard(l,l==selected);
-            card.setOnClickListener(v->{body.removeAllViews();renderDistrictForecast(body,l);});
-            left.addView(card);
-        }
-        renderSelectedDistrict(right,selected,true);
-        body.addView(split,mp());
+        renderDistrictLayout(body,selected,true);
     }
 
-    void showWarnings(){
+    void renderDistrictLayout(LinearLayout body,Loc selected,boolean forecast){
+        if(selected==null){body.addView(tv("İlçe verileri yükleniyor…",14,MUTED,false));return;}
+
+        LinearLayout hero=col();
+        hero.setPadding(dp(14),dp(14),dp(14),dp(12));
+        GradientDrawable heroBg=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{Color.rgb(27,87,128),Color.rgb(8,43,70)});
+        heroBg.setCornerRadius(dp(22));
+        heroBg.setStroke(dp(1),Color.rgb(38,111,159));
+        hero.setBackground(heroBg);
+
+        LinearLayout title=row();title.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout titleText=col();
+        titleText.addView(tv(selected.name,25,TEXT,true));
+        TextView updated=tv("Son güncelleme: "+shortTime(val(selected.lastUpdate,"—")),11,MUTED,false);
+        updated.setSingleLine(true);updated.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        titleText.addView(updated);
+        title.addView(titleText,new LinearLayout.LayoutParams(0,-2,1));
+        TextView refresh=tv("⟳",27,TEXT,true);refresh.setGravity(Gravity.CENTER);
+        refresh.setBackground(bg(Color.rgb(15,99,153),14));
+        title.addView(refresh,new LinearLayout.LayoutParams(dp(46),dp(42)));
+        refresh.setOnClickListener(v->refreshDistricts(districtTab,refresh));
+        hero.addView(title);
+
+        LinearLayout summary=row();summary.setGravity(Gravity.CENTER_VERTICAL);
+        View icon=weatherIconView(selected.nowEvent,52);
+        summary.addView(icon,new LinearLayout.LayoutParams(dp(84),dp(86)));
+        TextView temp=tv(tempC(selected.now,"—"),38,GOLD,true);
+        temp.setGravity(Gravity.CENTER_VERTICAL);temp.setSingleLine(true);
+        summary.addView(temp,new LinearLayout.LayoutParams(0,dp(76),1));
+        hero.addView(summary);
+        TextView condition=tv(val(selected.nowEvent,"Durum bilgisi yok"),17,TEXT,true);
+        condition.setPadding(0,0,0,dp(3));hero.addView(condition);
+        hero.addView(tv("MGM verileri · Son güncelleme "+shortTime(val(selected.lastUpdate,"—")),10,MUTED,false));
+
+        LinearLayout segments=row();segments.setPadding(0,dp(12),0,dp(8));
+        View currentTab=districtSegment("ANLIK DURUM",!forecast,()->showDistrictsTab(0));
+        View forecastTab=districtSegment("5 GÜNLÜK TAHMİN",forecast,()->showDistrictsTab(1));
+        LinearLayout.LayoutParams seg1=new LinearLayout.LayoutParams(0,-2,1);
+        LinearLayout.LayoutParams seg2=new LinearLayout.LayoutParams(0,-2,1);
+        seg1.setMargins(0,0,dp(4),0);seg2.setMargins(dp(4),0,0,0);
+        segments.addView(currentTab,seg1);segments.addView(forecastTab,seg2);hero.addView(segments);
+
+        if(forecast){
+            HorizontalScrollView hs=new HorizontalScrollView(this);
+            hs.setHorizontalScrollBarEnabled(false);hs.setFillViewport(false);
+            LinearLayout days=row();days.setGravity(Gravity.CENTER_VERTICAL);
+            int count=0;
+            for(Day d:selected.days){
+                days.addView(districtForecastCard(d),new LinearLayout.LayoutParams(dp(76),dp(132)));
+                if(++count>=5)break;
+            }
+            hs.addView(days);hero.addView(hs);
+        }else{
+            LinearLayout grid=col();
+            LinearLayout row1=row(),row2=row();
+            row1.addView(metricCompact("💧 Nem",val(selected.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(68),1));
+            row1.addView(metricCompact("≋ Rüzgâr",val(selected.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(0,dp(68),1));
+            LinearLayout.LayoutParams gap=new LinearLayout.LayoutParams(0,dp(68),1);gap.setMargins(dp(5),0,0,0);row1.getChildAt(1).setLayoutParams(gap);
+            row2.addView(metricCompact("◉ Basınç",val(selected.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(68),1));
+            row2.addView(metricCompact("🌡 Hissedilen",tempC(selected.feels,"—")),new LinearLayout.LayoutParams(0,dp(68),1));
+            LinearLayout.LayoutParams gap2=new LinearLayout.LayoutParams(0,dp(68),1);gap2.setMargins(dp(5),0,0,0);row2.getChildAt(1).setLayoutParams(gap2);
+            LinearLayout.LayoutParams r1p=mp();r1p.setMargins(0,0,0,dp(5));grid.addView(row1,r1p);grid.addView(row2);
+            hero.addView(grid);
+
+            if(!selected.days.isEmpty()){
+                Day today=selected.days.get(0);
+                LinearLayout minmax=row();minmax.setGravity(Gravity.CENTER_VERTICAL);
+                minmax.setPadding(dp(10),dp(9),dp(10),dp(9));
+                minmax.setBackground(bg(Color.rgb(10,51,81),13));
+                TextView lo=tv("↓ En düşük  "+val(today.mi,"—")+"°",13,Color.rgb(117,202,255),true);
+                TextView hi=tv("↑ En yüksek  "+val(today.ma,"—")+"°",13,Color.rgb(255,155,105),true);
+                minmax.addView(lo,new LinearLayout.LayoutParams(0,-2,1));minmax.addView(hi,new LinearLayout.LayoutParams(0,-2,1));
+                LinearLayout.LayoutParams mm=mp();mm.setMargins(0,dp(7),0,0);hero.addView(minmax,mm);
+            }
+            TextView hourlyLabel=tv("SAATLİK TAHMİN",13,Color.rgb(210,229,246),true);
+            hourlyLabel.setPadding(0,dp(12),0,dp(6));hero.addView(hourlyLabel);
+            HorizontalScrollView hoursScroll=new HorizontalScrollView(this);
+            hoursScroll.setHorizontalScrollBarEnabled(false);
+            LinearLayout hours=row();hours.setGravity(Gravity.CENTER_VERTICAL);
+            int shown=0;
+            for(Hour h:selected.hours){
+                hours.addView(hourCompact(h));
+                if(++shown>=12)break;
+            }
+            if(shown==0)hours.addView(tv("Saatlik tahmin şu anda alınamıyor.",12,MUTED,false));
+            hoursScroll.addView(hours);hero.addView(hoursScroll);
+        }
+
+        LinearLayout.LayoutParams heroParams=mp();heroParams.setMargins(0,0,0,dp(16));body.addView(hero,heroParams);
+
+        TextView listTitle=tv("DİĞER İLÇELER",14,Color.rgb(210,229,246),true);
+        listTitle.setPadding(dp(2),0,0,dp(8));body.addView(listTitle);
+        for(int i=1;i<all.size();i++){
+            Loc l=all.get(i);if(l.name.equals(selected.name))continue;
+            body.addView(districtListRow(l),mp());
+        }
+    }
+
+    View districtForecastCard(Day d){
+        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(3),dp(6),dp(3),dp(6));
+        c.setBackground(stroke(Color.rgb(12,58,91),Color.rgb(35,108,153),15));
+        TextView date=tv(dayLabel(d.date),10.5f,TEXT,true);date.setGravity(Gravity.CENTER);date.setSingleLine(true);date.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        c.addView(date,new LinearLayout.LayoutParams(-1,dp(20)));
+        TextView week=tv(weekday(d.date),9.5f,MUTED,true);week.setGravity(Gravity.CENTER);week.setSingleLine(true);week.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        c.addView(week,new LinearLayout.LayoutParams(-1,dp(18)));
+        c.addView(weatherIconView(d.e,23),new LinearLayout.LayoutParams(-1,dp(40)));
+        TextView ev=tv(d.e,8.5f,TEXT,false);ev.setGravity(Gravity.CENTER);ev.setMaxLines(2);ev.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(24)));
+        TextView hi=tv("↑ "+val(d.ma,"—")+"°",12.5f,Color.rgb(255,135,105),true);hi.setGravity(Gravity.CENTER);
+        TextView lo=tv("↓ "+val(d.mi,"—")+"°",12.5f,Color.rgb(110,195,255),true);lo.setGravity(Gravity.CENTER);
+        c.addView(hi,new LinearLayout.LayoutParams(-1,dp(19)));c.addView(lo,new LinearLayout.LayoutParams(-1,dp(19)));
+        return c;
+    }
+
+    View districtListRow(Loc l){
+        LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setPadding(dp(12),dp(8),dp(12),dp(8));
+        card.setBackground(bg(Color.rgb(8,55,88),15));
+        View wi=weatherIconView(l.nowEvent,21);
+        card.addView(wi,new LinearLayout.LayoutParams(dp(42),dp(38)));
+        LinearLayout names=col();names.setGravity(Gravity.CENTER_VERTICAL);
+        names.addView(tv(l.name,16,TEXT,true));
+        TextView ev=tv(val(l.nowEvent,"Durum bilgisi yok"),10.5f,MUTED,false);
+        ev.setSingleLine(true);ev.setEllipsize(android.text.TextUtils.TruncateAt.END);names.addView(ev);
+        card.addView(names,new LinearLayout.LayoutParams(0,-2,1));
+        TextView temp=tv(tempC(l.now,"—"),18,GOLD,true);temp.setGravity(Gravity.CENTER_VERTICAL);
+        card.addView(temp,new LinearLayout.LayoutParams(-2,dp(38)));
+        card.setClickable(true);card.setFocusable(true);card.setOnClickListener(v->selectDistrict(l));
+        LinearLayout.LayoutParams p=mp();p.setMargins(0,0,0,dp(7));card.setLayoutParams(p);
+        return card;
+    }
+
+    
+
+void showWarnings(){
         content.removeAllViews();setNavActive(2);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Meteorolojik Uyarılar",true,false);
         LinearLayout card=col();card.setPadding(dp(15),dp(15),dp(15),dp(15));card.setBackground(stroke(Color.rgb(72,57,15),Color.rgb(255,193,7),20));
         card.addView(tv("METEOROLOJİK UYARI",12,Color.rgb(255,205,65),true));card.addView(tv("SARI KODLU UYARI",20,TEXT,true));card.addView(tv("Güncel meteorolojik uyarılar bu alanda gösterilecektir.",12,MUTED,false));card.addView(tv("Güncel uyarılar burada yayınlanır.",10,MUTED,false));content.addView(card,mp());
