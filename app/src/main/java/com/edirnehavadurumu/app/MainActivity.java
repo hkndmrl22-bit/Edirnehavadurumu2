@@ -167,7 +167,7 @@ public class MainActivity extends Activity {
         r1.addView(metricCompact("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(70),1));
         r1.addView(metricCompact("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(70),1));met.addView(r1);
         LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
-        r2.addView(metricCompact("🌬 Rüzgâr",unitValue(center.wind," km/sa")+" "+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(70),1));
+        r2.addView(metricCompact("🌬 Rüzgâr",unitValue(center.wind," km/sa")+" "+windArrow(center.windDir)+" "+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(70),1));
         r2.addView(metricCompact("⏱ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(70),1));met.addView(r2);
         main.addView(met,new LinearLayout.LayoutParams(0,dp(140),0.50f));
         weather.addView(main);
@@ -937,10 +937,27 @@ void showWarnings(){
         if(value==null||value.trim().isEmpty())return "";
         try{
             double degrees=Double.parseDouble(value.trim());
-            String[] points={"K","KKD","KD","DKD","D","DGD","GD","GGD","G","GGB","GB","BGB","B","BKB","KB","KKB"};
-            int index=(int)Math.floor((((degrees%360)+360)%360+11.25)/22.5)%16;
-            return points[index];
-        }catch(Exception ignored){return value.trim();}
+            double d=((degrees%360)+360)%360;
+            if(d>=315||d<45)return "K";
+            if(d<135)return "D";
+            if(d<225)return "G";
+            return "B";
+        }catch(Exception ignored){
+            String v=value.trim().toUpperCase(new Locale("tr","TR"));
+            if(v.contains("KUZEY"))return "K";
+            if(v.contains("DOĞU")||v.contains("DOGU"))return "D";
+            if(v.contains("GÜNEY")||v.contains("GUNEY"))return "G";
+            if(v.contains("BATI"))return "B";
+            return v;
+        }
+    }
+    String windArrow(String value){
+        String d=windDirection(value);
+        if(d.equals("K"))return "↑";
+        if(d.equals("D"))return "→";
+        if(d.equals("G"))return "↓";
+        if(d.equals("B"))return "←";
+        return "↗";
     }
     String shortTime(String x){if(x==null||x.isEmpty()||x.equals("—"))return "—";int p=x.lastIndexOf(" ");return p>=0&&p+1<x.length()?x.substring(p+1):x;}
     String shortDateTime(String value){
