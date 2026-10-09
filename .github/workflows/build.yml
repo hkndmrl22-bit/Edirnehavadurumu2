@@ -36,13 +36,13 @@ jobs:
           # Increase the approved artwork by a small additional step while retaining
           # balanced margins so the rays and dark outer field remain visible.
           canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
-          scaled = source.resize((432, 432), Image.Resampling.LANCZOS)
-          canvas.alpha_composite(scaled, (40, 40))
+          scaled = source.resize((456, 456), Image.Resampling.LANCZOS)
+          canvas.alpha_composite(scaled, (28, 28))
 
           out = "app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp"
           canvas.save(out, "WEBP", lossless=True, quality=100)
           canvas.save("app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp", "WEBP", lossless=True, quality=100)
-          print("Generated refined launcher artwork:", canvas.size, "scaled artwork:", scaled.size)
+          print("Generated larger launcher artwork with preserved outer padding:", canvas.size, "scaled artwork:", scaled.size)
           PY
           file app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
           test -s app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
