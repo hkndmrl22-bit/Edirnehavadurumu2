@@ -24,42 +24,45 @@ jobs:
           python -m pip install --quiet Pillow
           python - <<'PY'
           from PIL import Image, ImageDraw
-          import math
+          from io import BytesIO
+          import base64
 
-          # Use the original square Edirne launcher artwork, not the smaller
-          # circular foreground asset that caused the icon to look undersized.
-          src = Image.open("app/src/main/res/drawable/edirne_launcher_512.jpg").convert("RGB")
-          w, h = src.size
-          if w != h:
-              side = min(w, h)
-              left = (w - side) // 2
-              top = (h - side) // 2
-              src = src.crop((left, top, left + side, top + side))
-          # Remove the one-pixel pale edge present in the source JPEG.
-          src = src.crop((2, 2, src.width - 2, src.height - 2)).resize((512, 512), Image.Resampling.LANCZOS)
+          # Decode the known-good foreground asset from the repository.
+          encoded = open("build/icon/edirne_launcher_foreground.webp.b64", "r").read().strip()
+          src = Image.open(BytesIO(base64.b64decode(encoded))).convert("RGBA")
 
-          # Keep the photo and sunburst intact, while making the dark outer
-          # field pure black. Do not darken the central photo.
+          # The old artwork was centered inside a large transparent margin.
+          # Crop that margin, then scale the actual artwork to the full icon
+          # canvas so the sunburst is not rendered as a small circle.
+          bbox = src.getchannel("A").getbbox()
+          if not bbox:
+              raise RuntimeError("Launcher artwork has no visible pixels")
+          src = src.crop(bbox).resize((512, 512), Image.Resampling.LANCZOS)
+
+          # Turn the dark outer circular field into pure black outside the
+          # central photo; the black adaptive background will blend into it.
           pixels = src.load()
           cx = cy = 255.5
           photo_radius = 181
           for y in range(512):
               for x in range(512):
-                  r, g, b = pixels[x, y]
-                  if (x - cx) ** 2 + (y - cy) ** 2 > photo_radius ** 2 and max(r, g, b) < 90:
-                      pixels[x, y] = (0, 0, 0)
+                  r, g, b, a = pixels[x, y]
+                  if a and (x - cx) ** 2 + (y - cy) ** 2 > photo_radius ** 2 and max(r, g, b) < 90:
+                      pixels[x, y] = (0, 0, 0, a)
 
-          # Make the source's outside corners transparent so the launcher's
-          # own adaptive rounded-square mask and black background define the edge.
-          rgba = src.convert("RGBA")
-          mask = Image.new("L", (512, 512), 0)
-          ImageDraw.Draw(mask).rounded_rectangle((0, 0, 511, 511), radius=52, fill=255)
-          rgba.putalpha(mask)
+          # Keep the artwork's corners transparent; the adaptive icon's solid
+          # black background supplies the rounded-square corners on Samsung.
+          rounded = Image.new("L", (512, 512), 0)
+          ImageDraw.Draw(rounded).rounded_rectangle((0, 0, 511, 511), radius=52, fill=255)
+          src.putalpha(ImageChops.multiply(src.getchannel("A"), rounded)) if False else None
+          alpha = src.getchannel("A")
+          from PIL import ImageChops
+          src.putalpha(ImageChops.multiply(alpha, rounded))
 
           out = "app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp"
-          rgba.save(out, "WEBP", lossless=True, quality=100)
-          rgba.save("app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp", "WEBP", lossless=True, quality=100)
-          print("Generated full-size rounded-square launcher artwork:", rgba.size)
+          src.save(out, "WEBP", lossless=True, quality=100)
+          src.save("app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp", "WEBP", lossless=True, quality=100)
+          print("Generated enlarged launcher artwork:", src.size, "visible bounds:", src.getchannel("A").getbbox())
           PY
           file app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
           test -s app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
