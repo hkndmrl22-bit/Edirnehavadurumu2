@@ -24,6 +24,7 @@ jobs:
       - name: Create debug keystore
         run: |
           mkdir -p "$HOME/.android"
+          rm -f "$HOME/.android/debug.keystore"
           keytool -genkeypair -v \
             -storetype JKS \
             -keystore "$HOME/.android/debug.keystore" \
