@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/edirne_launcher_foreground"
-    android:gravity="fill" />
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/edirne_launcher_foreground"
+    android:insetLeft="-8dp"
+    android:insetTop="-8dp"
+    android:insetRight="-8dp"
+    android:insetBottom="-8dp" />
