@@ -21,45 +21,27 @@ jobs:
           mkdir -p app/src/main/res/drawable-xxxhdpi app/src/main/res/drawable-nodpi
           python -m pip install --quiet Pillow
           python - <<'PY'
-          from PIL import Image, ImageDraw
+          from PIL import Image
           from io import BytesIO
           import base64
 
-          # Decode the known-good foreground asset from the repository.
+          # Preserve the entire approved artwork. Cropping its transparent
+          # margin and enlarging it made the sun rays exceed Android's safe
+          # zone, so Samsung's circular mask clipped the rays and navy field.
           encoded = open("build/icon/edirne_launcher_foreground.webp.b64", "r").read().strip()
-          src = Image.open(BytesIO(base64.b64decode(encoded))).convert("RGBA")
+          source = Image.open(BytesIO(base64.b64decode(encoded))).convert("RGBA")
+          if source.size != (384, 384):
+              raise RuntimeError(f"Unexpected source icon size: {source.size}")
 
-          # The old artwork was centered inside a large transparent margin.
-          # Crop that margin, then scale the actual artwork to the full icon
-          # canvas so the sunburst is not rendered as a small circle.
-          bbox = src.getchannel("A").getbbox()
-          if not bbox:
-              raise RuntimeError("Launcher artwork has no visible pixels")
-          src = src.crop(bbox).resize((512, 512), Image.Resampling.LANCZOS)
-
-          # Turn the dark outer circular field into pure black outside the
-          # central photo; the black adaptive background will blend into it.
-          pixels = src.load()
-          cx = cy = 255.5
-          photo_radius = 181
-          for y in range(512):
-              for x in range(512):
-                  r, g, b, a = pixels[x, y]
-                  if a and (x - cx) ** 2 + (y - cy) ** 2 > photo_radius ** 2 and max(r, g, b) < 90:
-                      pixels[x, y] = (0, 0, 0, a)
-
-          # Keep the artwork's corners transparent; the adaptive icon's solid
-          # black background supplies the rounded-square corners on Samsung.
-          rounded = Image.new("L", (512, 512), 0)
-          ImageDraw.Draw(rounded).rounded_rectangle((0, 0, 511, 511), radius=52, fill=255)
-          alpha = src.getchannel("A")
-          from PIL import ImageChops
-          src.putalpha(ImageChops.multiply(alpha, rounded))
+          # Android adaptive icons use a 512px canvas; keep the original
+          # artwork at 384px and center it, leaving the required safe margins.
+          canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+          canvas.alpha_composite(source, (64, 64))
 
           out = "app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp"
-          src.save(out, "WEBP", lossless=True, quality=100)
-          src.save("app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp", "WEBP", lossless=True, quality=100)
-          print("Generated enlarged launcher artwork:", src.size, "visible bounds:", src.getchannel("A").getbbox())
+          canvas.save(out, "WEBP", lossless=True, quality=100)
+          canvas.save("app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp", "WEBP", lossless=True, quality=100)
+          print("Generated safe-zone launcher artwork:", canvas.size, "source artwork:", source.size)
           PY
           file app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
           test -s app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
