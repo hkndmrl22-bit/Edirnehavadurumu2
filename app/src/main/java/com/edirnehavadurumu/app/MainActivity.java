@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
     ExecutorService imgEx=Executors.newFixedThreadPool(4);
     int districtTab=0;
     int currentScreen=0;
+    boolean autoRefreshEnabled=true;
     String selectedDistrictName="Enez";
     String loadError="";
     Handler main=new Handler(Looper.getMainLooper()), timer=new Handler(Looper.getMainLooper());
@@ -42,7 +43,7 @@ public class MainActivity extends Activity {
     LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     LinearLayout.LayoutParams mp(){return new LinearLayout.LayoutParams(-1,-2);}
     LinearLayout.LayoutParams w(int width){return new LinearLayout.LayoutParams(dp(width),-1);}
-    @Override public void onCreate(Bundle b){super.onCreate(b); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0; if(Build.VERSION.SDK_INT>=30) nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; else if(Build.VERSION.SDK_INT>=23) nav=insets.getSystemWindowInsetBottom(); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
+    @Override public void onCreate(Bundle b){super.onCreate(b); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0; if(Build.VERSION.SDK_INT>=30) nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; else if(Build.VERSION.SDK_INT>=23) nav=insets.getSystemWindowInsetBottom(); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
 
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
@@ -631,8 +632,8 @@ void districtHeader(){
                 LinearLayout minmax=row();minmax.setGravity(Gravity.CENTER_VERTICAL);
                 minmax.setPadding(dp(10),dp(9),dp(10),dp(9));
                 minmax.setBackground(bg(Color.rgb(10,51,81),13));
-                TextView lo=tv("↓ En düşük  "+val(today.mi,"—")+"°",13,Color.rgb(117,202,255),true);
-                TextView hi=tv("↑ En yüksek  "+val(today.ma,"—")+"°",13,Color.rgb(255,155,105),true);
+                TextView lo=tv("↓ En düşük  "+unitValue(today.mi,"°"),13,Color.rgb(117,202,255),true);
+                TextView hi=tv("↑ En yüksek  "+unitValue(today.ma,"°"),13,Color.rgb(255,155,105),true);
                 minmax.addView(lo,new LinearLayout.LayoutParams(0,-2,1));minmax.addView(hi,new LinearLayout.LayoutParams(0,-2,1));
                 LinearLayout.LayoutParams mm=mp();mm.setMargins(0,dp(7),0,0);hero.addView(minmax,mm);
             }
@@ -687,23 +688,43 @@ void districtHeader(){
 void showWarnings(){
         currentScreen=2;
         content.removeAllViews();setNavActive(2);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Meteorolojik Uyarılar",true,false);
-        LinearLayout card=col();card.setPadding(dp(15),dp(15),dp(15),dp(15));card.setBackground(stroke(Color.rgb(72,57,15),Color.rgb(255,193,7),20));
-        card.addView(tv("METEOROLOJİK UYARI",12,Color.rgb(255,205,65),true));card.addView(tv("SARI KODLU UYARI",20,TEXT,true));card.addView(tv("Güncel meteorolojik uyarılar bu alanda gösterilecektir.",12,MUTED,false));card.addView(tv("Güncel uyarılar burada yayınlanır.",10,MUTED,false));content.addView(card,mp());
-        TextView note=tv("⚠  Bu deneme sürümünde uyarı ekranının tasarımı hazırlandı. Aktif uyarılar aktif uyarılar burada otomatik listelenecek.",12,TEXT,false);note.setPadding(dp(14),dp(14),dp(14),dp(14));note.setBackground(bg(CARD,18));LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(12),0,0);content.addView(note,p);
+        LinearLayout card=col();card.setPadding(dp(15),dp(15),dp(15),dp(15));
+        card.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),20));
+        card.addView(tv("MGM UYARI DURUMU",12,Color.rgb(205,224,244),true));
+        card.addView(tv("Uyarı servisi henüz bağlı değil",18,TEXT,true));
+        card.addView(tv("Bu sürümde aktif sarı, turuncu veya kırmızı kod uyarısı doğrulanamıyor.",12,MUTED,false));
+        content.addView(card,mp());
+        TextView note=tv("Uyarı verileri MGM’den alınacak şekilde bağlanana kadar bu ekranda aktif uyarı varmış gibi gösterim yapılmaz.",12,TEXT,false);
+        note.setPadding(dp(14),dp(14),dp(14),dp(14));note.setBackground(bg(CARD,18));
+        LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(12),0,0);content.addView(note,p);
     }
 
     void showSettings(){
         currentScreen=3;
         content.removeAllViews();setNavActive(3);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Ayarlar",true,false);
-        section("UYGULAMA TEMASI");content.addView(setting("◐","Açık / Koyu / Sistem","Koyu tema (deneme)"),mp());
-        section("TERCİHLER");content.addView(toggleSetting("Bildirimler",true));content.addView(toggleSetting("Konum",false));content.addView(toggleSetting("Anlık Güncelleme",true));
-        section("HAKKINDA");content.addView(setting("ⓘ","Hakkında","Edirne Yerel Hava Tahmin Uygulaması"),mp());content.addView(setting("🔒","Gizlilik Politikası","Yerel uygulama"),mp());
+        section("UYGULAMA TEMASI");content.addView(setting("◐","Tema","Koyu tema bu sürümde sabit"),mp());
+        section("TERCİHLER");
+        content.addView(setting("🔔","Bildirimler","Bu sürümde bildirimler etkin değil"),mp());
+        content.addView(setting("⌖","Konum","Edirne Merkez ve ilçeleri sabit konum olarak kullanılır"),mp());
+        content.addView(toggleSetting("Otomatik yenileme (5 dk.)",autoRefreshEnabled));
+        section("HAKKINDA");content.addView(setting("ⓘ","Hakkında","Edirne Yerel Hava Tahmin Uygulaması"),mp());content.addView(setting("🔒","Gizlilik","Ayrı bir gizlilik sayfası bu sürümde bulunmuyor"),mp());
         section("BİZİ TAKİP EDİN");LinearLayout socials=row();addSocial(socials,R.drawable.ic_facebook,"https://www.facebook.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_instagram,"https://www.instagram.com/edirnehavadurumu/");addSocial(socials,R.drawable.ic_x,"https://x.com/edirnehavadurumu");addSocial(socials,R.drawable.ic_youtube,"https://www.youtube.com/@edirnehavadurumu");content.addView(socials,mp());
         TextView foot=tv("Edirne Yerel Hava Tahmin Uygulaması\nSürüm "+appVersion()+"",10,MUTED,false);foot.setGravity(Gravity.CENTER);foot.setPadding(0,dp(25),0,dp(15));content.addView(foot,mp());
     }
 
     TextView setting(String i,String a,String b){TextView t=tv(i+"   "+a+"\n        "+b,13,TEXT,true);t.setPadding(dp(13),dp(12),dp(13),dp(12));t.setBackground(bg(CARD,16));return t;}
-    View toggleSetting(String name,boolean checked){Switch s=new Switch(this);s.setText(name);s.setTextColor(TEXT);s.setTextSize(14);s.setChecked(checked);s.setPadding(dp(10),dp(8),dp(10),dp(8));s.setBackground(bg(CARD,16));LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(5),0,0);s.setLayoutParams(p);return s;}
+    View toggleSetting(String name,boolean checked){
+        Switch s=new Switch(this);s.setText(name);s.setTextColor(TEXT);s.setTextSize(14);s.setChecked(checked);
+        s.setPadding(dp(10),dp(8),dp(10),dp(8));s.setBackground(bg(CARD,16));
+        LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(5),0,0);s.setLayoutParams(p);
+        s.setOnCheckedChangeListener((button,isChecked)->{
+            if(name.equals("Otomatik yenileme (5 dk.)")){
+                autoRefreshEnabled=isChecked;
+                if(isChecked)load();
+            }
+        });
+        return s;
+    }
     void addSocial(LinearLayout p,int res,String url){ImageButton b=new ImageButton(this);b.setImageResource(res);b.setBackgroundColor(Color.TRANSPARENT);b.setOnClickListener(v->open(url));p.addView(b,new LinearLayout.LayoutParams(0,dp(55),1));}
 
     void load(){
@@ -728,7 +749,7 @@ void showWarnings(){
             }catch(Exception e){
                 main.post(()->{
                     loadError="MGM verileri alınamadı. Yeniden denemek için dokunun.";
-                    if(center==null&&currentScreen==0)showHome();
+                    if(currentScreen==0)showHome();
                     else if(center==null&&currentScreen==1)showDistrictsTab(districtTab);
                     Toast.makeText(this,"MGM verileri alınamadı. Önceki veriler korunuyor.",Toast.LENGTH_SHORT).show();
                 });
