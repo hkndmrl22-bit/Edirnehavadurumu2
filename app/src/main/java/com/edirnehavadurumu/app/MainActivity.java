@@ -910,19 +910,24 @@ void showWarnings(){
     }
     void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception ignored){}}
     void loadHeroPhoto(ImageView target){
-        ex.execute(()->{
+        imgEx.execute(()->{
             try{
                 java.io.File cache=new java.io.File(getCacheDir(),"edirne_hero_high_v2.jpg");
-                if(!cache.exists()){
-                    java.net.URL u=new java.net.URL(HERO_URL);
-                    java.net.HttpURLConnection c=(java.net.HttpURLConnection)u.openConnection();
-                    c.setConnectTimeout(15000);c.setReadTimeout(20000);c.setUseCaches(true);
-                    java.io.InputStream in=c.getInputStream();
-                    java.io.FileOutputStream out=new java.io.FileOutputStream(cache);
-                    byte[] buf=new byte[8192];int n;
-                    while((n=in.read(buf))!=-1)out.write(buf,0,n);
-                    out.close();in.close();c.disconnect();
+                if(cache.exists()){
+                    android.graphics.Bitmap cached=android.graphics.BitmapFactory.decodeFile(cache.getAbsolutePath());
+                    if(cached!=null){main.post(()->target.setImageBitmap(cached));return;}
+                    cache.delete();
                 }
+                java.io.File temp=new java.io.File(getCacheDir(),"edirne_hero_high_v2.jpg.part");
+                java.net.HttpURLConnection c=(java.net.HttpURLConnection)new java.net.URL(HERO_URL).openConnection();
+                c.setConnectTimeout(15000);c.setReadTimeout(20000);c.setUseCaches(true);
+                try{
+                    try(java.io.InputStream in=c.getInputStream();java.io.FileOutputStream out=new java.io.FileOutputStream(temp)){
+                        byte[] buf=new byte[8192];int n;
+                        while((n=in.read(buf))!=-1)out.write(buf,0,n);
+                    }
+                }finally{c.disconnect();}
+                if(!temp.renameTo(cache)){temp.delete();throw new java.io.IOException("Hero image cache save failed");}
                 final android.graphics.Bitmap b=android.graphics.BitmapFactory.decodeFile(cache.getAbsolutePath());
                 if(b!=null)main.post(()->target.setImageBitmap(b));
             }catch(Exception ignored){}
