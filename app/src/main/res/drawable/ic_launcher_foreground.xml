@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<inset xmlns:android="http://schemas.android.com/apk/res/android" android:insetLeft="0dp" android:insetTop="0dp" android:insetRight="0dp" android:insetBottom="0dp">
-    <bitmap android:src="@drawable/edirne_logo_exact" android:gravity="fill" />
-</inset>
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/edirne_launcher_256"
+    android:gravity="fill" />
