@@ -1,8 +1,7 @@
-name: Build and publish APK
+name: Build APK
 on:
   workflow_dispatch:
   pull_request:
-    branches: [ main ]
   push:
     branches: [ main ]
     paths-ignore:
@@ -25,38 +24,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
-      - name: Verify release signing secrets
-        if: github.event_name != 'pull_request'
-        env:
-          KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: |
-          test -n "$KEYSTORE_B64" || (echo "::error::Set RELEASE_KEYSTORE_BASE64 in repository Actions secrets"; exit 1)
-          test -n "$KEYSTORE_PASSWORD" || (echo "::error::Set RELEASE_KEYSTORE_PASSWORD in repository Actions secrets"; exit 1)
-          test -n "$KEY_ALIAS" || (echo "::error::Set RELEASE_KEY_ALIAS in repository Actions secrets"; exit 1)
-          test -n "$KEY_PASSWORD" || (echo "::error::Set RELEASE_KEY_PASSWORD in repository Actions secrets"; exit 1)
-          mkdir -p "$HOME/.android"
-          echo "$KEYSTORE_B64" | base64 --decode > "$HOME/.android/release.keystore"
-          keytool -list -keystore "$HOME/.android/release.keystore" -storepass "$KEYSTORE_PASSWORD" >/dev/null
-          {
-            echo "RELEASE_KEYSTORE_PATH=$HOME/.android/release.keystore"
-            echo "RELEASE_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
-            echo "RELEASE_KEY_ALIAS=$KEY_ALIAS"
-            echo "RELEASE_KEY_PASSWORD=$KEY_PASSWORD"
-          } >> "$GITHUB_ENV"
-      - name: Create temporary debug keystore for pull-request test
-        if: github.event_name == 'pull_request'
+      - name: Create debug keystore
         run: |
           mkdir -p "$HOME/.android"
           keytool -genkeypair -v -storetype JKS -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          {
-            echo "RELEASE_KEYSTORE_PATH=$HOME/.android/debug.keystore"
-            echo "RELEASE_KEYSTORE_PASSWORD=android"
-            echo "RELEASE_KEY_ALIAS=androiddebugkey"
-            echo "RELEASE_KEY_PASSWORD=androiddebugkey"
-          } >> "$GITHUB_ENV"
       - name: Build APK
         run: gradle assembleRelease --stacktrace
       - name: Upload APK artifact
