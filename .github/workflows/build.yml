@@ -15,10 +15,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Restore high-resolution adaptive icon
+      - name: Restore adaptive icon
         run: |
-          mkdir -p app/src/main/res/drawable-xxhdpi
-          base64 -d build/icon/edirne_launcher_foreground.webp.b64 > app/src/main/res/drawable-xxhdpi/edirne_launcher_foreground.webp
+          set -e
+          mkdir -p app/src/main/res/drawable-xxxhdpi
+          base64 -d build/icon/edirne_launcher_foreground.webp.b64 > app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
+          file app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
+          test -s app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -31,16 +34,7 @@ jobs:
       - name: Create debug keystore
         run: |
           mkdir -p "$HOME/.android"
-          keytool -genkeypair -v \
-            -storetype JKS \
-            -keystore "$HOME/.android/debug.keystore" \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass androiddebugkey \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
+          keytool -genkeypair -v             -storetype JKS             -keystore "$HOME/.android/debug.keystore"             -storepass android             -alias androiddebugkey             -keypass androiddebugkey             -keyalg RSA             -keysize 2048             -validity 10000             -dname "CN=Android Debug,O=Android,C=US"
       - name: Build APK
         run: gradle assembleRelease --stacktrace
       - name: Upload build artifact
@@ -54,11 +48,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION_NAME=$(awk -F"'" '/versionName/{print $2}' app/build.gradle)
-          TAG="v${VERSION_NAME}"
+          TAG="v$VERSION_NAME"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --clobber
           else
-            gh release create "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --title "Edirne Hava Durumu ${VERSION_NAME}" --notes "EDİRNE YEREL HAVA TAHMİN UYGULAMASI"
+            gh release create "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --title "Edirne Hava Durumu $VERSION_NAME" --notes "EDİRNE YEREL HAVA TAHMİN UYGULAMASI"
           fi
       - name: Update website version data
         run: |
@@ -72,6 +66,3 @@ jobs:
           git add docs/EdirneHavaDurumu.apk docs/version.json
           git diff --cached --quiet || git commit -m "Site surum bilgisini guncelle [skip ci]"
           git push
-
-# Trigger 10.71 APK build
-# Build trigger: 2026-10-09T00:00:00+03:00
