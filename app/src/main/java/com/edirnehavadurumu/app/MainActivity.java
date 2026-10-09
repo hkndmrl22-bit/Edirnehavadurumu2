@@ -966,7 +966,7 @@ void showWarnings(){
     String appVersion(){try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){return "10.9";}}
 
     void checkForUpdate(){
-        ex.execute(()->{
+        imgEx.execute(()->{
             try{
                 String json=Jsoup.connect(VERSION_URL).ignoreContentType(true).timeout(8000).execute().body();
                 JSONObject o=new JSONObject(json);
