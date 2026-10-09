@@ -1,10 +1,14 @@
-name: Build APK (UI test only)
+name: Build and publish APK
 on:
   workflow_dispatch:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,25 +25,57 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
-      - name: Create debug keystore
+      - name: Verify release signing secrets
+        if: github.event_name != 'pull_request'
+        env:
+          KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_B64" || (echo "::error::Set RELEASE_KEYSTORE_BASE64 in repository Actions secrets"; exit 1)
+          test -n "$KEYSTORE_PASSWORD" || (echo "::error::Set RELEASE_KEYSTORE_PASSWORD in repository Actions secrets"; exit 1)
+          test -n "$KEY_ALIAS" || (echo "::error::Set RELEASE_KEY_ALIAS in repository Actions secrets"; exit 1)
+          test -n "$KEY_PASSWORD" || (echo "::error::Set RELEASE_KEY_PASSWORD in repository Actions secrets"; exit 1)
+          mkdir -p "$HOME/.android"
+          echo "$KEYSTORE_B64" | base64 --decode > "$HOME/.android/release.keystore"
+          keytool -list -keystore "$HOME/.android/release.keystore" -storepass "$KEYSTORE_PASSWORD" >/dev/null
+      - name: Create temporary debug keystore for pull-request test
+        if: github.event_name == 'pull_request'
         run: |
           mkdir -p "$HOME/.android"
-          rm -f "$HOME/.android/debug.keystore"
-          keytool -genkeypair -v \
-            -storetype JKS \
-            -keystore "$HOME/.android/debug.keystore" \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass androiddebugkey \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
+          keytool -genkeypair -v -storetype JKS -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
       - name: Build APK
+        env:
+          RELEASE_KEYSTORE_PATH: ${{ github.event_name == 'pull_request' && format('{0}/.android/debug.keystore', env.HOME) || format('{0}/.android/release.keystore', env.HOME) }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ github.event_name == 'pull_request' && 'android' || secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ github.event_name == 'pull_request' && 'androiddebugkey' || secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ github.event_name == 'pull_request' && 'androiddebugkey' || secrets.RELEASE_KEY_PASSWORD }}
         run: gradle assembleRelease --stacktrace
-      - name: Upload test APK artifact
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EdirneHavaDurumu-ui-test
+          name: EdirneHavaDurumu-release
           path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
+      - name: Publish GitHub Release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION_NAME=$(awk -F"'" '/versionName/{print $2}' app/build.gradle)
+          VERSION_CODE=$(awk '/versionCode/{print $2}' app/build.gradle)
+          TAG="v${VERSION_NAME}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" app/build/outputs/apk/release/app-release.apk#app-release.apk --clobber
+          else
+            gh release create "$TAG" app/build/outputs/apk/release/app-release.apk#app-release.apk --title "Edirne Hava Durumu ${VERSION_NAME}" --notes "EDİRNE YEREL HAVA TAHMİN UYGULAMASI"
+          fi
+          cp app/build/outputs/apk/release/app-release.apk docs/EdirneHavaDurumu.apk
+          UPLOAD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          printf '{"versionCode":%s,"versionName":"%s","uploadDate":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/app-release.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" "$UPLOAD_DATE" > docs/version.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/EdirneHavaDurumu.apk docs/version.json
+          git diff --cached --quiet || git commit -m "Publish APK website version data [skip ci]"
+          git push
