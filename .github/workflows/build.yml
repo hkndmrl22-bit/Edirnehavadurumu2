@@ -34,7 +34,16 @@ jobs:
       - name: Create debug keystore
         run: |
           mkdir -p "$HOME/.android"
-          keytool -genkeypair -v             -storetype JKS             -keystore "$HOME/.android/debug.keystore"             -storepass android             -alias androiddebugkey             -keypass androiddebugkey             -keyalg RSA             -keysize 2048             -validity 10000             -dname "CN=Android Debug,O=Android,C=US"
+          keytool -genkeypair -v \
+            -storetype JKS \
+            -keystore "$HOME/.android/debug.keystore" \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
       - name: Build APK
         run: gradle assembleRelease --stacktrace
       - name: Upload build artifact
@@ -44,6 +53,7 @@ jobs:
           path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
       - name: Publish GitHub Release
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -55,12 +65,13 @@ jobs:
             gh release create "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --title "Edirne Hava Durumu $VERSION_NAME" --notes "EDİRNE YEREL HAVA TAHMİN UYGULAMASI"
           fi
       - name: Update website version data
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
           VERSION_NAME=$(awk -F"'" '/versionName/{print $2}' app/build.gradle)
           VERSION_CODE=$(awk '/versionCode/{print $2}' app/build.gradle)
           cp app/build/outputs/apk/release/app-release.apk docs/EdirneHavaDurumu.apk
           UPLOAD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          printf '{"versionCode":%s,"versionName":"%s","uploadDate":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" "$UPLOAD_DATE" > docs/version.json
+          printf '{"versionCode":%s,"versionName":"%s","uploadDate":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/app-release.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" "$UPLOAD_DATE" > docs/version.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/EdirneHavaDurumu.apk docs/version.json
