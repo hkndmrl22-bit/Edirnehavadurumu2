@@ -1,3 +1,4 @@
+// Launcher icon scale tuned for Android adaptive safe zone.
 plugins { id 'com.android.application' }
 
 android {
