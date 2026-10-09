@@ -157,11 +157,11 @@ public class MainActivity extends Activity {
 
         LinearLayout met=col();met.setPadding(0,0,0,0);
         LinearLayout r1=row();r1.setGravity(Gravity.CENTER_VERTICAL);
-        r1.addView(metric("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(58),1));
-        r1.addView(metric("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r1);
+        r1.addView(metricCompact("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(58),1));
+        r1.addView(metricCompact("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r1);
         LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
         r2.addView(metric("≋ Rüzgâr",unitValue(center.wind," km/sa")+"\n"+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(58),1));
-        r2.addView(metric("◉ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r2);
+        r2.addView(metricCompact("◉ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r2);
         main.addView(met,new LinearLayout.LayoutParams(0,dp(116),0.50f));
         weather.addView(main);
 
@@ -613,18 +613,12 @@ void districtHeader(){
                 unavailable.setPadding(0,dp(12),0,dp(12));
                 hero.addView(unavailable,mp());
             }else{
-                HorizontalScrollView hs=new HorizontalScrollView(this);
-                hs.setHorizontalScrollBarEnabled(false);hs.setFillViewport(false);
-                LinearLayout days=row();days.setGravity(Gravity.CENTER_VERTICAL);
+                // Beş günün tamamı dikey listede görünür; yatay kaydırma gerekmez.
                 int count=0;
-                days.setPadding(0,0,dp(8),0);
                 for(Day d:selected.days){
-                    LinearLayout.LayoutParams dayParams=new LinearLayout.LayoutParams(dp(86),dp(168));
-                    dayParams.setMargins(0,0,dp(5),0);
-                    days.addView(districtForecastCard(d),dayParams);
+                    hero.addView(dayCompact(d),mp());
                     if(++count>=5)break;
                 }
-                hs.addView(days);hero.addView(hs);
             }
         }else{
             LinearLayout grid=col();
@@ -698,21 +692,17 @@ void districtHeader(){
 
 void showWarnings(){
         currentScreen=2;
-        content.removeAllViews();setNavActive(2);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Meteorolojik Uyarılar",true,false);
-        LinearLayout card=col();card.setPadding(dp(15),dp(15),dp(15),dp(15));
+        content.removeAllViews();setNavActive(2);
+        content.setPadding(dp(16),dp(18),dp(16),dp(28));
+        header("Meteorolojik Uyarılar",true,false);
+        LinearLayout card=col();
+        card.setPadding(dp(16),dp(16),dp(16),dp(16));
         card.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),20));
-        card.addView(tv("MGM UYARI DURUMU",12,Color.rgb(205,224,244),true));
-        card.addView(tv("Uyarı servisi henüz bağlı değil",18,TEXT,true));
-        card.addView(tv("Bu sürümde aktif sarı, turuncu veya kırmızı kod uyarısı doğrulanamıyor.",12,MUTED,false));
+        card.addView(tv("Meteorolojik uyarılar",16,TEXT,true));
+        TextView note=tv("Uyarı bilgisi şu anda görüntülenemiyor. Güncel uyarılar doğrulanmadan aktif uyarı varmış gibi gösterilmez.",13,MUTED,false);
+        note.setPadding(0,dp(8),0,0);
+        card.addView(note,mp());
         content.addView(card,mp());
-        TextView note=tv("Uyarı verileri MGM’den alınacak şekilde bağlanana kadar bu ekranda aktif uyarı varmış gibi gösterim yapılmaz.",12,TEXT,false);
-        note.setPadding(dp(14),dp(14),dp(14),dp(14));note.setBackground(bg(CARD,18));
-        LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(12),0,0);content.addView(note,p);
-        TextView mgmLink=tv("MGM UYARI SAYFASINI AÇ  ↗",13,TEXT,true);
-        mgmLink.setGravity(Gravity.CENTER);mgmLink.setPadding(dp(12),dp(13),dp(12),dp(13));
-        mgmLink.setBackground(bg(BLUE,16));mgmLink.setClickable(true);mgmLink.setFocusable(true);
-        mgmLink.setOnClickListener(v->open("https://www.mgm.gov.tr/Meteouyari/turkiye.aspx"));
-        LinearLayout.LayoutParams linkParams=mp();linkParams.setMargins(0,dp(12),0,0);content.addView(mgmLink,linkParams);
     }
 
     void showSettings(){
