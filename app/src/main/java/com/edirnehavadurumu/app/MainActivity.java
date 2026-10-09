@@ -963,7 +963,7 @@ void showWarnings(){
             @Override protected void onDraw(Canvas c){
                 super.onDraw(c);
                 float w=getWidth(),h=getHeight(),cx=w/2f,cy=h/2f;
-                if(sizeDp<=18){ c.save(); c.scale(0.55f,0.55f,cx,cy); c.translate(0,-dp(8)); }
+                if(sizeDp<=18){ c.save(); c.scale(0.55f,0.55f,cx,cy); if(!(e.contains("gök")||e.contains("şimşek")||e.contains("sağanak")||e.contains("yağ")||e.contains("kar"))) c.translate(0,dp(5)); }
                 if(e.contains("veri alınamadı")||e.contains("bilgisi yok")){
                     p.setColor(MUTED);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(dp(2));
                     c.drawCircle(cx,cy,dp(12),p);p.setStyle(Paint.Style.FILL);p.setTextAlign(Paint.Align.CENTER);p.setTextSize(dp(17));
