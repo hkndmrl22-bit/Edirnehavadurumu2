@@ -221,8 +221,12 @@ public class MainActivity extends Activity {
     String weekday(String d){
         try{
             Date x;
-            try{x=new SimpleDateFormat("dd MMM",new Locale("tr","TR")).parse(d);}
-            catch(Exception e){x=new SimpleDateFormat("dd.MM.yyyy",new Locale("tr","TR")).parse(d);}
+            try{x=new SimpleDateFormat("dd MMMM yyyy",new Locale("tr","TR")).parse(d);}
+            catch(Exception e){
+                x=new SimpleDateFormat("dd MMMM",new Locale("tr","TR")).parse(d);
+                Calendar parsed=Calendar.getInstance();parsed.setTime(x);
+                parsed.set(Calendar.YEAR,Calendar.getInstance().get(Calendar.YEAR));x=parsed.getTime();
+            }
             Calendar cal=Calendar.getInstance();cal.setTime(x);
             String[] gun={"Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"};
             return gun[cal.get(Calendar.DAY_OF_WEEK)-1];
@@ -542,8 +546,11 @@ void districtHeader(){
             hs.setHorizontalScrollBarEnabled(false);hs.setFillViewport(false);
             LinearLayout days=row();days.setGravity(Gravity.CENTER_VERTICAL);
             int count=0;
+            days.setPadding(0,0,dp(8),0);
             for(Day d:selected.days){
-                days.addView(districtForecastCard(d),new LinearLayout.LayoutParams(dp(82),dp(158)));
+                LinearLayout.LayoutParams dayParams=new LinearLayout.LayoutParams(dp(82),dp(158));
+                dayParams.setMargins(0,0,dp(5),0);
+                days.addView(districtForecastCard(d),dayParams);
                 if(++count>=5)break;
             }
             hs.addView(days);hero.addView(hs);
@@ -559,7 +566,7 @@ void districtHeader(){
             LinearLayout.LayoutParams r1p=mp();r1p.setMargins(0,0,0,dp(5));grid.addView(row1,r1p);grid.addView(row2);
             hero.addView(grid);
 
-            if(!selected.days.isEmpty()){
+            if(!selected.days.isEmpty()&&!selected.days.get(0).observedOnly){
                 Day today=selected.days.get(0);
                 LinearLayout minmax=row();minmax.setGravity(Gravity.CENTER_VERTICAL);
                 minmax.setPadding(dp(10),dp(9),dp(10),dp(9));
@@ -593,8 +600,8 @@ void districtHeader(){
         c.addView(weatherIconView(d.e,22),new LinearLayout.LayoutParams(-1,dp(36)));
         TextView ev=tv(d.e,9f,TEXT,false);ev.setGravity(Gravity.CENTER);ev.setMaxLines(2);ev.setEllipsize(android.text.TextUtils.TruncateAt.END);
         c.addView(ev,new LinearLayout.LayoutParams(-1,dp(24)));
-        TextView hi=tv("↑ "+val(d.ma,"—")+"°",12.5f,Color.rgb(255,135,105),true);hi.setGravity(Gravity.CENTER);
-        TextView lo=tv("↓ "+val(d.mi,"—")+"°",12.5f,Color.rgb(110,195,255),true);lo.setGravity(Gravity.CENTER);
+        TextView hi=tv(d.observedOnly?"Anlık":"↑ "+val(d.ma,"—")+"°",12.5f,Color.rgb(255,135,105),true);hi.setGravity(Gravity.CENTER);
+        TextView lo=tv(d.observedOnly?val(d.ma,"—")+"°":"↓ "+val(d.mi,"—")+"°",12.5f,Color.rgb(110,195,255),true);lo.setGravity(Gravity.CENTER);
         c.addView(hi,new LinearLayout.LayoutParams(-1,dp(19)));c.addView(lo,new LinearLayout.LayoutParams(-1,dp(19)));
         return c;
     }
@@ -680,25 +687,16 @@ void showWarnings(){
             }
         }catch(Exception ignored){}
 
-        // First card is always today. Current observation is also MGM data.
-        String today=new SimpleDateFormat("dd",new Locale("tr","TR")).format(new Date())+" "+new SimpleDateFormat("MMMM",new Locale("tr","TR")).format(new Date());
-        String todayTemp=val(l.now,"—");
-        String todayMin=todayTemp, todayMax=todayTemp;
-        try{
-            double mn=Double.parseDouble(todayTemp.replace(",","."));
-            double mx=mn;
-            for(Hour hh:l.hours){
-                if(hh.time.startsWith("00:")||hh.time.startsWith("01:")||hh.time.startsWith("02:")||hh.time.startsWith("03:")||hh.time.startsWith("04:")||hh.time.startsWith("05:")||hh.time.startsWith("06:")||hh.time.startsWith("07:")||hh.time.startsWith("08:")||hh.time.startsWith("09:")||hh.time.startsWith("10:")||hh.time.startsWith("11:")||hh.time.startsWith("12:")||hh.time.startsWith("13:")||hh.time.startsWith("14:")||hh.time.startsWith("15:")||hh.time.startsWith("16:")||hh.time.startsWith("17:")||hh.time.startsWith("18:")||hh.time.startsWith("19:")||hh.time.startsWith("20:")||hh.time.startsWith("21:")||hh.time.startsWith("22:")||hh.time.startsWith("23:")){
-                    try{double v=Double.parseDouble(hh.temp.replace(",","."));mn=Math.min(mn,v);mx=Math.max(mx,v);}catch(Exception ignored){}
-                }
-            }
-            todayMin=String.format(Locale.US,"%.0f",mn);
-            todayMax=String.format(Locale.US,"%.0f",mx);
-        }catch(Exception ignored){}
-        ArrayList<Day> next=new ArrayList<>();
-        next.add(new Day(today,condition(l.nowEvent),todayMin,todayMax));
-        for(int i=0;i<l.days.size()&&next.size()<5;i++)next.add(l.days.get(i));
-        l.days.clear();l.days.addAll(next);
+        // MGM daily forecast stays authoritative. If it starts tomorrow, today's card
+        // is clearly marked as a current observation instead of inventing daily min/max.
+        String today=new SimpleDateFormat("dd MMMM yyyy",new Locale("tr","TR")).format(new Date());
+        if(l.days.isEmpty()||!l.days.get(0).date.equals(today)){
+            String currentTemp=val(l.now,"—");
+            ArrayList<Day> next=new ArrayList<>();
+            next.add(new Day(today,condition(l.nowEvent),currentTemp,currentTemp,true));
+            for(int i=0;i<l.days.size()&&next.size()<5;i++)next.add(l.days.get(i));
+            l.days.clear();l.days.addAll(next);
+        }
         return l;
     }
     String apiGet(String u)throws Exception{return Jsoup.connect(u).ignoreContentType(true).timeout(20000).userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu").header("Accept","application/json, text/plain, */*").header("Origin","https://www.mgm.gov.tr").header("Referer","https://www.mgm.gov.tr/").execute().body();}
@@ -716,13 +714,13 @@ void showWarnings(){
         }
         return "";
     }
-    String condition(String c){String[] k={"PB","GSY","HSY","SY","A","AB","CB","HY","Y","K","R","SIS","KY","KSY","YKY","KGY"};String[] v={"Parçalı Bulutlu","Gökgürültülü Sağanak Yağışlı","Hafif Sağanak Yağışlı","Sağanak Yağışlı","Açık","Az Bulutlu","Çok Bulutlu","Hafif Yağmurlu","Yağmurlu","Kar Yağışlı","Rüzgarlı","Sis","Kuvvetli Yağmurlu","Kuvvetli Sağanak Yağışlı","Yoğun Kar Yağışlı","Kuvvetli Gökgürültülü Sağanak Yağışlı"};for(int i=0;i<k.length;i++)if(k[i].equalsIgnoreCase(c))return v[i];return c;}
+    String condition(String c){String[] k={"PB","GSY","HSY","SY","A","AB","CB","HY","Y","K","R","SIS","PUS","KY","KSY","YKY","KGY"};String[] v={"Parçalı Bulutlu","Gökgürültülü Sağanak Yağışlı","Hafif Sağanak Yağışlı","Sağanak Yağışlı","Açık","Az Bulutlu","Çok Bulutlu","Hafif Yağmurlu","Yağmurlu","Kar Yağışlı","Rüzgarlı","Sis","Puslu","Kuvvetli Yağmurlu","Kuvvetli Sağanak Yağışlı","Yoğun Kar Yağışlı","Kuvvetli Gökgürültülü Sağanak Yağışlı"};for(int i=0;i<k.length;i++)if(k[i].equalsIgnoreCase(c))return v[i];return c;}
     String formatUtc(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat o=new SimpleDateFormat("dd.MM.yyyy HH:mm",new Locale("tr","TR"));o.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return o.format(d);}catch(Exception e){return s;}}
-    String formatDay(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);Calendar c=Calendar.getInstance(TimeZone.getTimeZone("Europe/Istanbul"));c.setTime(d);String[] ay={"Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"};return String.format(Locale.US,"%02d %s",c.get(Calendar.DAY_OF_MONTH),ay[c.get(Calendar.MONTH)]).trim();}catch(Exception e){return s;}}
+    String formatDay(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);Calendar c=Calendar.getInstance(TimeZone.getTimeZone("Europe/Istanbul"));c.setTime(d);String[] ay={"Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"};return String.format(Locale.US,"%02d %s %04d",c.get(Calendar.DAY_OF_MONTH),ay[c.get(Calendar.MONTH)],c.get(Calendar.YEAR)).trim();}catch(Exception e){return s;}}
     String timeOnly(String s){if(s==null)return "";java.util.regex.Matcher m=java.util.regex.Pattern.compile("(\\d{2}:\\d{2})").matcher(s);return m.find()?m.group(1):"";}
     String currentTime(){return new SimpleDateFormat("d MMMM yyyy HH:mm",new Locale("tr","TR")).format(new Date());}
     String shortTime(String x){if(x==null||x.isEmpty()||x.equals("—"))return "—";int p=x.lastIndexOf(" ");return p>=0&&p+1<x.length()?x.substring(p+1):x;}
-    String dayLabel(String s){if(s==null||s.isEmpty())return "Bugün";return s;}
+    String dayLabel(String s){if(s==null||s.isEmpty())return "Bugün";return s.matches(".* \\d{4}$")?s.substring(0,s.length()-5):s;}
     String val(String x,String d){return x==null||x.isEmpty()?d:x;}
     View weatherIconView(String event,int sizeDp){
         final String e=val(event,"").toLowerCase(new Locale("tr"));
@@ -753,6 +751,12 @@ void showWarnings(){
                     p.setColor(Color.rgb(120,205,255));p.setStrokeWidth(dp(2));p.setStyle(Paint.Style.STROKE);
                     c.drawCircle(cx-dp(10),cy+dp(19),dp(2),p);c.drawCircle(cx,cy+dp(19),dp(2),p);c.drawCircle(cx+dp(10),cy+dp(19),dp(2),p);return;
                 }
+                if(e.contains("sis")||e.contains("pus")||e.contains("duman")){
+                    p.setColor(Color.rgb(210,230,245));p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(dp(3));p.setStrokeCap(Paint.Cap.ROUND);
+                    for(int i=-1;i<=1;i++){float yy=cy+dp(i*7);c.drawLine(cx-dp(18),yy,cx+dp(18),yy,p);}
+                    if(sizeDp<=18)c.restore();
+                    return;
+                }
                 if(e.contains("bulut")||e.contains("parçalı")){
                     p.setColor(Color.rgb(255,195,35));p.setStyle(Paint.Style.FILL);c.drawCircle(cx-dp(8),cy-dp(8),dp(11),p);
                     p.setColor(Color.WHITE);c.drawCircle(cx+dp(5),cy+dp(3),dp(11),p);c.drawCircle(cx-dp(8),cy+dp(5),dp(9),p);c.drawRoundRect(cx-dp(18),cy+dp(2),cx+dp(18),cy+dp(12),dp(6),dp(6),p);return;
@@ -769,6 +773,7 @@ void showWarnings(){
         String x=val(e,"").toLowerCase(new Locale("tr"));
         if(x.contains("gök")||x.contains("şimşek"))return "⛈";
         if(x.contains("kar"))return "❄";
+        if(x.contains("sis")||x.contains("pus")||x.contains("duman"))return "≋";
         if(x.contains("yağ")||x.contains("sağanak"))return "☔";
         if(x.contains("sis"))return "≋";
         if(x.contains("rüz"))return "≋";
@@ -812,7 +817,7 @@ void showWarnings(){
         });
     }
     @Override protected void onDestroy(){timer.removeCallbacks(refresh5m);ex.shutdownNow();imgEx.shutdownNow();super.onDestroy();}
-    static class Day{String date,e,mi,ma;Day(String d,String e,String mi,String ma){this.date=d;this.e=e;this.mi=mi;this.ma=ma;}}
+    static class Day{String date,e,mi,ma;boolean observedOnly;Day(String d,String e,String mi,String ma){this(d,e,mi,ma,false);}Day(String d,String e,String mi,String ma,boolean observedOnly){this.date=d;this.e=e;this.mi=mi;this.ma=ma;this.observedOnly=observedOnly;}}
     static class Hour{String time,temp,event,wind;Hour(String t,String v,String e,String w){time=t;temp=v;event=e;wind=w;}}
     static class Loc{String name,now="",nowEvent="",humidity="",pressure="",wind="",feels="",windDir="",lastUpdate="—";ArrayList<Day>days=new ArrayList<>();ArrayList<Hour>hours=new ArrayList<>();Loc(String n){name=n;}}
 
