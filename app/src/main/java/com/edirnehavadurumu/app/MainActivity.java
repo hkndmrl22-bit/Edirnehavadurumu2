@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
     int districtTab=0;
     int currentScreen=0;
     boolean autoRefreshEnabled=true;
+    volatile boolean isLoading=false;
     String selectedDistrictName="Enez";
     String loadError="";
     Handler main=new Handler(Looper.getMainLooper()), timer=new Handler(Looper.getMainLooper());
@@ -133,7 +134,10 @@ public class MainActivity extends Activity {
         upd.setGravity(Gravity.CENTER);upd.setSingleLine(true);upd.setEllipsize(android.text.TextUtils.TruncateAt.END);
         upd.setBackground(bg(Color.rgb(18,75,115),14));
         upd.setClickable(true);
-        upd.setOnClickListener(v->{ upd.setText("⟳  Güncelleniyor…"); load(); });
+        upd.setOnClickListener(v->{
+            if(isLoading){Toast.makeText(this,"Veriler zaten güncelleniyor.",Toast.LENGTH_SHORT).show();return;}
+            upd.setText("⟳  Güncelleniyor…");load();
+        });
         wh.addView(upd,new LinearLayout.LayoutParams(dp(198),dp(24)));
         weather.addView(wh);
 
@@ -360,6 +364,8 @@ void showDistricts(){ showDistrictsTab(0); }
     
 
 void refreshDistricts(int tab,TextView button){
+        if(isLoading){button.setText("⟳  Başka bir güncelleme sürüyor…");return;}
+        isLoading=true;
         button.setText("⟳  Güncelleniyor…");
         ex.execute(()->{
             try{
@@ -378,7 +384,7 @@ void refreshDistricts(int tab,TextView button){
                 });
             }catch(Exception e){
                 main.post(()->button.setText("⟳  Güncelleme başarısız — tekrar dene"));
-            }
+            }finally{isLoading=false;}
         });
     }
 
@@ -728,6 +734,8 @@ void showWarnings(){
     void addSocial(LinearLayout p,int res,String url){ImageButton b=new ImageButton(this);b.setImageResource(res);b.setBackgroundColor(Color.TRANSPARENT);b.setOnClickListener(v->open(url));p.addView(b,new LinearLayout.LayoutParams(0,dp(55),1));}
 
     void load(){
+        if(isLoading)return;
+        isLoading=true;
         ex.execute(()->{
             try{
                 final Loc cen=apiLocation("Edirne Merkez","merkez");
@@ -753,7 +761,7 @@ void showWarnings(){
                     else if(center==null&&currentScreen==1)showDistrictsTab(districtTab);
                     Toast.makeText(this,"MGM verileri alınamadı. Önceki veriler korunuyor.",Toast.LENGTH_SHORT).show();
                 });
-            }
+            }finally{isLoading=false;}
         });
     }
 
