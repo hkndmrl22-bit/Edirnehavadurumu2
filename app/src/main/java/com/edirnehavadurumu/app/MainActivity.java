@@ -575,11 +575,8 @@ void districtHeader(){
         hero.addView(summary);
         TextView condition=tv(val(selected.nowEvent,"Durum bilgisi yok"),17,TEXT,true);
         condition.setPadding(0,0,0,dp(3));hero.addView(condition);
-        SimpleDateFormat updateDateFormat=new SimpleDateFormat("dd MMM",new Locale("tr","TR"));
-        updateDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
-        String updateDate=updateDateFormat.format(new Date());
         LinearLayout updateRow=row();updateRow.setGravity(Gravity.CENTER_VERTICAL);
-        TextView updated=tv("Son güncelleme: "+updateDate+" · "+shortTime(val(selected.lastUpdate,"—")),10f,MUTED,false);
+        TextView updated=tv("Son güncelleme: "+shortDateTime(val(selected.lastUpdate,"—")),10f,MUTED,false);
         updated.setSingleLine(true);updated.setEllipsize(android.text.TextUtils.TruncateAt.END);
         updateRow.addView(updated,new LinearLayout.LayoutParams(0,dp(32),1));
         TextView refresh=tv("⟳  Yenile",11.5f,TEXT,true);refresh.setGravity(Gravity.CENTER);
@@ -742,6 +739,8 @@ void showWarnings(){
             if(cur.length()>0){
                 JSONObject c=cur.getJSONObject(0);l.now=num(c,"sicaklik");l.nowEvent=condition(c.optString("hadiseKodu",""));
                 l.humidity=num(c,"nem");l.pressure=pressure(c);l.wind=num(c,"ruzgarHiz");l.feels=num(c,"hissedilenSicaklik");l.windDir=c.optString("ruzgarYon","");
+                String observationTime=c.optString("veriZamani","");
+                l.lastUpdate=observationTime.isEmpty()?"—":formatUtc(observationTime);
             }else l.nowEvent="Veri alınamadı";
         }catch(Exception ignored){l.nowEvent="Veri alınamadı";}
         try{
@@ -781,13 +780,12 @@ void showWarnings(){
             for(int i=0;i<l.days.size()&&next.size()<5;i++)next.add(l.days.get(i));
             l.days.clear();l.days.addAll(next);
         }
-        l.lastUpdate=currentTime();
         return l;
     }
     String apiGet(String u)throws Exception{return Jsoup.connect(u).ignoreContentType(true).timeout(20000).userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu").header("Accept","application/json, text/plain, */*").header("Origin","https://www.mgm.gov.tr").header("Referer","https://www.mgm.gov.tr/").execute().body();}
-    String num(JSONObject j,String k){if(!j.has(k)||j.isNull(k))return "";String s=String.valueOf(j.opt(k));if(s.equals("-9999"))return "";try{double d=Double.parseDouble(s.replace(",","."));return d==Math.rint(d)?String.valueOf((int)d):String.format(Locale.US,"%.1f",d);}catch(Exception e){java.util.regex.Matcher m=java.util.regex.Pattern.compile("-?\\d+(?:[.,]\\d+)?").matcher(s);return m.find()?m.group().replace(",","."):"";}}
+    String num(JSONObject j,String k){if(!j.has(k)||j.isNull(k))return "";String s=String.valueOf(j.opt(k));try{double d=Double.parseDouble(s.replace(",","."));if(d==-9999d)return "";return d==Math.rint(d)?String.valueOf((int)d):String.format(Locale.US,"%.1f",d);}catch(Exception e){java.util.regex.Matcher m=java.util.regex.Pattern.compile("-?\\d+(?:[.,]\\d+)?").matcher(s);return m.find()?m.group().replace(",","."):"";}}
     String pressure(JSONObject j){
-        String[] keys={"basinc","basincHpa","basincDegeri","istasyonBasinc","denizSeviyesiBasinc","pressure","pressureHpa"};
+        String[] keys={"denizeIndirgenmisBasinc","denizSeviyesiBasinc","seaLevelPressure","aktuelBasinc","basinc","basincHpa","basincDegeri","istasyonBasinc","pressure","pressureHpa"};
         for(String key:keys){String v=num(j,key);if(!v.isEmpty())return v;}
         java.util.Iterator<String> it=j.keys();
         while(it.hasNext()){
@@ -826,6 +824,17 @@ void showWarnings(){
         }catch(Exception ignored){return value.trim();}
     }
     String shortTime(String x){if(x==null||x.isEmpty()||x.equals("—"))return "—";int p=x.lastIndexOf(" ");return p>=0&&p+1<x.length()?x.substring(p+1):x;}
+    String shortDateTime(String value){
+        if(value==null||value.isEmpty()||value.equals("—"))return "—";
+        try{
+            SimpleDateFormat parser=new SimpleDateFormat("dd.MM.yyyy HH:mm",Locale.US);
+            parser.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
+            Date date=parser.parse(value);
+            SimpleDateFormat output=new SimpleDateFormat("dd MMM · HH:mm",new Locale("tr","TR"));
+            output.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
+            return output.format(date);
+        }catch(Exception ignored){return value;}
+    }
     String dayLabel(String s){if(s==null||s.isEmpty())return "Bugün";return s.matches(".* \\d{4}$")?s.substring(0,s.length()-5):s;}
     String val(String x,String d){return x==null||x.isEmpty()?d:x;}
     View weatherIconView(String event,int sizeDp){
