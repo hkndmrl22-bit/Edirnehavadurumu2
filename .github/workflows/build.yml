@@ -18,10 +18,12 @@ jobs:
       - name: Restore adaptive icon
         run: |
           set -e
-          mkdir -p app/src/main/res/drawable-xxxhdpi
+          mkdir -p app/src/main/res/drawable-xxxhdpi app/src/main/res/drawable-nodpi
           base64 -d build/icon/edirne_launcher_foreground.webp.b64 > app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
+          cp app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp
           file app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
           test -s app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
+          test -s app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
