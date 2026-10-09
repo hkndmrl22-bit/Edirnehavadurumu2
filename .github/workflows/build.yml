@@ -15,6 +15,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Restore high-resolution adaptive icon
+        run: |
+          mkdir -p app/src/main/res/drawable-xxhdpi
+          base64 -d build/icon/edirne_launcher_foreground.webp.b64 > app/src/main/res/drawable-xxhdpi/edirne_launcher_foreground.webp
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
