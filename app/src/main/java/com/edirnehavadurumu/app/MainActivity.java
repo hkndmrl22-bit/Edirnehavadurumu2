@@ -774,7 +774,7 @@ void showWarnings(){
         todayFormat.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
         String today=todayFormat.format(new Date());
         if(l.nowEvent==null||l.nowEvent.isEmpty())l.nowEvent="Durum bilgisi yok";
-        if(l.days.isEmpty()||!l.days.get(0).date.equals(today)){
+        if(!l.days.isEmpty()&&!l.days.get(0).date.equals(today)&&!l.now.isEmpty()){
             String currentTemp=val(l.now,"—");
             ArrayList<Day> next=new ArrayList<>();
             next.add(new Day(today,condition(l.nowEvent),currentTemp,currentTemp,true));
@@ -799,7 +799,15 @@ void showWarnings(){
         }
         return "";
     }
-    String condition(String c){String[] k={"PB","GSY","HSY","SY","A","AB","CB","HY","Y","K","R","SIS","PUS","KY","KSY","YKY","KGY"};String[] v={"Parçalı Bulutlu","Gökgürültülü Sağanak Yağışlı","Hafif Sağanak Yağışlı","Sağanak Yağışlı","Açık","Az Bulutlu","Çok Bulutlu","Hafif Yağmurlu","Yağmurlu","Kar Yağışlı","Rüzgarlı","Sis","Puslu","Kuvvetli Yağmurlu","Kuvvetli Sağanak Yağışlı","Yoğun Kar Yağışlı","Kuvvetli Gökgürültülü Sağanak Yağışlı"};for(int i=0;i<k.length;i++)if(k[i].equalsIgnoreCase(c))return v[i];return c;}
+    String condition(String c){
+        if(c==null||c.trim().isEmpty())return "Durum bilgisi yok";
+        String code=c.trim().toUpperCase(Locale.ROOT);
+        String[] k={"PB","GSY","HSY","SY","A","AB","CB","HY","Y","K","R","SIS","PUS","KY","KSY","YKY","KGY","KGSY","SNE","HSNE","KSNE"};
+        String[] v={"Parçalı Bulutlu","Gökgürültülü Sağanak Yağışlı","Hafif Sağanak Yağışlı","Sağanak Yağışlı","Açık","Az Bulutlu","Çok Bulutlu","Hafif Yağmurlu","Yağmurlu","Kar Yağışlı","Rüzgarlı","Sis","Puslu","Kuvvetli Yağmurlu","Kuvvetli Sağanak Yağışlı","Yoğun Kar Yağışlı","Kuvvetli Gökgürültülü Sağanak Yağışlı","Kuvvetli Gökgürültülü Sağanak Yağışlı","Kar Yağışlı","Hafif Kar Yağışlı","Kuvvetli Kar Yağışlı"};
+        for(int i=0;i<k.length;i++)if(k[i].equals(code))return v[i];
+        if(code.matches("[A-Z0-9]{1,5}"))return "Hava durumu bilgisi yok";
+        return c.trim();
+    }
     String formatUtc(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat o=new SimpleDateFormat("dd.MM.yyyy HH:mm",new Locale("tr","TR"));o.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return o.format(d);}catch(Exception e){return s;}}
     String formatDay(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);Calendar c=Calendar.getInstance(TimeZone.getTimeZone("Europe/Istanbul"));c.setTime(d);String[] ay={"Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"};return String.format(Locale.US,"%02d %s %04d",c.get(Calendar.DAY_OF_MONTH),ay[c.get(Calendar.MONTH)],c.get(Calendar.YEAR)).trim();}catch(Exception e){return s;}}
     String timeOnly(String s){if(s==null)return "";java.util.regex.Matcher m=java.util.regex.Pattern.compile("(\\d{2}:\\d{2})").matcher(s);return m.find()?m.group(1):"";}
@@ -828,6 +836,13 @@ void showWarnings(){
                 super.onDraw(c);
                 float w=getWidth(),h=getHeight(),cx=w/2f,cy=h/2f;
                 if(sizeDp<=18){ c.save(); c.scale(0.55f,0.55f,cx,cy); c.translate(0,-dp(8)); }
+                if(e.contains("veri alınamadı")||e.contains("bilgisi yok")){
+                    p.setColor(MUTED);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(dp(2));
+                    c.drawCircle(cx,cy,dp(12),p);p.setStyle(Paint.Style.FILL);p.setTextAlign(Paint.Align.CENTER);p.setTextSize(dp(17));
+                    c.drawText("?",cx,cy+dp(6),p);
+                    if(sizeDp<=18)c.restore();
+                    return;
+                }
                 p.setStrokeWidth(Math.max(2,dp(2)));p.setStrokeCap(Paint.Cap.ROUND);
                 if(e.contains("gök")||e.contains("şimşek")||e.contains("sağanak")||e.contains("yağ")){
                     // güneş/yağışlı ikon
