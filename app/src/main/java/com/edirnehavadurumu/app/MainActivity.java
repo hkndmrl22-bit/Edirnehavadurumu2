@@ -131,16 +131,19 @@ public class MainActivity extends Activity {
         weather.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
         LinearLayout wh=row();wh.setGravity(Gravity.CENTER_VERTICAL);
         wh.addView(tv("EDİRNE MERKEZ",16,Color.rgb(231,242,250),true),
-                new LinearLayout.LayoutParams(0,dp(24),1));
-        TextView upd=tv("⟳  Son Güncelleme: "+lastUpdate,8.5f,TEXT,true);
-        upd.setGravity(Gravity.CENTER);upd.setSingleLine(true);upd.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        upd.setBackground(bg(Color.rgb(18,75,115),14));
-        upd.setClickable(true);
-        upd.setOnClickListener(v->{
+                new LinearLayout.LayoutParams(0,dp(32),1));
+        LinearLayout refresh=row();refresh.setGravity(Gravity.CENTER);refresh.setPadding(dp(8),0,dp(10),0);
+        refresh.setBackground(stroke(BLUE,Color.rgb(45,153,255),18));
+        TextView refreshIcon=tv("⟳",25,TEXT,true);refreshIcon.setGravity(Gravity.CENTER);
+        refresh.addView(refreshIcon,new LinearLayout.LayoutParams(dp(30),dp(30)));
+        TextView refreshLabel=tv("Verileri Yenile",11.5f,TEXT,true);refreshLabel.setSingleLine(true);
+        refresh.addView(refreshLabel,new LinearLayout.LayoutParams(-2,dp(30)));
+        refresh.setClickable(true);refresh.setFocusable(true);
+        refresh.setOnClickListener(v->{
             if(isLoading){Toast.makeText(this,"Veriler zaten güncelleniyor.",Toast.LENGTH_SHORT).show();return;}
-            upd.setText("⟳  Güncelleniyor…");load();
+            refreshLabel.setText("Yenileniyor…");refreshIcon.setText("⟳");load();
         });
-        wh.addView(upd,new LinearLayout.LayoutParams(dp(198),dp(24)));
+        wh.addView(refresh,new LinearLayout.LayoutParams(dp(158),dp(32)));
         weather.addView(wh);
 
         LinearLayout main=row();main.setGravity(Gravity.TOP);
@@ -153,7 +156,11 @@ public class MainActivity extends Activity {
         cur.addView(cr,new LinearLayout.LayoutParams(-1,dp(54)));
         TextView cond=tv(val(center.nowEvent,"—"),13,TEXT,true);cond.setGravity(Gravity.CENTER);cond.setIncludeFontPadding(false);
         cur.addView(cond,new LinearLayout.LayoutParams(-1,dp(20)));
-        main.addView(cur,new LinearLayout.LayoutParams(0,dp(78),0.50f));
+        TextView upd=tv("Son Güncelleme: "+lastUpdate,10.5f,TEXT,true);
+        upd.setGravity(Gravity.CENTER);upd.setIncludeFontPadding(false);upd.setSingleLine(true);
+        upd.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        cur.addView(upd,new LinearLayout.LayoutParams(-1,dp(25)));
+        main.addView(cur,new LinearLayout.LayoutParams(0,dp(103),0.50f));
 
         LinearLayout met=col();met.setPadding(0,0,0,0);
         LinearLayout r1=row();r1.setGravity(Gravity.CENTER_VERTICAL);
