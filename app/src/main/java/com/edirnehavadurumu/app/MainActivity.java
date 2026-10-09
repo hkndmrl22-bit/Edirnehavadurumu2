@@ -170,7 +170,7 @@ public class MainActivity extends Activity {
         // Saatlik tahmin — 5 günlük tahminin üstünde.
         LinearLayout hourly=col();hourly.setPadding(dp(6),dp(5),dp(6),dp(5));
         hourly.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
-        sectionLabel(hourly,"SAATLİK TAHMİNLER ( EDİRNE MERKEZ )");
+        sectionLabel(hourly,"SAATLİK TAHMİNLER (EDİRNE MERKEZ)");
         LinearLayout hr=row();int hc=0;
         if(center.hours.isEmpty()){
             TextView unavailable=tv("Saatlik tahmin şu anda alınamıyor.",11,MUTED,false);
@@ -769,7 +769,7 @@ void showWarnings(){
                     loadError="MGM verileri alınamadı. Yeniden denemek için dokunun.";
                     if(currentScreen==0)showHome();
                     else if(center==null&&currentScreen==1)showDistrictsTab(districtTab);
-                    Toast.makeText(this,"MGM verileri alınamadı. Önceki veriler korunuyor.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,"MGM verileri alınamadı. Bağlantını kontrol edip tekrar dene.",Toast.LENGTH_SHORT).show();
                 });
             }finally{isLoading=false;}
         });
