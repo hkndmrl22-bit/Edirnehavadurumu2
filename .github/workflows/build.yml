@@ -40,17 +40,24 @@ jobs:
           mkdir -p "$HOME/.android"
           echo "$KEYSTORE_B64" | base64 --decode > "$HOME/.android/release.keystore"
           keytool -list -keystore "$HOME/.android/release.keystore" -storepass "$KEYSTORE_PASSWORD" >/dev/null
+          {
+            echo "RELEASE_KEYSTORE_PATH=$HOME/.android/release.keystore"
+            echo "RELEASE_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+            echo "RELEASE_KEY_ALIAS=$KEY_ALIAS"
+            echo "RELEASE_KEY_PASSWORD=$KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
       - name: Create temporary debug keystore for pull-request test
         if: github.event_name == 'pull_request'
         run: |
           mkdir -p "$HOME/.android"
           keytool -genkeypair -v -storetype JKS -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          {
+            echo "RELEASE_KEYSTORE_PATH=$HOME/.android/debug.keystore"
+            echo "RELEASE_KEYSTORE_PASSWORD=android"
+            echo "RELEASE_KEY_ALIAS=androiddebugkey"
+            echo "RELEASE_KEY_PASSWORD=androiddebugkey"
+          } >> "$GITHUB_ENV"
       - name: Build APK
-        env:
-          RELEASE_KEYSTORE_PATH: ${{ github.event_name == 'pull_request' && format('{0}/.android/debug.keystore', env.HOME) || format('{0}/.android/release.keystore', env.HOME) }}
-          RELEASE_KEYSTORE_PASSWORD: ${{ github.event_name == 'pull_request' && 'android' || secrets.RELEASE_KEYSTORE_PASSWORD }}
-          RELEASE_KEY_ALIAS: ${{ github.event_name == 'pull_request' && 'androiddebugkey' || secrets.RELEASE_KEY_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ github.event_name == 'pull_request' && 'androiddebugkey' || secrets.RELEASE_KEY_PASSWORD }}
         run: gradle assembleRelease --stacktrace
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
