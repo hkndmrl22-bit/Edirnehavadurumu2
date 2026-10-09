@@ -6,6 +6,6 @@
         </shape>
     </item>
     <item>
-        <bitmap android:src="@drawable/edirne_launcher_foreground" android:gravity="center"/>
+        <bitmap android:src="@drawable/edirne_launcher_foreground_legacy" android:gravity="fill"/>
     </item>
 </layer-list>
