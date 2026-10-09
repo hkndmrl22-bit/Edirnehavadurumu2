@@ -33,16 +33,16 @@ jobs:
           if source.size != (384, 384):
               raise RuntimeError(f"Unexpected source icon size: {source.size}")
 
-          # Slightly enlarge the approved artwork while preserving the safe
-          # margins that keep the rays and dark outer field visible on Samsung.
+          # Increase the approved artwork by a small additional step while retaining
+          # balanced margins so the rays and dark outer field remain visible.
           canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
-          scaled = source.resize((416, 416), Image.Resampling.LANCZOS)
-          canvas.alpha_composite(scaled, (48, 48))
+          scaled = source.resize((432, 432), Image.Resampling.LANCZOS)
+          canvas.alpha_composite(scaled, (40, 40))
 
           out = "app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp"
           canvas.save(out, "WEBP", lossless=True, quality=100)
           canvas.save("app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp", "WEBP", lossless=True, quality=100)
-          print("Generated slightly enlarged safe-zone launcher artwork:", canvas.size, "scaled artwork:", scaled.size)
+          print("Generated refined launcher artwork:", canvas.size, "scaled artwork:", scaled.size)
           PY
           file app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
           test -s app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
