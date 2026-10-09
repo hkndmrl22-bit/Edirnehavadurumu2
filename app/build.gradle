@@ -9,8 +9,8 @@ android {
         applicationId 'com.edirnehavadurumu.app'
         minSdk 23
         targetSdk 35
-        versionCode 104
-        versionName '10.98'
+        versionCode 105
+        versionName '10.99'
     }
 
     signingConfigs {
@@ -24,8 +24,6 @@ android {
 
     buildTypes {
         release {
-            // Test-only package suffix: install beside the stable app without replacing it.
-            applicationIdSuffix '.uitest'
             signingConfig signingConfigs.release
             minifyEnabled false
         }
