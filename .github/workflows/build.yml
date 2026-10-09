@@ -20,6 +20,31 @@ jobs:
           set -e
           mkdir -p app/src/main/res/drawable-xxxhdpi app/src/main/res/drawable-nodpi
           base64 -d build/icon/edirne_launcher_foreground.webp.b64 > app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
+          # Remove the baked-in circular halo outside the sunburst. The adaptive
+          # icon background is already solid black; this lets that background fill
+          # Samsung's rounded-square mask instead of leaving a smaller black circle.
+          python -m pip install --quiet Pillow
+          python - <<'PY'
+          from PIL import Image, ImageDraw, ImageChops
+          import math
+          p = "app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp"
+          im = Image.open(p).convert("RGBA")
+          w, h = im.size
+          scale = 4
+          cx, cy = w / 2, h / 2
+          outer = min(w, h) * 0.345
+          inner = min(w, h) * 0.255
+          pts = []
+          for i in range(32):
+              a = -math.pi / 2 + i * math.pi / 16
+              r = outer if i % 2 == 0 else inner
+              pts.append(((cx + math.cos(a) * r) * scale, (cy + math.sin(a) * r) * scale))
+          mask_big = Image.new("L", (w * scale, h * scale), 0)
+          ImageDraw.Draw(mask_big).polygon(pts, fill=255)
+          mask = mask_big.resize((w, h), Image.Resampling.LANCZOS)
+          im.putalpha(ImageChops.multiply(im.getchannel("A"), mask))
+          im.save(p, "WEBP", lossless=True, quality=100)
+          PY
           cp app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp
           file app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
           test -s app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
