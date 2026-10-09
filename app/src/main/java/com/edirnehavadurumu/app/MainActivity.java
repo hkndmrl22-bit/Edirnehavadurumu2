@@ -796,7 +796,7 @@ void showWarnings(){
                 for(int i=1;i<=5;i++){
                     String date=formatDay(j.optString("tarihGun"+i,""));
                     String lo=num(j,"enDusukGun"+i),hi=num(j,"enYuksekGun"+i);
-                    if(!date.isEmpty()&&(!lo.isEmpty()||!hi.isEmpty()||!j.optString("hadiseGun"+i,"").isEmpty()))
+                    if(!date.isEmpty()&&isTodayOrFuture(date)&&(!lo.isEmpty()||!hi.isEmpty()||!j.optString("hadiseGun"+i,"").isEmpty()))
                         l.days.add(new Day(date,condition(j.optString("hadiseGun"+i,"")),lo,hi));
                 }
             }
@@ -854,6 +854,19 @@ void showWarnings(){
     }
     String formatUtc(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat o=new SimpleDateFormat("dd.MM.yyyy HH:mm",new Locale("tr","TR"));o.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return o.format(d);}catch(Exception e){return s;}}
     String formatDay(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);Calendar c=Calendar.getInstance(TimeZone.getTimeZone("Europe/Istanbul"));c.setTime(d);String[] ay={"Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"};return String.format(Locale.US,"%02d %s %04d",c.get(Calendar.DAY_OF_MONTH),ay[c.get(Calendar.MONTH)],c.get(Calendar.YEAR)).trim();}catch(Exception e){return s;}}
+    boolean isTodayOrFuture(String value){
+        try{
+            TimeZone zone=TimeZone.getTimeZone("Europe/Istanbul");
+            SimpleDateFormat format=new SimpleDateFormat("dd MMMM yyyy",new Locale("tr","TR"));
+            format.setLenient(false);format.setTimeZone(zone);
+            Date parsed=format.parse(value);
+            Calendar forecast=Calendar.getInstance(zone);forecast.setTime(parsed);
+            forecast.set(Calendar.HOUR_OF_DAY,0);forecast.set(Calendar.MINUTE,0);forecast.set(Calendar.SECOND,0);forecast.set(Calendar.MILLISECOND,0);
+            Calendar today=Calendar.getInstance(zone);
+            today.set(Calendar.HOUR_OF_DAY,0);today.set(Calendar.MINUTE,0);today.set(Calendar.SECOND,0);today.set(Calendar.MILLISECOND,0);
+            return !forecast.before(today);
+        }catch(Exception ignored){return false;}
+    }
     String timeOnly(String s){if(s==null)return "";java.util.regex.Matcher m=java.util.regex.Pattern.compile("(\\d{2}:\\d{2})").matcher(s);return m.find()?m.group(1):"";}
     String currentTime(){
         SimpleDateFormat format=new SimpleDateFormat("d MMMM yyyy HH:mm",new Locale("tr","TR"));
