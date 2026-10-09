@@ -285,7 +285,7 @@ void showDistricts(){ showDistrictsTab(0); }
         LinearLayout.LayoutParams tp1=new LinearLayout.LayoutParams(0,dp(54),1);
         LinearLayout.LayoutParams tp2=new LinearLayout.LayoutParams(0,dp(54),1);
         tp1.setMargins(0,0,dp(2),0);tp2.setMargins(dp(2),0,0,0);
-        tabs.addView(instant,tp1);tabs.addView(five,tp2);LinearLayout.LayoutParams tabWrap=new LinearLayout.LayoutParams(-1,dp(56));tabWrap.setMargins(0,dp(16),0,0);content.addView(tabs,tabWrap);
+        tabs.addView(instant,tp1);tabs.addView(five,tp2);LinearLayout.LayoutParams tabWrap=new LinearLayout.LayoutParams(-1,dp(56));tabWrap.setMargins(0,dp(64),0,0);content.addView(tabs,tabWrap);
 
         LinearLayout body=col();body.setPadding(0,0,0,dp(14));content.addView(body,mp());
         if(tab==0)renderDistrictCurrent(body,all.size()>1?all.get(1):null);
