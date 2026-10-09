@@ -24,6 +24,8 @@ android {
 
     buildTypes {
         release {
+            // Test-only package suffix: install beside the stable app without replacing it.
+            applicationIdSuffix '.uitest'
             signingConfig signingConfigs.release
             minifyEnabled false
         }
