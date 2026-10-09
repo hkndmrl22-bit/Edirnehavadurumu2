@@ -200,7 +200,7 @@ public class MainActivity extends Activity {
         c.addView(wd,new LinearLayout.LayoutParams(-1,dp(17)));
         c.addView(weatherIconView(d.e,17),new LinearLayout.LayoutParams(-1,dp(24)));
         TextView ev=tv(d.e,7.2f,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(2);
-        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(24)));
+        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(26)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
         TextView hi=tv(d.ma+"°",12.5f,Color.rgb(255,45,45),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);
         TextView lo=tv(d.mi+"°",12.5f,Color.rgb(45,150,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);
@@ -543,7 +543,7 @@ void districtHeader(){
             LinearLayout days=row();days.setGravity(Gravity.CENTER_VERTICAL);
             int count=0;
             for(Day d:selected.days){
-                days.addView(districtForecastCard(d),new LinearLayout.LayoutParams(dp(76),dp(132)));
+                days.addView(districtForecastCard(d),new LinearLayout.LayoutParams(dp(82),dp(158)));
                 if(++count>=5)break;
             }
             hs.addView(days);hero.addView(hs);
@@ -589,19 +589,20 @@ void districtHeader(){
         listTitle.setPadding(dp(2),0,0,dp(8));body.addView(listTitle);
         for(int i=1;i<all.size();i++){
             Loc l=all.get(i);if(l.name.equals(selected.name))continue;
-            body.addView(districtListRow(l),mp());
+            LinearLayout.LayoutParams districtRowParams=mp();districtRowParams.setMargins(0,0,0,dp(8));
+            body.addView(districtListRow(l),districtRowParams);
         }
     }
 
     View districtForecastCard(Day d){
-        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(3),dp(6),dp(3),dp(6));
+        LinearLayout c=col();c.setGravity(Gravity.CENTER);c.setPadding(dp(4),dp(7),dp(4),dp(7));
         c.setBackground(stroke(Color.rgb(12,58,91),Color.rgb(35,108,153),15));
         TextView date=tv(dayLabel(d.date),10.5f,TEXT,true);date.setGravity(Gravity.CENTER);date.setSingleLine(true);date.setEllipsize(android.text.TextUtils.TruncateAt.END);
         c.addView(date,new LinearLayout.LayoutParams(-1,dp(20)));
         TextView week=tv(weekday(d.date),9.5f,MUTED,true);week.setGravity(Gravity.CENTER);week.setSingleLine(true);week.setEllipsize(android.text.TextUtils.TruncateAt.END);
         c.addView(week,new LinearLayout.LayoutParams(-1,dp(18)));
-        c.addView(weatherIconView(d.e,23),new LinearLayout.LayoutParams(-1,dp(40)));
-        TextView ev=tv(d.e,8.5f,TEXT,false);ev.setGravity(Gravity.CENTER);ev.setMaxLines(2);ev.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        c.addView(weatherIconView(d.e,22),new LinearLayout.LayoutParams(-1,dp(36)));
+        TextView ev=tv(d.e,9f,TEXT,false);ev.setGravity(Gravity.CENTER);ev.setMaxLines(2);ev.setEllipsize(android.text.TextUtils.TruncateAt.END);
         c.addView(ev,new LinearLayout.LayoutParams(-1,dp(24)));
         TextView hi=tv("↑ "+val(d.ma,"—")+"°",12.5f,Color.rgb(255,135,105),true);hi.setGravity(Gravity.CENTER);
         TextView lo=tv("↓ "+val(d.mi,"—")+"°",12.5f,Color.rgb(110,195,255),true);lo.setGravity(Gravity.CENTER);
@@ -611,20 +612,18 @@ void districtHeader(){
 
     View districtListRow(Loc l){
         LinearLayout card=row();card.setGravity(Gravity.CENTER_VERTICAL);
-        card.setPadding(dp(12),dp(8),dp(12),dp(8));
+        card.setPadding(dp(16),dp(10),dp(14),dp(10));
         card.setBackground(bg(Color.rgb(8,55,88),15));
-        View wi=weatherIconView(l.nowEvent,21);
-        card.addView(wi,new LinearLayout.LayoutParams(dp(42),dp(38)));
+        // Keep district names visually dominant; omit decorative weather icons in the list.
         LinearLayout names=col();names.setGravity(Gravity.CENTER_VERTICAL);
-        names.addView(tv(l.name,16,TEXT,true));
-        TextView ev=tv(val(l.nowEvent,"Durum bilgisi yok"),10.5f,MUTED,false);
+        names.addView(tv(l.name,18,TEXT,true));
+        TextView ev=tv(val(l.nowEvent,"Durum bilgisi yok"),11.5f,MUTED,false);
         ev.setSingleLine(true);ev.setEllipsize(android.text.TextUtils.TruncateAt.END);names.addView(ev);
         card.addView(names,new LinearLayout.LayoutParams(0,-2,1));
         TextView temp=tv(tempC(l.now,"—"),18,GOLD,true);temp.setGravity(Gravity.CENTER_VERTICAL);
         card.addView(temp,new LinearLayout.LayoutParams(-2,dp(38)));
         card.setClickable(true);card.setFocusable(true);card.setOnClickListener(v->selectDistrict(l));
-        LinearLayout.LayoutParams p=mp();p.setMargins(0,0,0,dp(7));card.setLayoutParams(p);
-        return card;
+                return card;
     }
 
     
