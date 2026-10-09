@@ -109,7 +109,9 @@ public class MainActivity extends Activity {
         hero.addView(overlay,op);
 
         // Fotoğraf üzerindeki "EDİRNE HAVA DURUMU" başlığı kaldırıldı.
-        TextView photoDate=tv(trDate()+"  •  "+new SimpleDateFormat("HH:mm",new Locale("tr","TR")).format(new Date()),12,Color.WHITE,true);
+        SimpleDateFormat photoClock=new SimpleDateFormat("HH:mm",new Locale("tr","TR"));
+        photoClock.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
+        TextView photoDate=tv(trDate()+"  •  "+photoClock.format(new Date()),12,Color.WHITE,true);
         photoDate.setGravity(Gravity.CENTER);
         photoDate.setShadowLayer(dp(3),0,dp(1),Color.BLACK);
         FrameLayout.LayoutParams datep=new FrameLayout.LayoutParams(-1,dp(30),Gravity.BOTTOM);
@@ -239,7 +241,10 @@ public class MainActivity extends Activity {
 
     String trDate(){
         String[] gun={"Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"};
-        Calendar c=Calendar.getInstance();return new SimpleDateFormat("d MMMM yyyy",new Locale("tr","TR")).format(c.getTime())+" "+gun[c.get(Calendar.DAY_OF_WEEK)-1];
+        TimeZone zone=TimeZone.getTimeZone("Europe/Istanbul");
+        Calendar c=Calendar.getInstance(zone);
+        SimpleDateFormat format=new SimpleDateFormat("d MMMM yyyy",new Locale("tr","TR"));format.setTimeZone(zone);
+        return format.format(c.getTime())+" "+gun[c.get(Calendar.DAY_OF_WEEK)-1];
     }
     String weekday(String d){
         try{
