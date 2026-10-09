@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
     int dp(float x){return (int)(x*getResources().getDisplayMetrics().density+.5f);}
     TextView tv(String s,float z,int c,boolean b){TextView t=new TextView(this);t.setText(s);t.setTextSize(z);t.setTextColor(c);t.setTypeface(Typeface.DEFAULT,b?Typeface.BOLD:Typeface.NORMAL);t.setGravity(Gravity.CENTER_VERTICAL);return t;}
     GradientDrawable bg(int c,int r){GradientDrawable g=new GradientDrawable();g.setColor(c);g.setCornerRadius(dp(r));return g;}
-    GradientDrawable stroke(int c,int sc,int r){GradientDrawable g=bg(c,r);g.setStroke(dp(1),sc);return g;}
+    GradientDrawable stroke(int c,int sc,int r){GradientDrawable g=bg(c,r);if(settingsPrefs().getBoolean("high_contrast",false))sc=Color.rgb(75,180,235);g.setStroke(dp(1),sc);return g;}
     LinearLayout col(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);return l;}
     LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     LinearLayout.LayoutParams mp(){return new LinearLayout.LayoutParams(-1,-2);}
@@ -913,7 +913,7 @@ void showWarnings(){
                 selectedDistrictName=names[choice[0]];
                 settingsPrefs().edit().putString("selected_district",selectedDistrictName).apply();
                 Toast.makeText(this,selectedDistrictName+" seçildi.",Toast.LENGTH_SHORT).show();
-                showDistrictsTab(0);
+                if(selectedDistrictName.equals("Edirne Merkez"))showHome();else showDistrictsTab(0);
             }).show();
     }
 
