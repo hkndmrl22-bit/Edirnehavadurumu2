@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          lfs: true
       - name: Restore adaptive icon
         run: |
           set -e
@@ -54,7 +52,6 @@ jobs:
           # black background supplies the rounded-square corners on Samsung.
           rounded = Image.new("L", (512, 512), 0)
           ImageDraw.Draw(rounded).rounded_rectangle((0, 0, 511, 511), radius=52, fill=255)
-          src.putalpha(ImageChops.multiply(src.getchannel("A"), rounded)) if False else None
           alpha = src.getchannel("A")
           from PIL import ImageChops
           src.putalpha(ImageChops.multiply(alpha, rounded))
