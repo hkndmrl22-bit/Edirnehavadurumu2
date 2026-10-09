@@ -569,21 +569,10 @@ void districtHeader(){
                 minmax.addView(lo,new LinearLayout.LayoutParams(0,-2,1));minmax.addView(hi,new LinearLayout.LayoutParams(0,-2,1));
                 LinearLayout.LayoutParams mm=mp();mm.setMargins(0,dp(7),0,0);hero.addView(minmax,mm);
             }
-            TextView hourlyLabel=tv("SAATLİK TAHMİN",13,Color.rgb(210,229,246),true);
-            hourlyLabel.setPadding(0,dp(12),0,dp(6));hero.addView(hourlyLabel);
-            HorizontalScrollView hoursScroll=new HorizontalScrollView(this);
-            hoursScroll.setHorizontalScrollBarEnabled(false);
-            LinearLayout hours=row();hours.setGravity(Gravity.CENTER_VERTICAL);
-            int shown=0;
-            for(Hour h:selected.hours){
-                hours.addView(hourCompact(h));
-                if(++shown>=12)break;
-            }
-            if(shown==0)hours.addView(tv("Saatlik tahmin şu anda alınamıyor.",12,MUTED,false));
-            hoursScroll.addView(hours);hero.addView(hoursScroll);
+            // MGM saatlik tahmini il merkezleri için sunulur; ilçe ekranında yer almıyor.
         }
 
-        LinearLayout.LayoutParams heroParams=mp();heroParams.setMargins(0,0,0,dp(16));body.addView(hero,heroParams);
+                LinearLayout.LayoutParams heroParams=mp();heroParams.setMargins(0,0,0,dp(16));body.addView(hero,heroParams);
 
         TextView listTitle=tv("DİĞER İLÇELER",14,Color.rgb(210,229,246),true);
         listTitle.setPadding(dp(2),0,0,dp(8));body.addView(listTitle);
