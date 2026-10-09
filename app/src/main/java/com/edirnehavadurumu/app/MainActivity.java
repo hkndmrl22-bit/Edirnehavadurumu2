@@ -548,7 +548,7 @@ void districtHeader(){
             int count=0;
             days.setPadding(0,0,dp(8),0);
             for(Day d:selected.days){
-                LinearLayout.LayoutParams dayParams=new LinearLayout.LayoutParams(dp(82),dp(158));
+                LinearLayout.LayoutParams dayParams=new LinearLayout.LayoutParams(dp(86),dp(168));
                 dayParams.setMargins(0,0,dp(5),0);
                 days.addView(districtForecastCard(d),dayParams);
                 if(++count>=5)break;
@@ -598,8 +598,8 @@ void districtHeader(){
         TextView week=tv(weekday(d.date),9.5f,MUTED,true);week.setGravity(Gravity.CENTER);week.setSingleLine(true);week.setEllipsize(android.text.TextUtils.TruncateAt.END);
         c.addView(week,new LinearLayout.LayoutParams(-1,dp(18)));
         c.addView(weatherIconView(d.e,22),new LinearLayout.LayoutParams(-1,dp(36)));
-        TextView ev=tv(d.e,9f,TEXT,false);ev.setGravity(Gravity.CENTER);ev.setMaxLines(2);ev.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(24)));
+        TextView ev=tv(d.e,8.4f,TEXT,false);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(3);ev.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(32)));
         TextView hi=tv(d.observedOnly?"Anlık":"↑ "+val(d.ma,"—")+"°",12.5f,Color.rgb(255,135,105),true);hi.setGravity(Gravity.CENTER);
         TextView lo=tv(d.observedOnly?val(d.ma,"—")+"°":"↓ "+val(d.mi,"—")+"°",12.5f,Color.rgb(110,195,255),true);lo.setGravity(Gravity.CENTER);
         c.addView(hi,new LinearLayout.LayoutParams(-1,dp(19)));c.addView(lo,new LinearLayout.LayoutParams(-1,dp(19)));
@@ -744,12 +744,15 @@ void showWarnings(){
                         p.setColor(Color.WHITE);p.setStyle(Paint.Style.FILL);
                         c.drawCircle(cx,cy,dp(15),p);
                     }
+                    if(sizeDp<=18)c.restore();
                     return;
                 }
                 if(e.contains("kar")){
                     p.setColor(Color.WHITE);p.setStyle(Paint.Style.FILL);c.drawCircle(cx,cy-dp(3),dp(13),p);c.drawRoundRect(cx-dp(19),cy+dp(1),cx+dp(19),cy+dp(13),dp(7),dp(7),p);
                     p.setColor(Color.rgb(120,205,255));p.setStrokeWidth(dp(2));p.setStyle(Paint.Style.STROKE);
-                    c.drawCircle(cx-dp(10),cy+dp(19),dp(2),p);c.drawCircle(cx,cy+dp(19),dp(2),p);c.drawCircle(cx+dp(10),cy+dp(19),dp(2),p);return;
+                    c.drawCircle(cx-dp(10),cy+dp(19),dp(2),p);c.drawCircle(cx,cy+dp(19),dp(2),p);c.drawCircle(cx+dp(10),cy+dp(19),dp(2),p);
+                    if(sizeDp<=18)c.restore();
+                    return;
                 }
                 if(e.contains("sis")||e.contains("pus")||e.contains("duman")){
                     p.setColor(Color.rgb(210,230,245));p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(dp(3));p.setStrokeCap(Paint.Cap.ROUND);
@@ -759,7 +762,17 @@ void showWarnings(){
                 }
                 if(e.contains("bulut")||e.contains("parçalı")){
                     p.setColor(Color.rgb(255,195,35));p.setStyle(Paint.Style.FILL);c.drawCircle(cx-dp(8),cy-dp(8),dp(11),p);
-                    p.setColor(Color.WHITE);c.drawCircle(cx+dp(5),cy+dp(3),dp(11),p);c.drawCircle(cx-dp(8),cy+dp(5),dp(9),p);c.drawRoundRect(cx-dp(18),cy+dp(2),cx+dp(18),cy+dp(12),dp(6),dp(6),p);return;
+                    p.setColor(Color.WHITE);c.drawCircle(cx+dp(5),cy+dp(3),dp(11),p);c.drawCircle(cx-dp(8),cy+dp(5),dp(9),p);c.drawRoundRect(cx-dp(18),cy+dp(2),cx+dp(18),cy+dp(12),dp(6),dp(6),p);
+                    if(sizeDp<=18)c.restore();
+                    return;
+                }
+                if(e.contains("rüzgar")||e.contains("rüzgâr")||e.contains("rüz")){
+                    p.setColor(Color.rgb(210,230,245));p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(dp(3));p.setStrokeCap(Paint.Cap.ROUND);
+                    c.drawLine(cx-dp(18),cy-dp(8),cx+dp(16),cy-dp(8),p);
+                    c.drawLine(cx-dp(18),cy,cx+dp(10),cy,p);
+                    c.drawLine(cx-dp(18),cy+dp(8),cx+dp(4),cy+dp(8),p);
+                    if(sizeDp<=18)c.restore();
+                    return;
                 }
                 // Açık hava: güneş + ışınlar
                 p.setColor(Color.rgb(255,195,25));p.setStyle(Paint.Style.FILL);c.drawCircle(cx,cy,dp(14),p);
