@@ -15,6 +15,38 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Restore adaptive icon
+        run: |
+          set -e
+          mkdir -p app/src/main/res/drawable-xxxhdpi app/src/main/res/drawable-nodpi
+          python -m pip install --quiet Pillow
+          python - <<'PY'
+          from PIL import Image
+          from io import BytesIO
+          import base64
+
+          # Preserve the entire approved artwork. Cropping its transparent
+          # margin and enlarging it made the sun rays exceed Android's safe
+          # zone, so Samsung's circular mask clipped the rays and navy field.
+          encoded = open("build/icon/edirne_launcher_foreground.webp.b64", "r").read().strip()
+          source = Image.open(BytesIO(base64.b64decode(encoded))).convert("RGBA")
+          if source.size != (384, 384):
+              raise RuntimeError(f"Unexpected source icon size: {source.size}")
+
+          # Increase the approved artwork by a small additional step while retaining
+          # balanced margins so the rays and dark outer field remain visible.
+          canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+          scaled = source.resize((456, 456), Image.Resampling.LANCZOS)
+          canvas.alpha_composite(scaled, (28, 28))
+
+          out = "app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp"
+          canvas.save(out, "WEBP", lossless=True, quality=100)
+          canvas.save("app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp", "WEBP", lossless=True, quality=100)
+          print("Generated larger launcher artwork with preserved outer padding:", canvas.size, "scaled artwork:", scaled.size)
+          PY
+          file app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
+          test -s app/src/main/res/drawable-xxxhdpi/edirne_launcher_foreground.webp
+          test -s app/src/main/res/drawable-nodpi/edirne_launcher_foreground_legacy.webp
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -46,28 +78,27 @@ jobs:
           path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
       - name: Publish GitHub Release
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION_NAME=$(awk -F"'" '/versionName/{print $2}' app/build.gradle)
-          TAG="v${VERSION_NAME}"
+          TAG="v$VERSION_NAME"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --clobber
           else
-            gh release create "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --title "Edirne Hava Durumu ${VERSION_NAME}" --notes "EDİRNE YEREL HAVA TAHMİN UYGULAMASI"
+            gh release create "$TAG" app/build/outputs/apk/release/app-release.apk#EdirneHavaDurumu.apk --title "Edirne Hava Durumu $VERSION_NAME" --notes "EDİRNE YEREL HAVA TAHMİN UYGULAMASI"
           fi
       - name: Update website version data
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
           VERSION_NAME=$(awk -F"'" '/versionName/{print $2}' app/build.gradle)
           VERSION_CODE=$(awk '/versionCode/{print $2}' app/build.gradle)
           cp app/build/outputs/apk/release/app-release.apk docs/EdirneHavaDurumu.apk
           UPLOAD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          printf '{"versionCode":%s,"versionName":"%s","uploadDate":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" "$UPLOAD_DATE" > docs/version.json
+          printf '{"versionCode":%s,"versionName":"%s","uploadDate":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/app-release.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" "$UPLOAD_DATE" > docs/version.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/EdirneHavaDurumu.apk docs/version.json
           git diff --cached --quiet || git commit -m "Site surum bilgisini guncelle [skip ci]"
           git push
-
-# Trigger 10.71 APK build
-# Build trigger: 2026-10-09T00:00:00+03:00
