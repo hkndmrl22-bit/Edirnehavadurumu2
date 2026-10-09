@@ -439,7 +439,8 @@ void districtHeader(){
         TextView condition=tv(val(selected.nowEvent,"Durum bilgisi yok"),17,TEXT,true);
         condition.setPadding(0,0,0,dp(3));hero.addView(condition);
         LinearLayout updateRow=row();updateRow.setGravity(Gravity.CENTER_VERTICAL);
-        TextView updated=tv("Son güncelleme: "+shortTime(val(selected.lastUpdate,"—")),10.5f,MUTED,false);
+        String updateDate=new SimpleDateFormat("dd MMM",new Locale("tr","TR")).format(new Date());
+        TextView updated=tv("Son güncelleme: "+updateDate+" · "+shortTime(val(selected.lastUpdate,"—")),10f,MUTED,false);
         updated.setSingleLine(true);updated.setEllipsize(android.text.TextUtils.TruncateAt.END);
         updateRow.addView(updated,new LinearLayout.LayoutParams(0,dp(32),1));
         TextView refresh=tv("⟳  Yenile",11.5f,TEXT,true);refresh.setGravity(Gravity.CENTER);
