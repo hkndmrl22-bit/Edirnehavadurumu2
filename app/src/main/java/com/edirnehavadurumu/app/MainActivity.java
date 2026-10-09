@@ -595,18 +595,25 @@ void districtHeader(){
         segments.addView(currentTab,seg1);segments.addView(forecastTab,seg2);hero.addView(segments);
 
         if(forecast){
-            HorizontalScrollView hs=new HorizontalScrollView(this);
-            hs.setHorizontalScrollBarEnabled(false);hs.setFillViewport(false);
-            LinearLayout days=row();days.setGravity(Gravity.CENTER_VERTICAL);
-            int count=0;
-            days.setPadding(0,0,dp(8),0);
-            for(Day d:selected.days){
-                LinearLayout.LayoutParams dayParams=new LinearLayout.LayoutParams(dp(86),dp(168));
-                dayParams.setMargins(0,0,dp(5),0);
-                days.addView(districtForecastCard(d),dayParams);
-                if(++count>=5)break;
+            if(selected.days.isEmpty()){
+                TextView unavailable=tv("5 günlük MGM tahmini şu anda alınamıyor.",12,MUTED,false);
+                unavailable.setGravity(Gravity.CENTER);
+                unavailable.setPadding(0,dp(12),0,dp(12));
+                hero.addView(unavailable,mp());
+            }else{
+                HorizontalScrollView hs=new HorizontalScrollView(this);
+                hs.setHorizontalScrollBarEnabled(false);hs.setFillViewport(false);
+                LinearLayout days=row();days.setGravity(Gravity.CENTER_VERTICAL);
+                int count=0;
+                days.setPadding(0,0,dp(8),0);
+                for(Day d:selected.days){
+                    LinearLayout.LayoutParams dayParams=new LinearLayout.LayoutParams(dp(86),dp(168));
+                    dayParams.setMargins(0,0,dp(5),0);
+                    days.addView(districtForecastCard(d),dayParams);
+                    if(++count>=5)break;
+                }
+                hs.addView(days);hero.addView(hs);
             }
-            hs.addView(days);hero.addView(hs);
         }else{
             LinearLayout grid=col();
             LinearLayout row1=row(),row2=row();
