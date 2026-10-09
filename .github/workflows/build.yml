@@ -62,12 +62,9 @@ jobs:
           VERSION_CODE=$(awk '/versionCode/{print $2}' app/build.gradle)
           cp app/build/outputs/apk/release/app-release.apk docs/EdirneHavaDurumu.apk
           UPLOAD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          printf '{"versionCode":%s,"versionName":"%s","uploadDate":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/EdirneHavaDurumu.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" "$UPLOAD_DATE" > docs/version.json
+          printf '{"versionCode":%s,"versionName":"%s","uploadDate":"%s","notes":"Yeni APK yayinlandi.","apkUrl":"https://github.com/hkndmrl22-bit/Edirnehavadurumu2/releases/latest/download/app-release.apk"}\n' "$VERSION_CODE" "$VERSION_NAME" "$UPLOAD_DATE" > docs/version.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/EdirneHavaDurumu.apk docs/version.json
           git diff --cached --quiet || git commit -m "Site surum bilgisini guncelle [skip ci]"
           git push
-
-# Trigger 10.71 APK build
-# Build trigger: 2026-10-09T00:00:00+03:00
