@@ -703,6 +703,11 @@ void showWarnings(){
         TextView note=tv("Uyarı verileri MGM’den alınacak şekilde bağlanana kadar bu ekranda aktif uyarı varmış gibi gösterim yapılmaz.",12,TEXT,false);
         note.setPadding(dp(14),dp(14),dp(14),dp(14));note.setBackground(bg(CARD,18));
         LinearLayout.LayoutParams p=mp();p.setMargins(0,dp(12),0,0);content.addView(note,p);
+        TextView mgmLink=tv("MGM UYARI SAYFASINI AÇ  ↗",13,TEXT,true);
+        mgmLink.setGravity(Gravity.CENTER);mgmLink.setPadding(dp(12),dp(13),dp(12),dp(13));
+        mgmLink.setBackground(bg(BLUE,16));mgmLink.setClickable(true);mgmLink.setFocusable(true);
+        mgmLink.setOnClickListener(v->open("https://www.mgm.gov.tr/Meteouyari/turkiye.aspx"));
+        LinearLayout.LayoutParams linkParams=mp();linkParams.setMargins(0,dp(12),0,0);content.addView(mgmLink,linkParams);
     }
 
     void showSettings(){
