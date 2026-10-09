@@ -24,7 +24,9 @@ public class MainActivity extends Activity {
     ExecutorService ex=Executors.newSingleThreadExecutor();
     ExecutorService imgEx=Executors.newFixedThreadPool(4);
     int districtTab=0;
+    int currentScreen=0;
     String selectedDistrictName="Enez";
+    String loadError="";
     Handler main=new Handler(Looper.getMainLooper()), timer=new Handler(Looper.getMainLooper());
     Runnable refresh5m;
     LinearLayout page,content,bottomNav;
@@ -84,6 +86,7 @@ public class MainActivity extends Activity {
     }
 
     void showHome(){
+        currentScreen=0;
         content.removeAllViews();setNavActive(0);content.setPadding(0,0,0,0);
 
         // MASTER ANA SAYFA — renk, oran, kart ve yazı hiyerarşisi 5223.png esas alınmıştır.
@@ -112,7 +115,12 @@ public class MainActivity extends Activity {
         hero.addView(photoDate,datep);
         content.addView(hero,mp());
 
-        if(center==null){content.addView(tv("Veriler yükleniyor…",15,MUTED,true),mp());return;}
+        if(center==null){
+            TextView loading=tv(loadError.isEmpty()?"Veriler yükleniyor…":loadError,15,MUTED,true);
+            loading.setPadding(dp(18),dp(18),dp(18),dp(18));
+            loading.setOnClickListener(v->{loadError="";loading.setText("MGM verileri yeniden alınıyor…");load();});
+            content.addView(loading,mp());return;
+        }
 
         // Güncel durum kartı
         LinearLayout weather=col();weather.setPadding(dp(10),dp(6),dp(10),dp(6));
@@ -143,10 +151,10 @@ public class MainActivity extends Activity {
         LinearLayout met=col();met.setPadding(0,0,0,0);
         LinearLayout r1=row();r1.setGravity(Gravity.CENTER_VERTICAL);
         r1.addView(metric("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(58),1));
-        r1.addView(metric("💧 Nem",val(center.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r1);
+        r1.addView(metric("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r1);
         LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
-        r2.addView(metric("≋ Rüzgâr",val(center.wind,"—")+" km/sa\n"+val(center.windDir,"")),new LinearLayout.LayoutParams(0,dp(58),1));
-        r2.addView(metric("◉ Basınç",val(center.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r2);
+        r2.addView(metric("≋ Rüzgâr",unitValue(center.wind," km/sa")+"\n"+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(58),1));
+        r2.addView(metric("◉ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r2);
         main.addView(met,new LinearLayout.LayoutParams(0,dp(116),0.50f));
         weather.addView(main);
 
@@ -157,6 +165,11 @@ public class MainActivity extends Activity {
         hourly.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
         sectionLabel(hourly,"SAATLİK TAHMİNLER ( EDİRNE MERKEZ )");
         LinearLayout hr=row();int hc=0;
+        if(center.hours.isEmpty()){
+            TextView unavailable=tv("Saatlik tahmin şu anda alınamıyor.",11,MUTED,false);
+            unavailable.setGravity(Gravity.CENTER);
+            hr.addView(unavailable,new LinearLayout.LayoutParams(-1,dp(82)));
+        }
         for(Hour h:center.hours){
             hr.addView(hourCardFlex(h),new LinearLayout.LayoutParams(0,dp(82),1));
             if(++hc>=6)break;
@@ -171,6 +184,11 @@ public class MainActivity extends Activity {
         forecast5.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
         sectionLabel(forecast5,"5 GÜNLÜK TAHMİN (EDİRNE MERKEZ)");
         LinearLayout days=row();int n=0;
+        if(center.days.isEmpty()){
+            TextView unavailable=tv("5 günlük tahmin şu anda alınamıyor.",11,MUTED,false);
+            unavailable.setGravity(Gravity.CENTER);
+            days.addView(unavailable,new LinearLayout.LayoutParams(-1,dp(118)));
+        }
         for(Day d:center.days){
             days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(118),1));
             if(++n>=5)break;
@@ -202,8 +220,8 @@ public class MainActivity extends Activity {
         TextView ev=tv(d.e,7.2f,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(2);
         c.addView(ev,new LinearLayout.LayoutParams(-1,dp(26)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
-        TextView hi=tv(d.ma+"°",12.5f,Color.rgb(255,45,45),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);
-        TextView lo=tv(d.mi+"°",12.5f,Color.rgb(45,150,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);
+        TextView hi=tv(d.observedOnly?"Anlık":unitValue(d.ma,"°"),d.observedOnly?10.5f:12.5f,Color.rgb(255,120,100),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);hi.setSingleLine(true);
+        TextView lo=tv(d.observedOnly?unitValue(d.ma,"°"):unitValue(d.mi,"°"),12.5f,Color.rgb(110,195,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);lo.setSingleLine(true);
         temps.addView(hi,new LinearLayout.LayoutParams(dp(34),dp(20)));
         temps.addView(lo,new LinearLayout.LayoutParams(dp(34),dp(20)));
         c.addView(temps,new LinearLayout.LayoutParams(-2,dp(20)));
@@ -236,6 +254,10 @@ public class MainActivity extends Activity {
         if(s==null||s.trim().isEmpty())return def;
         String x=s.trim().replace("°C","").replace("°","").trim();
         return x+"°C";
+    }
+    String unitValue(String value,String unit){
+        if(value==null||value.trim().isEmpty())return "—";
+        return value.trim()+unit;
     }
     void sectionPanel(String s){
         TextView t=tv(s,17,Color.rgb(210,229,246),true);t.setPadding(dp(19),dp(5),dp(19),dp(4));content.addView(t,mp());
@@ -295,6 +317,7 @@ void section(String s){TextView t=tv(s,17,Color.rgb(205,224,244),true);t.setPadd
 void showDistricts(){ showDistrictsTab(0); }
 
     void showDistrictsTab(int tab){
+        currentScreen=1;
         districtTab=tab;
         content.removeAllViews();setNavActive(1);
         // Safe top inset for Android edge-to-edge status bar; keeps controls clear of clock/battery.
@@ -576,10 +599,10 @@ void districtHeader(){
         }else{
             LinearLayout grid=col();
             LinearLayout row1=row(),row2=row();
-            row1.addView(metricDetail("💧 Nem",val(selected.humidity,"—")+"%"),new LinearLayout.LayoutParams(0,dp(64),1));
-            row1.addView(metricDetail("≋ Rüzgâr",val(selected.wind,"—")+" km/sa"),new LinearLayout.LayoutParams(0,dp(64),1));
+            row1.addView(metricDetail("💧 Nem",unitValue(selected.humidity,"%")),new LinearLayout.LayoutParams(0,dp(64),1));
+            row1.addView(metricDetail("≋ Rüzgâr",unitValue(selected.wind," km/sa")),new LinearLayout.LayoutParams(0,dp(64),1));
             LinearLayout.LayoutParams gap=new LinearLayout.LayoutParams(0,dp(64),1);gap.setMargins(dp(5),0,0,0);row1.getChildAt(1).setLayoutParams(gap);
-            row2.addView(metricDetail("◉ Basınç",val(selected.pressure,"—")+" hPa"),new LinearLayout.LayoutParams(0,dp(64),1));
+            row2.addView(metricDetail("◉ Basınç",unitValue(selected.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(64),1));
             row2.addView(metricDetail("🌡 Hissedilen",tempC(selected.feels,"—")),new LinearLayout.LayoutParams(0,dp(64),1));
             LinearLayout.LayoutParams gap2=new LinearLayout.LayoutParams(0,dp(64),1);gap2.setMargins(dp(5),0,0,0);row2.getChildAt(1).setLayoutParams(gap2);
             LinearLayout.LayoutParams r1p=mp();r1p.setMargins(0,0,0,dp(5));grid.addView(row1,r1p);grid.addView(row2);
@@ -644,6 +667,7 @@ void districtHeader(){
     
 
 void showWarnings(){
+        currentScreen=2;
         content.removeAllViews();setNavActive(2);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Meteorolojik Uyarılar",true,false);
         LinearLayout card=col();card.setPadding(dp(15),dp(15),dp(15),dp(15));card.setBackground(stroke(Color.rgb(72,57,15),Color.rgb(255,193,7),20));
         card.addView(tv("METEOROLOJİK UYARI",12,Color.rgb(255,205,65),true));card.addView(tv("SARI KODLU UYARI",20,TEXT,true));card.addView(tv("Güncel meteorolojik uyarılar bu alanda gösterilecektir.",12,MUTED,false));card.addView(tv("Güncel uyarılar burada yayınlanır.",10,MUTED,false));content.addView(card,mp());
@@ -651,6 +675,7 @@ void showWarnings(){
     }
 
     void showSettings(){
+        currentScreen=3;
         content.removeAllViews();setNavActive(3);content.setPadding(dp(16),dp(18),dp(16),dp(28));header("Ayarlar",true,false);
         section("UYGULAMA TEMASI");content.addView(setting("◐","Açık / Koyu / Sistem","Koyu tema (deneme)"),mp());
         section("TERCİHLER");content.addView(toggleSetting("Bildirimler",true));content.addView(toggleSetting("Konum",false));content.addView(toggleSetting("Anlık Güncelleme",true));
@@ -737,7 +762,20 @@ void showWarnings(){
     String formatUtc(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);SimpleDateFormat o=new SimpleDateFormat("dd.MM.yyyy HH:mm",new Locale("tr","TR"));o.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));return o.format(d);}catch(Exception e){return s;}}
     String formatDay(String s){try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.US);in.setTimeZone(TimeZone.getTimeZone("UTC"));Date d=in.parse(s);Calendar c=Calendar.getInstance(TimeZone.getTimeZone("Europe/Istanbul"));c.setTime(d);String[] ay={"Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"};return String.format(Locale.US,"%02d %s %04d",c.get(Calendar.DAY_OF_MONTH),ay[c.get(Calendar.MONTH)],c.get(Calendar.YEAR)).trim();}catch(Exception e){return s;}}
     String timeOnly(String s){if(s==null)return "";java.util.regex.Matcher m=java.util.regex.Pattern.compile("(\\d{2}:\\d{2})").matcher(s);return m.find()?m.group(1):"";}
-    String currentTime(){return new SimpleDateFormat("d MMMM yyyy HH:mm",new Locale("tr","TR")).format(new Date());}
+    String currentTime(){
+        SimpleDateFormat format=new SimpleDateFormat("d MMMM yyyy HH:mm",new Locale("tr","TR"));
+        format.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
+        return format.format(new Date());
+    }
+    String windDirection(String value){
+        if(value==null||value.trim().isEmpty())return "";
+        try{
+            double degrees=Double.parseDouble(value.trim());
+            String[] points={"K","KKD","KD","DKD","D","DGD","GD","GGD","G","GGB","GB","BGB","B","BKB","KB","KKB"};
+            int index=(int)Math.floor((((degrees%360)+360)%360+11.25)/22.5)%16;
+            return points[index];
+        }catch(Exception ignored){return value.trim();}
+    }
     String shortTime(String x){if(x==null||x.isEmpty()||x.equals("—"))return "—";int p=x.lastIndexOf(" ");return p>=0&&p+1<x.length()?x.substring(p+1):x;}
     String dayLabel(String s){if(s==null||s.isEmpty())return "Bugün";return s.matches(".* \\d{4}$")?s.substring(0,s.length()-5):s;}
     String val(String x,String d){return x==null||x.isEmpty()?d:x;}
@@ -877,7 +915,7 @@ void showWarnings(){
         LinearLayout detail=col();detail.setPadding(dp(14),dp(14),dp(14),dp(14));detail.setBackground(bg(CARD,20));
         if(center.days.size()>1){Day d=center.days.get(1);detail.addView(tv(d.ma+"° / "+d.mi+"°",28,GOLD,true));detail.addView(tv(d.e,16,TEXT,true));}
         detail.addView(tv("Yağış ihtimali ve miktarı yayınlandığında burada gösterilir",11,MUTED,false));
-        detail.addView(tv("Nem: "+val(center.humidity,"—")+"%     Rüzgâr: "+val(center.wind,"—")+" km/sa "+val(center.windDir,"")+"     Basınç: "+val(center.pressure,"—")+" hPa",11,TEXT,false));
+        detail.addView(tv("Nem: "+val(center.humidity,"—")+"%     Rüzgâr: "+val(center.wind,"—")+" km/sa "+val(center.windDir,"")+"     Basınç: "+unitValue(center.pressure," hPa"),11,TEXT,false));
         content.addView(detail,mp());
         section("SAATLİK TAHMİN");
         HorizontalScrollView hs=new HorizontalScrollView(this);LinearLayout hr=row();
