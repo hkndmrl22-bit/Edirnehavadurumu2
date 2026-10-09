@@ -310,7 +310,7 @@ public class MainActivity extends Activity {
          card.addView(ic,new LinearLayout.LayoutParams(dp(22),-1));
          LinearLayout info=col();info.setGravity(Gravity.CENTER_VERTICAL);
          TextView la=tv(label,10f,TEXT,true);la.setIncludeFontPadding(false);la.setSingleLine(true);la.setEllipsize(android.text.TextUtils.TruncateAt.END);
-         TextView va=tv(b,12.5f,TEXT,true);va.setIncludeFontPadding(false);va.setSingleLine(true);va.setEllipsize(android.text.TextUtils.TruncateAt.END);va.setGravity(Gravity.CENTER_VERTICAL);
+         TextView va=tv(b,11f,TEXT,true);va.setIncludeFontPadding(false);va.setSingleLine(true);va.setEllipsize(android.text.TextUtils.TruncateAt.END);va.setGravity(Gravity.CENTER_VERTICAL);
          info.addView(la,new LinearLayout.LayoutParams(-1,dp(20)));
          info.addView(va,new LinearLayout.LayoutParams(-1,dp(29)));
          card.addView(info,new LinearLayout.LayoutParams(0,-1,1));
