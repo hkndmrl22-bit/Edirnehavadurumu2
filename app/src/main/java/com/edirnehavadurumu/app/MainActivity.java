@@ -704,16 +704,71 @@ void districtHeader(){
 void showWarnings(){
         currentScreen=2;
         content.removeAllViews();setNavActive(2);
-        content.setPadding(dp(16),dp(18),dp(16),dp(28));
+        content.setPadding(dp(12),dp(14),dp(12),dp(20));
         header("Meteorolojik Uyarılar",true,false);
-        LinearLayout card=col();
-        card.setPadding(dp(16),dp(16),dp(16),dp(16));
-        card.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),20));
-        card.addView(tv("Meteorolojik uyarılar",16,TEXT,true));
-        TextView note=tv("Uyarı bilgisi şu anda görüntülenemiyor. Güncel uyarılar doğrulanmadan aktif uyarı varmış gibi gösterilmez.",13,MUTED,false);
-        note.setPadding(0,dp(8),0,0);
-        card.addView(note,mp());
-        content.addView(card,mp());
+
+        LinearLayout intro=col();
+        intro.setPadding(dp(14),dp(13),dp(14),dp(13));
+        intro.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),18));
+        intro.addView(tv("EDİRNE • MGM METEOUYARI",15,TEXT,true));
+        TextView note=tv("MGM'nin resmî uyarı haritası aşağıda açılır. Haritadan Edirne'yi seçerek il ve ilçe bazındaki uyarıları görüntüleyebilirsin. Uyarılar yalnızca MGM kaynağından gösterilir.",12.5f,MUTED,false);
+        note.setPadding(0,dp(7),0,dp(8));
+        intro.addView(note,mp());
+
+        LinearLayout days=row();
+        TextView today=tv("BUGÜN",13,TEXT,true);today.setGravity(Gravity.CENTER);
+        today.setBackground(bg(BLUE,12));today.setPadding(dp(8),dp(10),dp(8),dp(10));
+        TextView tomorrow=tv("YARIN",13,TEXT,true);tomorrow.setGravity(Gravity.CENTER);
+        tomorrow.setBackground(bg(Color.rgb(11,48,76),12));tomorrow.setPadding(dp(8),dp(10),dp(8),dp(10));
+        LinearLayout.LayoutParams dayP=new LinearLayout.LayoutParams(0,dp(42),1);
+        dayP.setMargins(0,0,dp(5),0);days.addView(today,dayP);
+        LinearLayout.LayoutParams dayP2=new LinearLayout.LayoutParams(0,dp(42),1);
+        dayP2.setMargins(dp(5),0,0,0);days.addView(tomorrow,dayP2);
+        intro.addView(days,mp());
+
+        TextView state=tv("MGM uyarı haritası yükleniyor…",12.5f,MUTED,false);
+        state.setPadding(0,dp(9),0,dp(2));intro.addView(state,mp());
+        content.addView(intro,mp());
+
+        WebView mgm=new WebView(this);
+        mgm.setBackgroundColor(Color.WHITE);
+        mgm.getSettings().setJavaScriptEnabled(true);
+        mgm.getSettings().setDomStorageEnabled(true);
+        mgm.getSettings().setLoadsImagesAutomatically(true);
+        mgm.setWebViewClient(new WebViewClient(){
+            @Override public void onPageFinished(WebView view,String url){
+                super.onPageFinished(view,url);
+                view.evaluateJavascript("(function(){return document.body?document.body.innerText:''})()", result->{
+                    if(isFinishing()||isDestroyed())return;
+                    String text=result==null?"":result.toLowerCase(new Locale("tr","TR"));
+                    if(text.contains("herhangi bir meteorolojik uyarı bulunmamaktadır")){
+                        state.setText("Şu anda güncel bir meteorolojik uyarı yok.");
+                    }else{
+                        state.setText("MGM haritası yüklendi. Edirne'yi seçerek il ve ilçe uyarılarını kontrol et.");
+                    }
+                });
+            }
+            @Override public boolean shouldOverrideUrlLoading(WebView view,WebResourceRequest request){
+                Uri uri=request.getUrl();
+                if(uri!=null && uri.getHost()!=null && uri.getHost().endsWith("mgm.gov.tr"))return false;
+                return true;
+            }
+        });
+        LinearLayout.LayoutParams webP=new LinearLayout.LayoutParams(-1,dp(570));
+        webP.setMargins(0,dp(10),0,0);
+        content.addView(mgm,webP);
+
+        today.setOnClickListener(v->{
+            today.setBackground(bg(BLUE,12));tomorrow.setBackground(bg(Color.rgb(11,48,76),12));
+            state.setText("Bugünün MGM uyarıları yükleniyor…");
+            mgm.loadUrl("https://www.mgm.gov.tr/Meteouyari/turkiye.aspx?Gun=1");
+        });
+        tomorrow.setOnClickListener(v->{
+            tomorrow.setBackground(bg(BLUE,12));today.setBackground(bg(Color.rgb(11,48,76),12));
+            state.setText("Yarının MGM uyarıları yükleniyor…");
+            mgm.loadUrl("https://www.mgm.gov.tr/Meteouyari/turkiye.aspx?Gun=2");
+        });
+        mgm.loadUrl("https://www.mgm.gov.tr/Meteouyari/turkiye.aspx?Gun=1");
     }
 
     void showSettings(){
