@@ -157,12 +157,12 @@ public class MainActivity extends Activity {
 
         LinearLayout met=col();met.setPadding(0,0,0,0);
         LinearLayout r1=row();r1.setGravity(Gravity.CENTER_VERTICAL);
-        r1.addView(metricCompact("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(58),1));
-        r1.addView(metricCompact("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r1);
+        r1.addView(metricCompact("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(64),1));
+        r1.addView(metricCompact("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(64),1));met.addView(r1);
         LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
-        r2.addView(metric("≋ Rüzgâr",unitValue(center.wind," km/sa")+"\n"+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(58),1));
-        r2.addView(metricCompact("◉ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(58),1));met.addView(r2);
-        main.addView(met,new LinearLayout.LayoutParams(0,dp(116),0.50f));
+        r2.addView(metricCompact("≋ Rüzgâr",unitValue(center.wind," km/sa")+" "+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(64),1));
+        r2.addView(metricCompact("◉ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(64),1));met.addView(r2);
+        main.addView(met,new LinearLayout.LayoutParams(0,dp(128),0.50f));
         weather.addView(main);
 
         LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
@@ -197,20 +197,22 @@ public class MainActivity extends Activity {
             days.addView(unavailable,new LinearLayout.LayoutParams(-1,dp(118)));
         }
         for(Day d:center.days){
-            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(118),1));
+            if(d.observedOnly || isCurrentForecastDay(d.date)) continue;
+            days.addView(dayCardFlex(d),new LinearLayout.LayoutParams(0,dp(126),1));
             if(++n>=5)break;
         }
-        forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(118)));
+        forecast5.setPadding(dp(6),dp(5),dp(6),dp(6));
+        forecast5.addView(days,new LinearLayout.LayoutParams(-1,dp(126)));
         LinearLayout.LayoutParams dp5=mp();dp5.setMargins(dp(8),dp(4),dp(8),0);content.addView(forecast5,dp5);
     }
 
     View hourCardFlex(Hour h){
         LinearLayout c=col();c.setGravity(Gravity.CENTER_HORIZONTAL);c.setPadding(dp(2),dp(2),dp(2),dp(2));
         c.setBackground(stroke(Color.rgb(7,55,88),Color.rgb(16,91,137),14));
-        TextView tm=tv(h.time,10,TEXT,true);tm.setGravity(Gravity.CENTER);tm.setIncludeFontPadding(false);
-        c.addView(tm,new LinearLayout.LayoutParams(-1,dp(18)));
-        c.addView(weatherIconView(h.event,23),new LinearLayout.LayoutParams(-1,dp(34)));
-        TextView te=tv(h.temp+"°",18,TEXT,true);te.setGravity(Gravity.CENTER);te.setIncludeFontPadding(false);
+        TextView tm=tv(h.time,12,TEXT,true);tm.setGravity(Gravity.CENTER);tm.setIncludeFontPadding(false);
+        c.addView(tm,new LinearLayout.LayoutParams(-1,dp(21)));
+        c.addView(weatherIconView(h.event,18),new LinearLayout.LayoutParams(-1,dp(28)));
+        TextView te=tv(h.temp+"°",17,TEXT,true);te.setGravity(Gravity.CENTER);te.setIncludeFontPadding(false);
         c.addView(te,new LinearLayout.LayoutParams(-1,dp(23)));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-1);p.setMargins(dp(2),0,dp(2),0);
         c.setLayoutParams(p);return c;
@@ -223,9 +225,11 @@ public class MainActivity extends Activity {
         c.addView(dl,new LinearLayout.LayoutParams(-1,dp(18)));
         TextView wd=tv(weekday(d.date),9.5f,MUTED,true);wd.setGravity(Gravity.CENTER);wd.setIncludeFontPadding(false);
         c.addView(wd,new LinearLayout.LayoutParams(-1,dp(17)));
-        c.addView(weatherIconView(d.e,17),new LinearLayout.LayoutParams(-1,dp(24)));
+        LinearLayout iconSlot=col();iconSlot.setGravity(Gravity.CENTER);
+        iconSlot.addView(weatherIconView(d.e,20),new LinearLayout.LayoutParams(-1,dp(30)));
+        c.addView(iconSlot,new LinearLayout.LayoutParams(-1,dp(34)));
         TextView ev=tv(d.e,7.2f,TEXT,true);ev.setGravity(Gravity.CENTER);ev.setIncludeFontPadding(false);ev.setMaxLines(2);
-        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(26)));
+        c.addView(ev,new LinearLayout.LayoutParams(-1,dp(28)));
         LinearLayout temps=row();temps.setGravity(Gravity.CENTER);
         TextView hi=tv(d.observedOnly?"Anlık":unitValue(d.ma,"°"),d.observedOnly?10.5f:12.5f,Color.rgb(255,120,100),true);hi.setGravity(Gravity.CENTER);hi.setIncludeFontPadding(false);hi.setSingleLine(true);
         TextView lo=tv(d.observedOnly?unitValue(d.ma,"°"):unitValue(d.mi,"°"),12.5f,Color.rgb(110,195,255),true);lo.setGravity(Gravity.CENTER);lo.setIncludeFontPadding(false);lo.setSingleLine(true);
@@ -783,7 +787,7 @@ void showWarnings(){
             JSONArray days=new JSONArray(apiGet(API+"tahminler/gunluk?istno="+istNo));
             if(days.length()>0){
                 JSONObject j=days.getJSONObject(0);
-                for(int i=1;i<=5;i++){
+                for(int i=1;i<=6;i++){
                     String date=formatDay(j.optString("tarihGun"+i,""));
                     String lo=num(j,"enDusukGun"+i),hi=num(j,"enYuksekGun"+i);
                     if(!date.isEmpty()&&isTodayOrFuture(date)&&(!lo.isEmpty()||!hi.isEmpty()||!j.optString("hadiseGun"+i,"").isEmpty()))
@@ -817,6 +821,11 @@ void showWarnings(){
             l.days.clear();l.days.addAll(next);
         }
         return l;
+    }
+    boolean isCurrentForecastDay(String date){
+        SimpleDateFormat fmt=new SimpleDateFormat("dd MMMM yyyy",new Locale("tr","TR"));
+        fmt.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
+        return date!=null && date.equals(fmt.format(new Date()));
     }
     String apiGet(String u)throws Exception{return Jsoup.connect(u).ignoreContentType(true).timeout(20000).userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu").header("Accept","application/json, text/plain, */*").header("Origin","https://www.mgm.gov.tr").header("Referer","https://www.mgm.gov.tr/").execute().body();}
     String num(JSONObject j,String k){if(!j.has(k)||j.isNull(k))return "";String s=String.valueOf(j.opt(k));try{double d=Double.parseDouble(s.replace(",","."));if(d==-9999d)return "";return d==Math.rint(d)?String.valueOf((int)d):String.format(Locale.US,"%.1f",d);}catch(Exception e){java.util.regex.Matcher m=java.util.regex.Pattern.compile("-?\\d+(?:[.,]\\d+)?").matcher(s);return m.find()?m.group().replace(",","."):"";}}
