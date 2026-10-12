@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
     Handler main=new Handler(Looper.getMainLooper()), timer=new Handler(Looper.getMainLooper());
     Runnable refresh5m;
     LinearLayout page,content,bottomNav;
+    FrameLayout appRoot;
     TextView pageTitle,status; TextView[] navButtons=new TextView[4];
     ArrayList<Loc> all=new ArrayList<>();
     Loc center;
@@ -44,7 +45,7 @@ public class MainActivity extends Activity {
     LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     LinearLayout.LayoutParams mp(){return new LinearLayout.LayoutParams(-1,-2);}
     LinearLayout.LayoutParams w(int width){return new LinearLayout.LayoutParams(dp(width),-1);}
-    @Override public void onCreate(Bundle b){super.onCreate(b); autoRefreshEnabled=settingsPrefs().getBoolean("auto_refresh",true); selectedDistrictName=settingsPrefs().getString("selected_district","Enez"); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0,top=0; if(Build.VERSION.SDK_INT>=30){ nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; top=insets.getInsets(WindowInsets.Type.statusBars()).top; } else if(Build.VERSION.SDK_INT>=23){ nav=insets.getSystemWindowInsetBottom(); top=insets.getSystemWindowInsetTop(); } if(page!=null) page.setPadding(0,top,0,0); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
+    @Override public void onCreate(Bundle b){super.onCreate(b); autoRefreshEnabled=settingsPrefs().getBoolean("auto_refresh",true); selectedDistrictName=settingsPrefs().getString("selected_district","Enez"); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0,top=0; if(Build.VERSION.SDK_INT>=30){ nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; top=insets.getInsets(WindowInsets.Type.statusBars()).top; } else if(Build.VERSION.SDK_INT>=23){ nav=insets.getSystemWindowInsetBottom(); top=insets.getSystemWindowInsetTop(); } if(page!=null) page.setPadding(0,top,0,0); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();showLogoLaunchAnimation();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
 
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
@@ -53,7 +54,28 @@ public class MainActivity extends Activity {
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
         page.addView(bottomNav,new LinearLayout.LayoutParams(-1,dp(52)));
-        setContentView(page);
+        appRoot=new FrameLayout(this);
+        appRoot.addView(page,new FrameLayout.LayoutParams(-1,-1));
+        setContentView(appRoot);
+    }
+
+    void showLogoLaunchAnimation(){
+        if(appRoot==null)return;
+        FrameLayout splash=new FrameLayout(this);
+        splash.setBackgroundColor(NAVY);
+        ImageView logo=new ImageView(this);
+        logo.setImageResource(R.drawable.edirne_logo_real);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(dp(190),dp(190),Gravity.CENTER);
+        splash.addView(logo,lp);
+        appRoot.addView(splash,new FrameLayout.LayoutParams(-1,-1));
+        splash.setAlpha(1f);
+        logo.setScaleX(0.12f);logo.setScaleY(0.12f);logo.setAlpha(0.2f);
+        logo.animate().scaleX(1.08f).scaleY(1.08f).alpha(1f).setDuration(720)
+            .setInterpolator(new android.view.animation.OvershootInterpolator(1.15f))
+            .withEndAction(()->logo.animate().scaleX(1f).scaleY(1f).setDuration(160)
+                .withEndAction(()->splash.animate().alpha(0f).setDuration(220)
+                    .withEndAction(()->{if(appRoot!=null)appRoot.removeView(splash);}).start()).start()).start();
     }
 
     LinearLayout nav(){
