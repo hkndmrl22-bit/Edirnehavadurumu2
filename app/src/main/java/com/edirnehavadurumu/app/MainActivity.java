@@ -102,9 +102,9 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams rightPanel=new LinearLayout.LayoutParams(0,dp(296),1f);
         rightPanel.setMargins(dp(1),0,0,0);
         panels.addView(liveWeatherPanel("WINDY  •  YAĞIŞ RADARI",
-                "https://embed.windy.com/embed2.html?lat=41.6771&lon=26.5557&detailLat=41.6771&detailLon=26.5557&width=320&height=450&zoom=9&level=surface&overlay=radar&product=radar&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),leftPanel);
+                "https://embed.windy.com/embed2.html?lat=41.6771&lon=26.5557&detailLat=41.6771&detailLon=26.5557&width=320&height=450&zoom=8&level=surface&overlay=radar&product=radar&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),leftPanel);
         panels.addView(liveWeatherPanel("WINDY  •  UYDU BULUTLULUK",
-                "https://embed.windy.com/embed2.html?lat=41.6771&lon=26.5557&detailLat=41.6771&detailLon=26.5557&width=320&height=450&zoom=9&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),rightPanel);
+                "https://embed.windy.com/embed2.html?lat=41.6771&lon=26.5557&detailLat=41.6771&detailLon=26.5557&width=320&height=450&zoom=8&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),rightPanel);
         hero.addView(panels,new FrameLayout.LayoutParams(-1,dp(296)));
         content.addView(hero,mp());
 
@@ -716,7 +716,9 @@ void showWarnings(){
         web.setWebViewClient(new android.webkit.WebViewClient());
         web.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
         web.setVerticalScrollBarEnabled(true);
-        content.addView(web,new LinearLayout.LayoutParams(-1,dp(640)));
+        web.setNestedScrollingEnabled(true);
+        web.setOnTouchListener((v,event)->{ if(event.getAction()==android.view.MotionEvent.ACTION_DOWN || event.getAction()==android.view.MotionEvent.ACTION_MOVE) v.getParent().requestDisallowInterceptTouchEvent(true); return false; });
+        content.addView(web,new LinearLayout.LayoutParams(-1,dp(900)));
         final int[] selectedDay={1};
         Runnable load=()->{
             today.setBackground(bg(selectedDay[0]==1?BLUE:Color.rgb(11,48,76),12));
