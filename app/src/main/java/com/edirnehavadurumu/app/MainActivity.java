@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
-        ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);
+        ScrollView scroll=new ScrollView(this);scroll.setFillViewport(false);scroll.setClipToPadding(false);
         content=col();content.setPadding(0,0,0,0);scroll.addView(content);
         page.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         bottomNav=nav();
@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
 
     void showHome(){
         currentScreen=0;
-        content.removeAllViews();setNavActive(0);content.setPadding(0,0,0,0);
+        content.removeAllViews();setNavActive(0);content.setPadding(0,0,0,dp(14));
 
         // Windy canlı yağış radarı + uydu bulutluluğu: eski fotoğraf alanının yerinde.
         FrameLayout hero=new FrameLayout(this);
@@ -102,9 +102,9 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams rightPanel=new LinearLayout.LayoutParams(0,dp(296),1f);
         rightPanel.setMargins(dp(1),0,0,0);
         panels.addView(liveWeatherPanel("WINDY  •  YAĞIŞ RADARI",
-                "https://embed.windy.com/embed2.html?lat=41.6771&lon=26.5557&detailLat=41.6771&detailLon=26.5557&width=650&height=450&zoom=6&level=surface&overlay=radar&product=radar&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),leftPanel);
+                "https://embed.windy.com/embed2.html?lat=41.6771&lon=26.5557&detailLat=41.6771&detailLon=26.5557&width=320&height=450&zoom=7&level=surface&overlay=radar&product=radar&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),leftPanel);
         panels.addView(liveWeatherPanel("WINDY  •  UYDU BULUTLULUK",
-                "https://embed.windy.com/embed2.html?lat=41.6771&lon=26.5557&detailLat=41.6771&detailLon=26.5557&width=650&height=450&zoom=6&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),rightPanel);
+                "https://embed.windy.com/embed2.html?lat=41.6771&lon=26.5557&detailLat=41.6771&detailLon=26.5557&width=320&height=450&zoom=7&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),rightPanel);
         hero.addView(panels,new FrameLayout.LayoutParams(-1,dp(296)));
         content.addView(hero,mp());
 
@@ -121,18 +121,18 @@ public class MainActivity extends Activity {
         LinearLayout wh=row();wh.setGravity(Gravity.CENTER_VERTICAL);
         wh.addView(tv("EDİRNE MERKEZ",16,Color.rgb(231,242,250),true),
                 new LinearLayout.LayoutParams(0,dp(29),1));
-        LinearLayout refresh=row();refresh.setGravity(Gravity.CENTER);refresh.setPadding(dp(8),0,dp(10),0);
+        LinearLayout refresh=row();refresh.setGravity(Gravity.CENTER);refresh.setPadding(dp(5),0,dp(7),0);
         refresh.setBackground(stroke(BLUE,Color.rgb(45,153,255),18));
-        TextView refreshIcon=tv("⟳",24,TEXT,true);refreshIcon.setGravity(Gravity.CENTER);refreshIcon.setIncludeFontPadding(false);refreshIcon.setPadding(0,0,0,0);
-        refresh.addView(refreshIcon,new LinearLayout.LayoutParams(dp(30),dp(27)));
-        TextView refreshLabel=tv("Verileri Yenile",11.5f,TEXT,true);refreshLabel.setSingleLine(true);
+        TextView refreshIcon=tv("⟳",22,TEXT,true);refreshIcon.setGravity(Gravity.CENTER);refreshIcon.setIncludeFontPadding(false);refreshIcon.setPadding(0,0,0,0);refreshIcon.setSingleLine(true);
+        refresh.addView(refreshIcon,new LinearLayout.LayoutParams(dp(27),dp(27)));
+        TextView refreshLabel=tv("Verileri Yenile",11f,TEXT,true);refreshLabel.setSingleLine(true);refreshLabel.setGravity(Gravity.CENTER_VERTICAL);refreshLabel.setIncludeFontPadding(false);
         refresh.addView(refreshLabel,new LinearLayout.LayoutParams(-2,dp(27)));
         refresh.setClickable(true);refresh.setFocusable(true);
         refresh.setOnClickListener(v->{
             if(isLoading){Toast.makeText(this,"Veriler zaten güncelleniyor.",Toast.LENGTH_SHORT).show();return;}
             refreshLabel.setText("Yenileniyor…");refreshIcon.setText("⟳");refreshIcon.setGravity(Gravity.CENTER);load();
         });
-        wh.addView(refresh,new LinearLayout.LayoutParams(dp(158),dp(29)));
+        wh.addView(refresh,new LinearLayout.LayoutParams(dp(158),dp(32)));
         weather.addView(wh);
 
         LinearLayout main=row();main.setGravity(Gravity.TOP);
