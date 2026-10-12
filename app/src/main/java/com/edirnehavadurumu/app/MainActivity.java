@@ -1239,6 +1239,8 @@ android.content.SharedPreferences settingsPrefs(){return getSharedPreferences("a
             }
         });
         web.setWebChromeClient(new WebChromeClient());
+        // Keep the embedded Windy map fixed: do not pass taps, drags, or pinch gestures into the map.
+        web.setOnTouchListener((v, event) -> true);
         body.addView(web,new FrameLayout.LayoutParams(-1,-1));
         panel.addView(body,new LinearLayout.LayoutParams(-1,0,1f));
         web.loadUrl(url);
