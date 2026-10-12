@@ -706,16 +706,12 @@ void showWarnings(){
         content.removeAllViews();setNavActive(2);
         content.setPadding(dp(12),dp(14),dp(12),dp(20));
         header("Uyarılar",true,false);
-
         LinearLayout panel=col();
         panel.setPadding(dp(14),dp(14),dp(14),dp(14));
         panel.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),18));
-        TextView state=tv("Uyarılar kontrol ediliyor…",14,TEXT,true);
-        state.setGravity(Gravity.CENTER);
-        state.setPadding(dp(8),dp(20),dp(8),dp(20));
-        panel.addView(state,mp());
-        content.addView(panel,mp());
-
+        TextView state=tv("MGM uyarıları kontrol ediliyor…",14,TEXT,true);
+        state.setGravity(Gravity.CENTER);state.setPadding(dp(8),dp(20),dp(8),dp(20));
+        panel.addView(state,mp());content.addView(panel,mp());
         LinearLayout days=row();
         TextView today=tv("Bugün",13,TEXT,true);today.setGravity(Gravity.CENTER);
         today.setBackground(bg(BLUE,12));today.setPadding(dp(8),dp(10),dp(8),dp(10));
@@ -724,66 +720,59 @@ void showWarnings(){
         LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,dp(42),1);p1.setMargins(0,dp(10),dp(5),0);
         LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,dp(42),1);p2.setMargins(dp(5),dp(10),0,0);
         content.addView(days,mp());days.addView(today,p1);days.addView(tomorrow,p2);
-
         final int[] selectedDay={1};
         Runnable[] loadAlerts=new Runnable[1];
         loadAlerts[0]=()->{
-            state.setText("Kontrol ediliyor…");
+            state.setText("MGM uyarıları kontrol ediliyor…");
             ex.execute(()->{
                 String message;
                 try{
                     String url="https://www.mgm.gov.tr/Meteouyari/il.aspx?Gun="+selectedDay[0]+"&id=92201";
-                    org.jsoup.nodes.Document doc=Jsoup.connect(url).timeout(15000).userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu").get();
+                    org.jsoup.nodes.Document doc=Jsoup.connect(url).timeout(20000)
+                        .userAgent("Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36")
+                        .header("Accept-Language","tr-TR,tr;q=0.9,en;q=0.7").get();
                     String pageText=doc.body()==null?"":doc.body().text();
                     String normalized=pageText.toLowerCase(new Locale("tr","TR"));
-                    StringBuilder details=new StringBuilder();
-                    org.jsoup.select.Elements rows=doc.select("table tr, .alert, .uyari, .warning, [class*=uyari], [class*=Uyari]");
-                    for(org.jsoup.nodes.Element el:rows){
-                        String t=el.text().trim();
-                        if(t.length()>0 && t.length()<500 && !t.toLowerCase(new Locale("tr","TR")).contains("yeşil renkli ilçelerimizde")
-                           && !t.equalsIgnoreCase("YEŞİL") && !t.equalsIgnoreCase("SARI")
-                           && !t.equalsIgnoreCase("TURUNCU") && !t.equalsIgnoreCase("KIRMIZI")){
-                            if(details.length()>0)details.append("\\n\\n");
-                            details.append(t);
+                    java.util.LinkedHashSet<String> alerts=new java.util.LinkedHashSet<>();
+                    String[] markers={"kg/m2","kg/m²","olumsuzluklara karşı dikkatli","tedbirli olunması gerekmektedir","yerel kuvvetli"};
+                    String best="";int bestLen=Integer.MAX_VALUE;
+                    // MGM kartlarının CSS sınıfları değişebildiği için sabit sınıfa bağlı kalma.
+                    // Uyarı metni taşıyan en küçük kapsayıcıyı bul; genel sayfa metnini gösterme.
+                    for(org.jsoup.nodes.Element el:doc.select("body *")){
+                        String t=el.text().replaceAll("\\s+"," ").trim();
+                        if(t.length()<100||t.length()>1800)continue;
+                        String low=t.toLowerCase(new Locale("tr","TR"));boolean marker=false;
+                        for(String m:markers)if(low.contains(m)){marker=true;break;}
+                        if(!marker||(!low.contains("sağanak")&&!low.contains("meteorolojik uyarı")))continue;
+                        if(t.length()<bestLen){best=t;bestLen=t.length();}
+                    }
+                    if(!best.isEmpty())alerts.add(best);
+                    if(alerts.isEmpty()){
+                        for(org.jsoup.nodes.Element el:doc.select("p, article, section, li, td, div")){
+                            String t=el.text().replaceAll("\\s+"," ").trim();
+                            String low=t.toLowerCase(new Locale("tr","TR"));
+                            if(t.length()<60||t.length()>1200)continue;
+                            boolean risk=low.contains("sağanak")||low.contains("fırtına")||low.contains("buzlanma")||low.contains("kar yağışı");
+                            boolean impact=low.contains("sel")||low.contains("yıldırım")||low.contains("ulaşımda")||low.contains("tedbirli");
+                            if(risk&&impact&&!low.contains("yeşil renkli ilçelerimizde"))alerts.add(t);
                         }
                     }
-                    // MGM sayfasındaki sabit açıklama/renk lejantı uyarı varmış gibi
-                    // algılanmamalı; ancak seçiciler değiştiğinde de aktif uyarı kaybolmamalı.
-                    String cleanText=pageText
-                        .replaceAll("(?i)Edirne İçin Uyarı Durumu", "")
-                        .replaceAll("(?i)Bugün \\([^)]*\\) Yarın \\([^)]*\\)", "")
-                        .replaceAll("(?i)Yeşil \\(Tehlike Yok\\) Sarı \\(Az Tehlikeli\\) Turuncu \\(Tehlikeli\\) Kırmızı \\(Çok Tehlikeli\\)", "")
-                        .replaceAll("(?i)Image", " ")
-                        .replaceAll("(?i)Soğuk|Sıcak|Sis|Zirai Don|Buzlanma ve Don|Toz Taşınımı|Kar Erimesi|Çığ|Kar|Gökgürültülü Sağanak Yağış|Rüzgar|Yağmur", " ")
-                        .replaceAll("(?i)Yeşil renkli ilçelerimizde Meteorolojik Uyarı olmadığından tabloda yer verilmemiştir", " ")
-                        .replaceAll("\\s+", " ").trim();
-                    boolean explicitNoWarning=normalized.contains("herhangi bir meteorolojik uyarı bulunmamaktadır")
-                        || (details.length()==0
-                            && normalized.trim().endsWith("yeşil uyarı yapılmasını gerektiren meteorolojik hadise tahmin edilmemektedir"));
-                    if(explicitNoWarning){
-                        message="Şu anda güncel bir meteorolojik uyarı yok.";
-                    }else if(details.length()>0){
-                        message=details.toString();
-                    }else{
-                        // Sayfa gövdesi menü ve gezinme metinleri içerir; bunlar asla uyarı olarak gösterilmez.
-                        // Yalnızca doğrulanmış uyarı satırları veya açık bir uyarı-yok ifadesi gösterilir.
-                        message="MGM uyarı ayrıntıları şu anda okunamadı. Lütfen biraz sonra tekrar deneyin.";
-                    }
-                }catch(Exception e){message="Uyarı bilgisi şu anda alınamıyor. Tekrar deneyin.";}
-                final String result=message;
-                main.post(()->{if(currentScreen==2)state.setText(result);});
+                    boolean noWarning=normalized.contains("herhangi bir meteorolojik uyarı bulunmamaktadır")
+                        ||normalized.contains("uyarı yapılmasını gerektiren meteorolojik hadise tahmin edilmemektedir");
+                    if(!alerts.isEmpty()){
+                        StringBuilder b=new StringBuilder();for(String t:alerts){if(b.length()>0)b.append("\n\n");b.append(t);}message=b.toString();
+                    }else if(noWarning)message="Şu anda güncel bir meteorolojik uyarı yok.";
+                    else message="MGM sayfasına ulaşıldı ancak uyarı ayrıntıları ayrıştırılamadı. Lütfen tekrar deneyin.";
+                }catch(Exception e){message="MGM uyarı bilgisi alınamadı. İnternet bağlantısını kontrol edip tekrar deneyin.";}
+                final String result=message;main.post(()->{if(currentScreen==2)state.setText(result);});
             });
         };
-        today.setOnClickListener(v->{
-            selectedDay[0]=1;today.setBackground(bg(BLUE,12));tomorrow.setBackground(bg(Color.rgb(11,48,76),12));loadAlerts[0].run();
-        });
-        tomorrow.setOnClickListener(v->{
-            selectedDay[0]=2;tomorrow.setBackground(bg(BLUE,12));today.setBackground(bg(Color.rgb(11,48,76),12));loadAlerts[0].run();
-        });
+        today.setOnClickListener(v->{selectedDay[0]=1;today.setBackground(bg(BLUE,12));tomorrow.setBackground(bg(Color.rgb(11,48,76),12));loadAlerts[0].run();});
+        tomorrow.setOnClickListener(v->{selectedDay[0]=2;tomorrow.setBackground(bg(BLUE,12));today.setBackground(bg(Color.rgb(11,48,76),12));loadAlerts[0].run();});
         loadAlerts[0].run();
     }
 
-    android.content.SharedPreferences settingsPrefs(){return getSharedPreferences("app_settings",MODE_PRIVATE);}
+android.content.SharedPreferences settingsPrefs(){return getSharedPreferences("app_settings",MODE_PRIVATE);}
 
     void showSettings(){
         currentScreen=3;
