@@ -1,7 +1,7 @@
 <resources>
-    <style name="LaunchTheme" parent="android:style/Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#041C32</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/edirne_logo_real</item>
-        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    <style name="LaunchTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#041C32</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/edirne_logo_real</item>
+        <item name="android:postSplashScreenTheme">@style/AppTheme</item>
     </style>
 </resources>
