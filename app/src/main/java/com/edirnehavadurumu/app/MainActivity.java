@@ -706,86 +706,35 @@ void showWarnings(){
         content.removeAllViews();setNavActive(2);
         content.setPadding(dp(12),dp(14),dp(12),dp(20));
         header("Uyarılar",true,false);
-        LinearLayout panel=col();
-        panel.setPadding(dp(14),dp(14),dp(14),dp(14));
-        panel.setBackground(stroke(Color.rgb(10,63,98),Color.rgb(25,104,154),18));
-        TextView state=tv("MGM uyarıları kontrol ediliyor…",14,TEXT,true);
-        state.setGravity(Gravity.CENTER);state.setPadding(dp(8),dp(20),dp(8),dp(20));
-        panel.addView(state,mp());content.addView(panel,mp());
+        TextView info=tv("Edirne için resmî MGM MeteoUYARI bilgileri",13,TEXT,true);
+        info.setGravity(Gravity.CENTER);info.setPadding(dp(8),dp(8),dp(8),dp(10));
+        content.addView(info,mp());
         LinearLayout days=row();
-        TextView today=tv("Bugün",13,TEXT,true);today.setGravity(Gravity.CENTER);
-        today.setBackground(bg(BLUE,12));today.setPadding(dp(8),dp(10),dp(8),dp(10));
-        TextView tomorrow=tv("Yarın",13,TEXT,true);tomorrow.setGravity(Gravity.CENTER);
-        tomorrow.setBackground(bg(Color.rgb(11,48,76),12));tomorrow.setPadding(dp(8),dp(10),dp(8),dp(10));
-        LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,dp(42),1);p1.setMargins(0,dp(10),dp(5),0);
-        LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,dp(42),1);p2.setMargins(dp(5),dp(10),0,0);
+        TextView today=tv("Bugün",13,TEXT,true),tomorrow=tv("Yarın",13,TEXT,true);
+        today.setGravity(Gravity.CENTER);tomorrow.setGravity(Gravity.CENTER);
+        today.setPadding(dp(8),dp(10),dp(8),dp(10));
+        tomorrow.setPadding(dp(8),dp(10),dp(8),dp(10));
+        LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,dp(42),1);
+        LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,dp(42),1);
+        p1.setMargins(0,0,dp(5),dp(10));p2.setMargins(dp(5),0,0,dp(10));
         content.addView(days,mp());days.addView(today,p1);days.addView(tomorrow,p2);
+        android.webkit.WebView web=new android.webkit.WebView(this);
+        web.setBackgroundColor(Color.WHITE);
+        web.getSettings().setJavaScriptEnabled(true);
+        web.getSettings().setDomStorageEnabled(true);
+        web.getSettings().setUseWideViewPort(true);
+        web.getSettings().setLoadWithOverviewMode(true);
+        web.setWebViewClient(new android.webkit.WebViewClient());
+        content.addView(web,new LinearLayout.LayoutParams(-1,dp(520)));
         final int[] selectedDay={1};
-        Runnable[] loadAlerts=new Runnable[1];
-        loadAlerts[0]=()->{
-            state.setText("MGM uyarıları kontrol ediliyor…");
-            ex.execute(()->{
-                String message;
-                try{
-                    String url="https://www.mgm.gov.tr/Meteouyari/il.aspx?Gun="+selectedDay[0]+"&id=92201";
-                    org.jsoup.nodes.Document doc=Jsoup.connect(url).timeout(25000)
-                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36")
-                        .header("Accept-Language","tr-TR,tr;q=0.9,en-US;q=0.8").get();
-                    String pageText=doc.body()==null?"":doc.body().text();
-                    String normalized=pageText.toLowerCase(new Locale("tr","TR"));
-                    java.util.LinkedHashSet<String> alerts=new java.util.LinkedHashSet<>();
-                    String[] riskWords={"sağanak","gök gürültülü","kuvvetli yağış","fırtına","kar yağışı","buzlanma","zirai don","toz taşınımı","çığ","yıldırım"};
-                    String[] impactWords={"sel","su baskını","yıldırım","ulaşımda","tedbirli","olumsuzluklara","kg/m2","kg/m²"};
-                    String best="";int bestLen=Integer.MAX_VALUE;
-                    // Uyarı kartlarını kart başlığı, zaman aralığı ve risk metni üzerinden bul.
-                    // MGM'nin CSS sınıf adları değişse de metin tabanlı eşleşme çalışır.
-                    for(org.jsoup.nodes.Element el:doc.select("body *")){
-                        String t=el.text().replaceAll("\\s+"," ").trim();
-                        if(t.length()<70||t.length()>2200)continue;
-                        String low=t.toLowerCase(new Locale("tr","TR"));
-                        boolean risk=false,impact=false;
-                        for(String w:riskWords)if(low.contains(w)){risk=true;break;}
-                        for(String w:impactWords)if(low.contains(w)){impact=true;break;}
-                        boolean edırne=low.contains("edirne merkez")||low.contains("edirne - edirne")||low.contains("edirne merkez - edirne");
-                        boolean dateRange=low.matches("(?s).*\\b\\d{1,2}\\s+[a-zçğıöşü]+\\s+20\\d{2}\\s+\\d{1,2}\\.\\d{2}.*\\b\\d{1,2}\\s+[a-zçğıöşü]+\\s+20\\d{2}\\s+\\d{1,2}\\.\\d{2}.*");
-                        if(risk&&impact&&(edırne||dateRange)&&t.length()<bestLen){best=t;bestLen=t.length();}
-                    }
-                    if(!best.isEmpty())alerts.add(best);
-                    // Kart başlığı ve açıklama farklı kapsayıcılardaysa daha geniş ama sınırlı metin ara.
-                    if(alerts.isEmpty()){
-                        for(org.jsoup.nodes.Element el:doc.select("p, article, section, li, td, div")){
-                            String t=el.text().replaceAll("\\s+"," ").trim();
-                            if(t.length()<60||t.length()>1500)continue;
-                            String low=t.toLowerCase(new Locale("tr","TR"));
-                            boolean risk=false,impact=false;
-                            for(String w:riskWords)if(low.contains(w)){risk=true;break;}
-                            for(String w:impactWords)if(low.contains(w)){impact=true;break;}
-                            if(risk&&impact&&!low.contains("yeşil renkli ilçelerimizde"))alerts.add(t);
-                        }
-                    }
-                    boolean noWarning=normalized.contains("herhangi bir meteorolojik uyarı bulunmamaktadır")
-                        ||normalized.contains("uyarı yapılmasını gerektiren meteorolojik hadise tahmin edilmemektedir");
-                    if(!alerts.isEmpty()){
-                        StringBuilder b=new StringBuilder();
-                        for(String t:alerts){if(b.length()>0)b.append("\n\n");b.append(t);}
-                        message=b.toString();
-                    }else if(noWarning)message="Şu anda güncel bir meteorolojik uyarı yok.";
-                    else message="MGM sayfasına ulaşıldı ancak Edirne uyarı kartı okunamadı. Resmî uyarıları MGM sayfasından görüntüleyebilirsiniz.";
-                }catch(Exception e){message="MGM uyarı bilgisi alınamadı. İnternet bağlantısını kontrol edip tekrar deneyin.";}
-                final String result=message;
-                main.post(()->{
-                    if(currentScreen==2)state.setText(result);
-                    if(result.startsWith("MGM sayfasına ulaşıldı")){
-                        state.setOnClickListener(v->{
-                            try{startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,android.net.Uri.parse("https://www.mgm.gov.tr/Meteouyari/il.aspx?Gun="+selectedDay[0]+"&id=92201")));}catch(Exception ignored){}
-                        });
-                    }else state.setOnClickListener(null);
-                });
-            });
+        Runnable load=()->{
+            today.setBackground(bg(selectedDay[0]==1?BLUE:Color.rgb(11,48,76),12));
+            tomorrow.setBackground(bg(selectedDay[0]==2?BLUE:Color.rgb(11,48,76),12));
+            web.loadUrl("https://mgm.gov.tr/meteouyari/Il.aspx?id=92201&Gun="+selectedDay[0]);
         };
-        today.setOnClickListener(v->{selectedDay[0]=1;today.setBackground(bg(BLUE,12));tomorrow.setBackground(bg(Color.rgb(11,48,76),12));loadAlerts[0].run();});
-        tomorrow.setOnClickListener(v->{selectedDay[0]=2;tomorrow.setBackground(bg(BLUE,12));today.setBackground(bg(Color.rgb(11,48,76),12));loadAlerts[0].run();});
-        loadAlerts[0].run();
+        today.setOnClickListener(v->{selectedDay[0]=1;load.run();});
+        tomorrow.setOnClickListener(v->{selectedDay[0]=2;load.run();});
+        load.run();
     }
 
 android.content.SharedPreferences settingsPrefs(){return getSharedPreferences("app_settings",MODE_PRIVATE);}
