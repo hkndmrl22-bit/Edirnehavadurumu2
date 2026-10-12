@@ -728,43 +728,59 @@ void showWarnings(){
                 String message;
                 try{
                     String url="https://www.mgm.gov.tr/Meteouyari/il.aspx?Gun="+selectedDay[0]+"&id=92201";
-                    org.jsoup.nodes.Document doc=Jsoup.connect(url).timeout(20000)
-                        .userAgent("Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36")
-                        .header("Accept-Language","tr-TR,tr;q=0.9,en;q=0.7").get();
+                    org.jsoup.nodes.Document doc=Jsoup.connect(url).timeout(25000)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36")
+                        .header("Accept-Language","tr-TR,tr;q=0.9,en-US;q=0.8").get();
                     String pageText=doc.body()==null?"":doc.body().text();
                     String normalized=pageText.toLowerCase(new Locale("tr","TR"));
                     java.util.LinkedHashSet<String> alerts=new java.util.LinkedHashSet<>();
-                    String[] markers={"kg/m2","kg/m²","olumsuzluklara karşı dikkatli","tedbirli olunması gerekmektedir","yerel kuvvetli"};
+                    String[] riskWords={"sağanak","gök gürültülü","kuvvetli yağış","fırtına","kar yağışı","buzlanma","zirai don","toz taşınımı","çığ","yıldırım"};
+                    String[] impactWords={"sel","su baskını","yıldırım","ulaşımda","tedbirli","olumsuzluklara","kg/m2","kg/m²"};
                     String best="";int bestLen=Integer.MAX_VALUE;
-                    // MGM kartlarının CSS sınıfları değişebildiği için sabit sınıfa bağlı kalma.
-                    // Uyarı metni taşıyan en küçük kapsayıcıyı bul; genel sayfa metnini gösterme.
+                    // Uyarı kartlarını kart başlığı, zaman aralığı ve risk metni üzerinden bul.
+                    // MGM'nin CSS sınıf adları değişse de metin tabanlı eşleşme çalışır.
                     for(org.jsoup.nodes.Element el:doc.select("body *")){
                         String t=el.text().replaceAll("\\s+"," ").trim();
-                        if(t.length()<100||t.length()>1800)continue;
-                        String low=t.toLowerCase(new Locale("tr","TR"));boolean marker=false;
-                        for(String m:markers)if(low.contains(m)){marker=true;break;}
-                        if(!marker||(!low.contains("sağanak")&&!low.contains("meteorolojik uyarı")))continue;
-                        if(t.length()<bestLen){best=t;bestLen=t.length();}
+                        if(t.length()<70||t.length()>2200)continue;
+                        String low=t.toLowerCase(new Locale("tr","TR"));
+                        boolean risk=false,impact=false;
+                        for(String w:riskWords)if(low.contains(w)){risk=true;break;}
+                        for(String w:impactWords)if(low.contains(w)){impact=true;break;}
+                        boolean edırne=low.contains("edirne merkez")||low.contains("edirne - edirne")||low.contains("edirne merkez - edirne");
+                        boolean dateRange=low.matches("(?s).*\\b\\d{1,2}\\s+[a-zçğıöşü]+\\s+20\\d{2}\\s+\\d{1,2}\\.\\d{2}.*\\b\\d{1,2}\\s+[a-zçğıöşü]+\\s+20\\d{2}\\s+\\d{1,2}\\.\\d{2}.*");
+                        if(risk&&impact&&(edırne||dateRange)&&t.length()<bestLen){best=t;bestLen=t.length();}
                     }
                     if(!best.isEmpty())alerts.add(best);
+                    // Kart başlığı ve açıklama farklı kapsayıcılardaysa daha geniş ama sınırlı metin ara.
                     if(alerts.isEmpty()){
                         for(org.jsoup.nodes.Element el:doc.select("p, article, section, li, td, div")){
                             String t=el.text().replaceAll("\\s+"," ").trim();
+                            if(t.length()<60||t.length()>1500)continue;
                             String low=t.toLowerCase(new Locale("tr","TR"));
-                            if(t.length()<60||t.length()>1200)continue;
-                            boolean risk=low.contains("sağanak")||low.contains("fırtına")||low.contains("buzlanma")||low.contains("kar yağışı");
-                            boolean impact=low.contains("sel")||low.contains("yıldırım")||low.contains("ulaşımda")||low.contains("tedbirli");
+                            boolean risk=false,impact=false;
+                            for(String w:riskWords)if(low.contains(w)){risk=true;break;}
+                            for(String w:impactWords)if(low.contains(w)){impact=true;break;}
                             if(risk&&impact&&!low.contains("yeşil renkli ilçelerimizde"))alerts.add(t);
                         }
                     }
                     boolean noWarning=normalized.contains("herhangi bir meteorolojik uyarı bulunmamaktadır")
                         ||normalized.contains("uyarı yapılmasını gerektiren meteorolojik hadise tahmin edilmemektedir");
                     if(!alerts.isEmpty()){
-                        StringBuilder b=new StringBuilder();for(String t:alerts){if(b.length()>0)b.append("\n\n");b.append(t);}message=b.toString();
+                        StringBuilder b=new StringBuilder();
+                        for(String t:alerts){if(b.length()>0)b.append("\n\n");b.append(t);}
+                        message=b.toString();
                     }else if(noWarning)message="Şu anda güncel bir meteorolojik uyarı yok.";
-                    else message="MGM sayfasına ulaşıldı ancak uyarı ayrıntıları ayrıştırılamadı. Lütfen tekrar deneyin.";
+                    else message="MGM sayfasına ulaşıldı ancak Edirne uyarı kartı okunamadı. Resmî uyarıları MGM sayfasından görüntüleyebilirsiniz.";
                 }catch(Exception e){message="MGM uyarı bilgisi alınamadı. İnternet bağlantısını kontrol edip tekrar deneyin.";}
-                final String result=message;main.post(()->{if(currentScreen==2)state.setText(result);});
+                final String result=message;
+                main.post(()->{
+                    if(currentScreen==2)state.setText(result);
+                    if(result.startsWith("MGM sayfasına ulaşıldı")){
+                        state.setOnClickListener(v->{
+                            try{startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,android.net.Uri.parse("https://www.mgm.gov.tr/Meteouyari/il.aspx?Gun="+selectedDay[0]+"&id=92201")));}catch(Exception ignored){}
+                        });
+                    }else state.setOnClickListener(null);
+                });
             });
         };
         today.setOnClickListener(v->{selectedDay[0]=1;today.setBackground(bg(BLUE,12));tomorrow.setBackground(bg(Color.rgb(11,48,76),12));loadAlerts[0].run();});
