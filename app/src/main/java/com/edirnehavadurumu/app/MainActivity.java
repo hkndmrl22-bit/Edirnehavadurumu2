@@ -116,52 +116,52 @@ public class MainActivity extends Activity {
         }
 
         // Güncel durum kartı
-        LinearLayout weather=col();weather.setPadding(dp(10),dp(6),dp(10),dp(6));
+        LinearLayout weather=col();weather.setPadding(dp(8),dp(3),dp(8),dp(3));
         weather.setBackground(stroke(Color.rgb(5,68,108),Color.rgb(25,113,174),18));
         LinearLayout wh=row();wh.setGravity(Gravity.CENTER_VERTICAL);
         wh.addView(tv("EDİRNE MERKEZ",16,Color.rgb(231,242,250),true),
-                new LinearLayout.LayoutParams(0,dp(32),1));
+                new LinearLayout.LayoutParams(0,dp(29),1));
         LinearLayout refresh=row();refresh.setGravity(Gravity.CENTER);refresh.setPadding(dp(8),0,dp(10),0);
         refresh.setBackground(stroke(BLUE,Color.rgb(45,153,255),18));
         TextView refreshIcon=tv("⟳",25,TEXT,true);refreshIcon.setGravity(Gravity.CENTER);
-        refresh.addView(refreshIcon,new LinearLayout.LayoutParams(dp(30),dp(30)));
+        refresh.addView(refreshIcon,new LinearLayout.LayoutParams(dp(27),dp(27)));
         TextView refreshLabel=tv("Verileri Yenile",11.5f,TEXT,true);refreshLabel.setSingleLine(true);
-        refresh.addView(refreshLabel,new LinearLayout.LayoutParams(-2,dp(30)));
+        refresh.addView(refreshLabel,new LinearLayout.LayoutParams(-2,dp(27)));
         refresh.setClickable(true);refresh.setFocusable(true);
         refresh.setOnClickListener(v->{
             if(isLoading){Toast.makeText(this,"Veriler zaten güncelleniyor.",Toast.LENGTH_SHORT).show();return;}
             refreshLabel.setText("Yenileniyor…");refreshIcon.setText("⟳");load();
         });
-        wh.addView(refresh,new LinearLayout.LayoutParams(dp(158),dp(32)));
+        wh.addView(refresh,new LinearLayout.LayoutParams(dp(158),dp(29)));
         weather.addView(wh);
 
         LinearLayout main=row();main.setGravity(Gravity.TOP);
         LinearLayout cur=col();cur.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL);
         LinearLayout cr=row();cr.setGravity(Gravity.CENTER);
-        cr.addView(weatherIconView(center.nowEvent,42),new LinearLayout.LayoutParams(dp(48),dp(48)));
+        cr.addView(weatherIconView(center.nowEvent,42),new LinearLayout.LayoutParams(dp(44),dp(44)));
         TextView bt=tv(tempC(center.now,"—"),34,GOLD,true);
         bt.setSingleLine(true);bt.setIncludeFontPadding(false);
-        cr.addView(bt,new LinearLayout.LayoutParams(dp(126),dp(52)));
-        cur.addView(cr,new LinearLayout.LayoutParams(-1,dp(54)));
+        cr.addView(bt,new LinearLayout.LayoutParams(dp(126),dp(46)));
+        cur.addView(cr,new LinearLayout.LayoutParams(-1,dp(46)));
         TextView cond=tv(val(center.nowEvent,"—"),13,TEXT,true);cond.setGravity(Gravity.CENTER);cond.setIncludeFontPadding(false);
-        cur.addView(cond,new LinearLayout.LayoutParams(-1,dp(20)));
+        cur.addView(cond,new LinearLayout.LayoutParams(-1,dp(18)));
         TextView upd=tv("Son Güncelleme: "+lastUpdate,10.5f,TEXT,true);
         upd.setGravity(Gravity.CENTER);upd.setIncludeFontPadding(false);upd.setSingleLine(true);
         upd.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        cur.addView(upd,new LinearLayout.LayoutParams(-1,dp(25)));
-        main.addView(cur,new LinearLayout.LayoutParams(0,dp(103),0.50f));
+        cur.addView(upd,new LinearLayout.LayoutParams(-1,dp(18)));
+        main.addView(cur,new LinearLayout.LayoutParams(0,dp(82),0.50f));
 
         LinearLayout met=col();met.setPadding(0,0,0,0);
         LinearLayout r1=row();r1.setGravity(Gravity.CENTER_VERTICAL);
-        r1.addView(metricCompact("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(70),1));
+        r1.addView(metricCompact("🌡 Hissedilen",tempC(center.feels,"—")),new LinearLayout.LayoutParams(0,dp(54),1));
         r1.addView(metricCompact("💧 Nem",unitValue(center.humidity,"%")),new LinearLayout.LayoutParams(0,dp(70),1));met.addView(r1);
         LinearLayout r2=row();r2.setGravity(Gravity.CENTER_VERTICAL);
         r2.addView(metricCompact("🌬 Rüzgâr",unitValue(center.wind," km/sa")+" "+windArrow(center.windDir)+" "+windDirection(center.windDir)),new LinearLayout.LayoutParams(0,dp(70),1));
         r2.addView(metricCompact("⏱ Basınç",unitValue(center.pressure," hPa")),new LinearLayout.LayoutParams(0,dp(70),1));met.addView(r2);
-        main.addView(met,new LinearLayout.LayoutParams(0,dp(140),0.50f));
+        main.addView(met,new LinearLayout.LayoutParams(0,dp(108),0.50f));
         weather.addView(main);
 
-        LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(6),dp(8),0);content.addView(weather,wp);
+        LinearLayout.LayoutParams wp=mp();wp.setMargins(dp(8),dp(4),dp(8),0);content.addView(weather,wp);
 
         // Saatlik tahmin — 5 günlük tahminin üstünde.
         LinearLayout hourly=col();hourly.setPadding(dp(6),dp(5),dp(6),dp(5));
