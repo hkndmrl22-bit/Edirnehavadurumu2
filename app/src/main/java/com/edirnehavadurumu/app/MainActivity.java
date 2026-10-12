@@ -91,7 +91,7 @@ public class MainActivity extends Activity {
         currentScreen=0;
         content.removeAllViews();setNavActive(0);content.setPadding(0,0,0,0);
 
-        // Canlı MGM yağış radarı + SAT24 Türkiye bulutluluğu: eski fotoğraf alanının yerinde.
+        // Windy canlı yağış radarı + uydu bulutluluğu: eski fotoğraf alanının yerinde.
         FrameLayout hero=new FrameLayout(this);
         hero.setBackgroundColor(Color.rgb(3,28,48));
         LinearLayout panels=row();
@@ -101,9 +101,9 @@ public class MainActivity extends Activity {
         leftPanel.setMargins(0,0,dp(1),0);
         LinearLayout.LayoutParams rightPanel=new LinearLayout.LayoutParams(0,dp(296),1f);
         rightPanel.setMargins(dp(1),0,0,0);
-        panels.addView(liveWeatherPanel("MGM  •  YAĞIŞ RADARI",
-                "https://mgm.gov.tr/sondurum/radar.aspx?rG=img&rR=00&rU=max"),leftPanel);
-        panels.addView(liveWeatherPanel("UYDU  •  BULUTLULUK",
+        panels.addView(liveWeatherPanel("WINDY  •  YAĞIŞ RADARI",
+                "https://embed.windy.com/embed2.html?lat=41.68&lon=26.56&detailLat=41.68&detailLon=26.56&width=650&height=450&zoom=6&level=surface&overlay=radar&product=radar&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),leftPanel);
+        panels.addView(liveWeatherPanel("WINDY  •  UYDU BULUTLULUK",
                 "https://embed.windy.com/embed2.html?lat=41.68&lon=26.56&detailLat=41.68&detailLon=26.56&width=650&height=450&zoom=6&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C"),rightPanel);
         hero.addView(panels,new FrameLayout.LayoutParams(-1,dp(296)));
         content.addView(hero,mp());
