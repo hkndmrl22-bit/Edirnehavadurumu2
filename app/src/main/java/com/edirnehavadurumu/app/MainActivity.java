@@ -764,12 +764,10 @@ void showWarnings(){
                         message="Şu anda güncel bir uyarı yok.";
                     }else if(details.length()>0){
                         message=details.toString();
-                    }else if(cleanText.length()>20
-                        && (normalized.contains("kuvvetli") || normalized.contains("uyarı") || normalized.contains("etkilenecek"))){
-                        message="MGM uyarı bilgisi (sayfa metninden):\\n\\n"+cleanText;
                     }else{
-                        // Veri var fakat uyarı ayrıntıları çözümlenemiyorsa asla 'uyarı yok' deme.
-                        message="MGM sayfası açıldı ancak uyarı ayrıntıları okunamadı. Lütfen biraz sonra tekrar deneyin.";
+                        // Sayfa gövdesi menü ve gezinme metinleri içerir; bunlar asla uyarı olarak gösterilmez.
+                        // Yalnızca doğrulanmış uyarı satırları veya açık bir uyarı-yok ifadesi gösterilir.
+                        message="MGM uyarı ayrıntıları şu anda okunamadı. Lütfen biraz sonra tekrar deneyin.";
                     }
                 }catch(Exception e){message="Uyarı bilgisi şu anda alınamıyor. Tekrar deneyin.";}
                 final String result=message;
