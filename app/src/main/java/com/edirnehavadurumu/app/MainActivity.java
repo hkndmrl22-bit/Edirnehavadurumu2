@@ -761,7 +761,7 @@ void showWarnings(){
                         || (details.length()==0
                             && normalized.trim().endsWith("yeşil uyarı yapılmasını gerektiren meteorolojik hadise tahmin edilmemektedir"));
                     if(explicitNoWarning){
-                        message="Şu anda güncel bir uyarı yok.";
+                        message="Şu anda güncel bir meteorolojik uyarı yok.";
                     }else if(details.length()>0){
                         message=details.toString();
                     }else{
