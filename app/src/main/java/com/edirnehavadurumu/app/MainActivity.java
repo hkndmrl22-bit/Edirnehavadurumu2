@@ -61,40 +61,46 @@ public class MainActivity extends Activity {
 
     void showLogoLaunchAnimation(){
         if(appRoot==null)return;
-        // Overlay is attached before the first visible frame so the home screen
-        // cannot flash underneath the launch animation.
-        FrameLayout splash=new FrameLayout(this);
+
+        // Keep a real, opaque launch layer above the page for the entire animation.
+        final FrameLayout splash=new FrameLayout(this);
         splash.setBackgroundColor(NAVY);
         splash.setClickable(true);
         splash.setFocusable(true);
 
-        ImageView logo=new ImageView(this);
+        final ImageView logo=new ImageView(this);
         logo.setImageResource(R.drawable.edirne_logo_real);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(dp(210),dp(210),Gravity.CENTER);
+        final int logoSize=dp(250);
+        FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(logoSize,logoSize,Gravity.CENTER);
         splash.addView(logo,lp);
+
+        // Attach before the first Activity frame is drawn, so the page cannot flash first.
         appRoot.addView(splash,new FrameLayout.LayoutParams(-1,-1));
+        splash.bringToFront();
+        logo.setPivotX(logoSize/2f);
+        logo.setPivotY(logoSize/2f);
+        logo.setScaleX(0.18f);
+        logo.setScaleY(0.18f);
+        logo.setRotation(-90f);
+        logo.setAlpha(1f);
 
-        logo.setPivotX(dp(105));
-        logo.setPivotY(dp(105));
-        logo.setScaleX(0.06f);
-        logo.setScaleY(0.06f);
-        logo.setRotation(-180f);
-        logo.setAlpha(0.25f);
-
-        // Start after layout/first draw: scale from tiny to full size while
-        // spinning like a wheel, then settle and reveal the home page.
-        splash.post(()->logo.animate()
-            .scaleX(1.08f).scaleY(1.08f).rotationBy(900f).alpha(1f)
-            .setDuration(1250)
-            .setInterpolator(new android.view.animation.DecelerateInterpolator(1.15f))
-            .withEndAction(()->logo.animate()
-                .scaleX(1f).scaleY(1f).rotationBy(0f).setDuration(180)
-                .withEndAction(()->splash.animate().alpha(0f).setDuration(260)
-                    .withEndAction(()->{if(appRoot!=null)appRoot.removeView(splash);})
+        // A clearly visible, sustained wheel-like spin and scale-up, followed by a clean reveal.
+        splash.post(()->{
+            if(isFinishing() || splash.getParent()==null)return;
+            logo.animate()
+                .scaleX(1.06f).scaleY(1.06f).rotationBy(810f)
+                .setDuration(2600L)
+                .setInterpolator(new android.view.animation.LinearInterpolator())
+                .withEndAction(()->logo.animate()
+                    .scaleX(1f).scaleY(1f).setDuration(240L)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                    .withEndAction(()->splash.animate().alpha(0f).setDuration(500L)
+                        .withEndAction(()->{if(splash.getParent()==appRoot)appRoot.removeView(splash);})
+                        .start())
                     .start())
-                .start())
-            .start());
+                .start();
+        });
     }
 
     LinearLayout nav(){
