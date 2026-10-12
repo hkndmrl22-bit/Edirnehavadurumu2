@@ -4,4 +4,5 @@
 <item name="android:statusBarColor">#073A63</item>
 <item name="android:navigationBarColor">#073A63</item>
 </style>
+  <style name="LaunchTheme" parent="@style/AppTheme" />
 </resources>
