@@ -121,18 +121,18 @@ public class MainActivity extends Activity {
         LinearLayout wh=row();wh.setGravity(Gravity.CENTER_VERTICAL);
         wh.addView(tv("EDİRNE MERKEZ",16,Color.rgb(231,242,250),true),
                 new LinearLayout.LayoutParams(0,dp(29),1));
-        LinearLayout refresh=row();refresh.setGravity(Gravity.CENTER);refresh.setPadding(dp(5),0,dp(7),0);
+        LinearLayout refresh=row();refresh.setGravity(Gravity.CENTER);refresh.setOrientation(LinearLayout.HORIZONTAL);refresh.setPadding(dp(8),0,dp(8),0);
         refresh.setBackground(stroke(BLUE,Color.rgb(45,153,255),18));
-        TextView refreshIcon=tv("⟳",22,TEXT,true);refreshIcon.setGravity(Gravity.CENTER);refreshIcon.setIncludeFontPadding(false);refreshIcon.setPadding(0,0,0,0);refreshIcon.setSingleLine(true);
-        refresh.addView(refreshIcon,new LinearLayout.LayoutParams(dp(27),dp(27)));
-        TextView refreshLabel=tv("Verileri Yenile",11f,TEXT,true);refreshLabel.setSingleLine(true);refreshLabel.setGravity(Gravity.CENTER_VERTICAL);refreshLabel.setIncludeFontPadding(false);
-        refresh.addView(refreshLabel,new LinearLayout.LayoutParams(-2,dp(27)));
+        TextView refreshIcon=tv("↻",27,TEXT,true);refreshIcon.setGravity(Gravity.CENTER);refreshIcon.setIncludeFontPadding(false);refreshIcon.setPadding(0,0,0,0);refreshIcon.setSingleLine(true);
+        LinearLayout.LayoutParams refreshIconParams=new LinearLayout.LayoutParams(dp(34),dp(34));refreshIconParams.setMargins(0,0,dp(4),0);refresh.addView(refreshIcon,refreshIconParams);
+        TextView refreshLabel=tv("Verileri Yenile",13f,TEXT,true);refreshLabel.setSingleLine(true);refreshLabel.setGravity(Gravity.CENTER);refreshLabel.setIncludeFontPadding(false);refreshLabel.setEllipsize(null);
+        refresh.addView(refreshLabel,new LinearLayout.LayoutParams(-2,dp(34)));
         refresh.setClickable(true);refresh.setFocusable(true);
         refresh.setOnClickListener(v->{
             if(isLoading){Toast.makeText(this,"Veriler zaten güncelleniyor.",Toast.LENGTH_SHORT).show();return;}
             refreshLabel.setText("Yenileniyor…");refreshIcon.setText("⟳");refreshIcon.setGravity(Gravity.CENTER);load();
         });
-        wh.addView(refresh,new LinearLayout.LayoutParams(dp(158),dp(32)));
+        wh.addView(refresh,new LinearLayout.LayoutParams(dp(174),dp(38)));
         weather.addView(wh);
 
         LinearLayout main=row();main.setGravity(Gravity.TOP);
