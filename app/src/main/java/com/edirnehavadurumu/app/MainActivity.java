@@ -747,13 +747,29 @@ void showWarnings(){
                             details.append(t);
                         }
                     }
-                    boolean noWarning=normalized.contains("herhangi bir meteorolojik uyarı bulunmamaktadır")
-                        || (normalized.contains("yeşil renkli ilçelerimizde meteorolojik uyarı olmadığından")
-                            && !normalized.contains("edirne için uyarı"));
-                    if(noWarning || details.length()==0){
+                    // MGM sayfasındaki sabit açıklama/renk lejantı uyarı varmış gibi
+                    // algılanmamalı; ancak seçiciler değiştiğinde de aktif uyarı kaybolmamalı.
+                    String cleanText=pageText
+                        .replaceAll("(?i)Edirne İçin Uyarı Durumu", "")
+                        .replaceAll("(?i)Bugün \\([^)]*\\) Yarın \\([^)]*\\)", "")
+                        .replaceAll("(?i)Yeşil \\(Tehlike Yok\\) Sarı \\(Az Tehlikeli\\) Turuncu \\(Tehlikeli\\) Kırmızı \\(Çok Tehlikeli\\)", "")
+                        .replaceAll("(?i)Image", " ")
+                        .replaceAll("(?i)Soğuk|Sıcak|Sis|Zirai Don|Buzlanma ve Don|Toz Taşınımı|Kar Erimesi|Çığ|Kar|Gökgürültülü Sağanak Yağış|Rüzgar|Yağmur", " ")
+                        .replaceAll("(?i)Yeşil renkli ilçelerimizde Meteorolojik Uyarı olmadığından tabloda yer verilmemiştir", " ")
+                        .replaceAll("\\s+", " ").trim();
+                    boolean explicitNoWarning=normalized.contains("herhangi bir meteorolojik uyarı bulunmamaktadır")
+                        || (details.length()==0
+                            && normalized.trim().endsWith("yeşil uyarı yapılmasını gerektiren meteorolojik hadise tahmin edilmemektedir"));
+                    if(explicitNoWarning){
                         message="Şu anda güncel bir uyarı yok.";
-                    }else{
+                    }else if(details.length()>0){
                         message=details.toString();
+                    }else if(cleanText.length()>20
+                        && (normalized.contains("kuvvetli") || normalized.contains("uyarı") || normalized.contains("etkilenecek"))){
+                        message="MGM uyarı bilgisi (sayfa metninden):\\n\\n"+cleanText;
+                    }else{
+                        // Veri var fakat uyarı ayrıntıları çözümlenemiyorsa asla 'uyarı yok' deme.
+                        message="MGM sayfası açıldı ancak uyarı ayrıntıları okunamadı. Lütfen biraz sonra tekrar deneyin.";
                     }
                 }catch(Exception e){message="Uyarı bilgisi şu anda alınamıyor. Tekrar deneyin.";}
                 final String result=message;
