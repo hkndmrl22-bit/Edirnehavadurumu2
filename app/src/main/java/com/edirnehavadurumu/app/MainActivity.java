@@ -91,32 +91,21 @@ public class MainActivity extends Activity {
         currentScreen=0;
         content.removeAllViews();setNavActive(0);content.setPadding(0,0,0,0);
 
-        // MASTER ANA SAYFA — renk, oran, kart ve yazı hiyerarşisi 5223.png esas alınmıştır.
+        // Canlı MGM yağış radarı + SAT24 Türkiye bulutluluğu: eski fotoğraf alanının yerinde.
         FrameLayout hero=new FrameLayout(this);
         hero.setBackgroundColor(Color.rgb(3,28,48));
-        ImageView photo=new ImageView(this);
-        photo.setImageDrawable(null);
-        photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        hero.addView(photo,new FrameLayout.LayoutParams(-1,dp(296)));
-        loadHeroPhoto(photo);
-
-        // Fotoğrafın üstündeki başlık alanı: masterdaki gibi fotoğrafın üzerinde.
-        LinearLayout overlay=col();overlay.setPadding(dp(10),dp(18),dp(10),dp(8));
-        GradientDrawable ov=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
-                new int[]{Color.argb(45,0,0,0),Color.argb(30,0,0,0)});
-        overlay.setBackground(ov);
-        FrameLayout.LayoutParams op=new FrameLayout.LayoutParams(-1,dp(296),Gravity.TOP);
-        hero.addView(overlay,op);
-
-        // Fotoğraf üzerindeki "EDİRNE HAVA DURUMU" başlığı kaldırıldı.
-        SimpleDateFormat photoClock=new SimpleDateFormat("HH:mm",new Locale("tr","TR"));
-        photoClock.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
-        TextView photoDate=tv(trDate()+"  •  "+photoClock.format(new Date()),12,Color.WHITE,true);
-        photoDate.setGravity(Gravity.CENTER);
-        photoDate.setShadowLayer(dp(3),0,dp(1),Color.BLACK);
-        FrameLayout.LayoutParams datep=new FrameLayout.LayoutParams(-1,dp(30),Gravity.BOTTOM);
-        datep.setMargins(dp(8),0,dp(8),dp(8));
-        hero.addView(photoDate,datep);
+        LinearLayout panels=row();
+        panels.setGravity(Gravity.CENTER);
+        panels.setBackgroundColor(Color.rgb(3,18,32));
+        LinearLayout.LayoutParams leftPanel=new LinearLayout.LayoutParams(0,dp(296),1f);
+        leftPanel.setMargins(0,0,dp(1),0);
+        LinearLayout.LayoutParams rightPanel=new LinearLayout.LayoutParams(0,dp(296),1f);
+        rightPanel.setMargins(dp(1),0,0,0);
+        panels.addView(liveWeatherPanel("MGM  •  YAĞIŞ RADARI",
+                "https://mgm.gov.tr/sondurum/radar.aspx?rG=anm&rR=00&rU=max"),leftPanel);
+        panels.addView(liveWeatherPanel("SAT24  •  BULUTLULUK",
+                "https://www.sat24.com/en-gb/country/tr"),rightPanel);
+        hero.addView(panels,new FrameLayout.LayoutParams(-1,dp(296)));
         content.addView(hero,mp());
 
         if(center==null){
@@ -1207,6 +1196,36 @@ android.content.SharedPreferences settingsPrefs(){return getSharedPreferences("a
         return "☀";
     }
     void open(String u){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception ignored){}}
+    View liveWeatherPanel(String label,String url){
+        LinearLayout panel=col();
+        panel.setBackgroundColor(Color.rgb(5,22,38));
+        TextView title=tv(label,10.5f,Color.WHITE,true);
+        title.setGravity(Gravity.CENTER);
+        title.setSingleLine(true);
+        title.setPadding(dp(2),0,dp(2),0);
+        title.setBackgroundColor(Color.rgb(12,57,91));
+        panel.addView(title,new LinearLayout.LayoutParams(-1,dp(28)));
+        WebView web=new WebView(this);
+        web.setBackgroundColor(Color.BLACK);
+        web.setVerticalScrollBarEnabled(false);
+        web.setHorizontalScrollBarEnabled(false);
+        WebSettings settings=web.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        settings.setSupportMultipleWindows(false);
+        settings.setUseWideViewPort(false);
+        settings.setLoadWithOverviewMode(false);
+        settings.setSupportZoom(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
+        web.setWebViewClient(new WebViewClient());
+        web.setWebChromeClient(new WebChromeClient());
+        panel.addView(web,new LinearLayout.LayoutParams(-1,0,1f));
+        web.loadUrl(url);
+        return panel;
+    }
+
     void loadHeroPhoto(ImageView target){
         imgEx.execute(()->{
             try{
