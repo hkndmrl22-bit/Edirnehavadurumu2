@@ -104,7 +104,7 @@ public class MainActivity extends Activity {
         panels.addView(liveWeatherPanel("MGM  •  YAĞIŞ RADARI",
                 "https://mgm.gov.tr/sondurum/radar.aspx?rG=anm&rR=00&rU=max"),leftPanel);
         panels.addView(liveWeatherPanel("SAT24  •  BULUTLULUK",
-                "https://www.sat24.com/en-gb/country/tr"),rightPanel);
+                "https://www.sat24.com/en-gb/city/8959"),rightPanel);
         hero.addView(panels,new FrameLayout.LayoutParams(-1,dp(296)));
         content.addView(hero,mp());
 
@@ -1205,23 +1205,42 @@ android.content.SharedPreferences settingsPrefs(){return getSharedPreferences("a
         title.setPadding(dp(2),0,dp(2),0);
         title.setBackgroundColor(Color.rgb(12,57,91));
         panel.addView(title,new LinearLayout.LayoutParams(-1,dp(28)));
+
+        FrameLayout body=new FrameLayout(this);
+        body.setBackgroundColor(Color.rgb(7,28,45));
         WebView web=new WebView(this);
-        web.setBackgroundColor(Color.BLACK);
+        web.setBackgroundColor(Color.rgb(7,28,45));
         web.setVerticalScrollBarEnabled(false);
         web.setHorizontalScrollBarEnabled(false);
+        web.setOverScrollMode(View.OVER_SCROLL_NEVER);
         WebSettings settings=web.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setSupportMultipleWindows(false);
-        settings.setUseWideViewPort(false);
-        settings.setLoadWithOverviewMode(false);
-        settings.setSupportZoom(true);
-        settings.setBuiltInZoomControls(true);
+        // Use a mobile viewport and fit the page into the narrow half-width panel.
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setTextZoom(85);
+        settings.setSupportZoom(false);
+        settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
-        web.setWebViewClient(new WebViewClient());
+        settings.setMediaPlaybackRequiresUserGesture(true);
+        web.setWebViewClient(new WebViewClient(){
+            @Override public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error){
+                if(request.isForMainFrame()){
+                    body.removeView(web);
+                    TextView retry=tv("Görüntü yüklenemedi\\nDokunup yeniden dene",12,MUTED,true);
+                    retry.setGravity(Gravity.CENTER);
+                    retry.setPadding(dp(8),dp(8),dp(8),dp(8));
+                    retry.setOnClickListener(v->{body.removeAllViews();body.addView(web,new FrameLayout.LayoutParams(-1,-1));web.loadUrl(url);});
+                    body.addView(retry,new FrameLayout.LayoutParams(-1,-1));
+                }
+            }
+        });
         web.setWebChromeClient(new WebChromeClient());
-        panel.addView(web,new LinearLayout.LayoutParams(-1,0,1f));
+        body.addView(web,new FrameLayout.LayoutParams(-1,-1));
+        panel.addView(body,new LinearLayout.LayoutParams(-1,0,1f));
         web.loadUrl(url);
         return panel;
     }
