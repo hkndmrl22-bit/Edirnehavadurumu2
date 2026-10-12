@@ -693,7 +693,7 @@ void districtHeader(){
 void showWarnings(){
         currentScreen=2;
         content.removeAllViews();setNavActive(2);
-        content.setPadding(dp(12),dp(14),dp(12),dp(20));
+        content.setPadding(dp(12),dp(14),dp(12),dp(100));
         header("Uyarılar",true,false);
         TextView info=tv("Edirne için resmî MGM MeteoUYARI bilgileri",13,TEXT,true);
         info.setGravity(Gravity.CENTER);info.setPadding(dp(8),dp(8),dp(8),dp(10));
