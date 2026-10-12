@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
         splash.setFocusable(true);
 
         final ImageView logo=new ImageView(this);
-        logo.setImageResource(R.drawable.accuweather_style_gear);
+        logo.setImageResource(R.drawable.edirne_sun_logo);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
         final int logoSize=dp(300);
         FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(logoSize,logoSize,Gravity.CENTER);
@@ -88,8 +88,8 @@ public class MainActivity extends Activity {
             if(isFinishing() || splash.getParent()==null)return;
             // Small-to-large, three full wheel turns, deliberately slow enough to see.
             logo.animate()
-                .scaleX(1f).scaleY(1f).rotationBy(900f)
-                .setDuration(4200L)
+                .scaleX(1f).scaleY(1f).rotationBy(1080f)
+                .setDuration(3800L)
                 .setInterpolator(new android.view.animation.LinearInterpolator())
                 .withEndAction(()->new Handler(Looper.getMainLooper()).postDelayed(()->{
                     if(isFinishing() || splash.getParent()==null)return;
