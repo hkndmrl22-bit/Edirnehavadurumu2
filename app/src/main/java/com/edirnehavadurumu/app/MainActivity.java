@@ -62,7 +62,6 @@ public class MainActivity extends Activity {
     void showLogoLaunchAnimation(){
         if(appRoot==null)return;
 
-        // Keep a real, opaque launch layer above the page for the entire animation.
         final FrameLayout splash=new FrameLayout(this);
         splash.setBackgroundColor(NAVY);
         splash.setClickable(true);
@@ -71,34 +70,33 @@ public class MainActivity extends Activity {
         final ImageView logo=new ImageView(this);
         logo.setImageResource(R.drawable.edirne_logo_real);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        final int logoSize=dp(250);
+        final int logoSize=dp(300);
         FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(logoSize,logoSize,Gravity.CENTER);
         splash.addView(logo,lp);
 
-        // Attach before the first Activity frame is drawn, so the page cannot flash first.
+        // The splash must stay above the home page until the complete logo animation ends.
         appRoot.addView(splash,new FrameLayout.LayoutParams(-1,-1));
         splash.bringToFront();
         logo.setPivotX(logoSize/2f);
         logo.setPivotY(logoSize/2f);
-        logo.setScaleX(0.18f);
-        logo.setScaleY(0.18f);
-        logo.setRotation(-90f);
+        logo.setScaleX(0.025f);
+        logo.setScaleY(0.025f);
+        logo.setRotation(-180f);
         logo.setAlpha(1f);
 
-        // A clearly visible, sustained wheel-like spin and scale-up, followed by a clean reveal.
         splash.post(()->{
             if(isFinishing() || splash.getParent()==null)return;
+            // Small-to-large, three full wheel turns, deliberately slow enough to see.
             logo.animate()
-                .scaleX(1.06f).scaleY(1.06f).rotationBy(810f)
-                .setDuration(2600L)
+                .scaleX(1f).scaleY(1f).rotationBy(1080f)
+                .setDuration(3800L)
                 .setInterpolator(new android.view.animation.LinearInterpolator())
-                .withEndAction(()->logo.animate()
-                    .scaleX(1f).scaleY(1f).setDuration(240L)
-                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
-                    .withEndAction(()->splash.animate().alpha(0f).setDuration(500L)
+                .withEndAction(()->new Handler(Looper.getMainLooper()).postDelayed(()->{
+                    if(isFinishing() || splash.getParent()==null)return;
+                    splash.animate().alpha(0f).setDuration(650L)
                         .withEndAction(()->{if(splash.getParent()==appRoot)appRoot.removeView(splash);})
-                        .start())
-                    .start())
+                        .start();
+                },750L))
                 .start();
         });
     }
