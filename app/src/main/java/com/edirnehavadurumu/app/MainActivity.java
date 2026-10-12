@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
     LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     LinearLayout.LayoutParams mp(){return new LinearLayout.LayoutParams(-1,-2);}
     LinearLayout.LayoutParams w(int width){return new LinearLayout.LayoutParams(dp(width),-1);}
-    @Override public void onCreate(Bundle b){super.onCreate(b); autoRefreshEnabled=settingsPrefs().getBoolean("auto_refresh",true); selectedDistrictName=settingsPrefs().getString("selected_district","Enez"); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0; if(Build.VERSION.SDK_INT>=30) nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; else if(Build.VERSION.SDK_INT>=23) nav=insets.getSystemWindowInsetBottom(); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
+    @Override public void onCreate(Bundle b){super.onCreate(b); autoRefreshEnabled=settingsPrefs().getBoolean("auto_refresh",true); selectedDistrictName=settingsPrefs().getString("selected_district","Enez"); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0,top=0; if(Build.VERSION.SDK_INT>=30){ nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; top=insets.getInsets(WindowInsets.Type.statusBars()).top; } else if(Build.VERSION.SDK_INT>=23){ nav=insets.getSystemWindowInsetBottom(); top=insets.getSystemWindowInsetTop(); } if(page!=null) page.setPadding(0,top,0,0); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
 
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
@@ -123,14 +123,14 @@ public class MainActivity extends Activity {
                 new LinearLayout.LayoutParams(0,dp(29),1));
         LinearLayout refresh=row();refresh.setGravity(Gravity.CENTER);refresh.setPadding(dp(8),0,dp(10),0);
         refresh.setBackground(stroke(BLUE,Color.rgb(45,153,255),18));
-        TextView refreshIcon=tv("⟳",25,TEXT,true);refreshIcon.setGravity(Gravity.CENTER);
-        refresh.addView(refreshIcon,new LinearLayout.LayoutParams(dp(27),dp(27)));
+        TextView refreshIcon=tv("⟳",24,TEXT,true);refreshIcon.setGravity(Gravity.CENTER);refreshIcon.setIncludeFontPadding(false);refreshIcon.setPadding(0,0,0,0);
+        refresh.addView(refreshIcon,new LinearLayout.LayoutParams(dp(30),dp(27)));
         TextView refreshLabel=tv("Verileri Yenile",11.5f,TEXT,true);refreshLabel.setSingleLine(true);
         refresh.addView(refreshLabel,new LinearLayout.LayoutParams(-2,dp(27)));
         refresh.setClickable(true);refresh.setFocusable(true);
         refresh.setOnClickListener(v->{
             if(isLoading){Toast.makeText(this,"Veriler zaten güncelleniyor.",Toast.LENGTH_SHORT).show();return;}
-            refreshLabel.setText("Yenileniyor…");refreshIcon.setText("⟳");load();
+            refreshLabel.setText("Yenileniyor…");refreshIcon.setText("⟳");refreshIcon.setGravity(Gravity.CENTER);load();
         });
         wh.addView(refresh,new LinearLayout.LayoutParams(dp(158),dp(29)));
         weather.addView(wh);
