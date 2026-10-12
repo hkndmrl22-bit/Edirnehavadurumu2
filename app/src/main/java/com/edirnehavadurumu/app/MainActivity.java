@@ -61,21 +61,40 @@ public class MainActivity extends Activity {
 
     void showLogoLaunchAnimation(){
         if(appRoot==null)return;
+        // Overlay is attached before the first visible frame so the home screen
+        // cannot flash underneath the launch animation.
         FrameLayout splash=new FrameLayout(this);
         splash.setBackgroundColor(NAVY);
+        splash.setClickable(true);
+        splash.setFocusable(true);
+
         ImageView logo=new ImageView(this);
         logo.setImageResource(R.drawable.edirne_logo_real);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(dp(190),dp(190),Gravity.CENTER);
+        FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(dp(210),dp(210),Gravity.CENTER);
         splash.addView(logo,lp);
         appRoot.addView(splash,new FrameLayout.LayoutParams(-1,-1));
-        splash.setAlpha(1f);
-        logo.setScaleX(0.12f);logo.setScaleY(0.12f);logo.setAlpha(0.2f);
-        logo.animate().scaleX(1.08f).scaleY(1.08f).alpha(1f).setDuration(720)
-            .setInterpolator(new android.view.animation.OvershootInterpolator(1.15f))
-            .withEndAction(()->logo.animate().scaleX(1f).scaleY(1f).setDuration(160)
-                .withEndAction(()->splash.animate().alpha(0f).setDuration(220)
-                    .withEndAction(()->{if(appRoot!=null)appRoot.removeView(splash);}).start()).start()).start();
+
+        logo.setPivotX(dp(105));
+        logo.setPivotY(dp(105));
+        logo.setScaleX(0.06f);
+        logo.setScaleY(0.06f);
+        logo.setRotation(-180f);
+        logo.setAlpha(0.25f);
+
+        // Start after layout/first draw: scale from tiny to full size while
+        // spinning like a wheel, then settle and reveal the home page.
+        splash.post(()->logo.animate()
+            .scaleX(1.08f).scaleY(1.08f).rotationBy(900f).alpha(1f)
+            .setDuration(1250)
+            .setInterpolator(new android.view.animation.DecelerateInterpolator(1.15f))
+            .withEndAction(()->logo.animate()
+                .scaleX(1f).scaleY(1f).rotationBy(0f).setDuration(180)
+                .withEndAction(()->splash.animate().alpha(0f).setDuration(260)
+                    .withEndAction(()->{if(appRoot!=null)appRoot.removeView(splash);})
+                    .start())
+                .start())
+            .start());
     }
 
     LinearLayout nav(){
