@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/edirne_sun_logo"
+    android:drawable="@drawable/edirne_launcher_foreground"
     android:insetLeft="0dp"
     android:insetTop="0dp"
     android:insetRight="0dp"

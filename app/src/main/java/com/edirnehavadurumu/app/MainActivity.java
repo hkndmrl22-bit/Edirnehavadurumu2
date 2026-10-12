@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
     LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     LinearLayout.LayoutParams mp(){return new LinearLayout.LayoutParams(-1,-2);}
     LinearLayout.LayoutParams w(int width){return new LinearLayout.LayoutParams(dp(width),-1);}
-    @Override public void onCreate(Bundle b){super.onCreate(b); autoRefreshEnabled=settingsPrefs().getBoolean("auto_refresh",true); selectedDistrictName=settingsPrefs().getString("selected_district","Enez"); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0,top=0; if(Build.VERSION.SDK_INT>=30){ nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; top=insets.getInsets(WindowInsets.Type.statusBars()).top; } else if(Build.VERSION.SDK_INT>=23){ nav=insets.getSystemWindowInsetBottom(); top=insets.getSystemWindowInsetTop(); } if(page!=null) page.setPadding(0,top,0,0); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();showLogoLaunchAnimation();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
+    @Override public void onCreate(Bundle b){super.onCreate(b); autoRefreshEnabled=settingsPrefs().getBoolean("auto_refresh",true); selectedDistrictName=settingsPrefs().getString("selected_district","Enez"); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0,top=0; if(Build.VERSION.SDK_INT>=30){ nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; top=insets.getInsets(WindowInsets.Type.statusBars()).top; } else if(Build.VERSION.SDK_INT>=23){ nav=insets.getSystemWindowInsetBottom(); top=insets.getSystemWindowInsetTop(); } if(page!=null) page.setPadding(0,top,0,0); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();}
 
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
@@ -57,48 +57,6 @@ public class MainActivity extends Activity {
         appRoot=new FrameLayout(this);
         appRoot.addView(page,new FrameLayout.LayoutParams(-1,-1));
         setContentView(appRoot);
-    }
-
-    void showLogoLaunchAnimation(){
-        if(appRoot==null)return;
-
-        final FrameLayout splash=new FrameLayout(this);
-        splash.setBackgroundColor(NAVY);
-        splash.setClickable(true);
-        splash.setFocusable(true);
-
-        final ImageView logo=new ImageView(this);
-        logo.setImageResource(R.drawable.edirne_sun_logo);
-        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        final int logoSize=dp(300);
-        FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(logoSize,logoSize,Gravity.CENTER);
-        splash.addView(logo,lp);
-
-        // The splash must stay above the home page until the complete logo animation ends.
-        appRoot.addView(splash,new FrameLayout.LayoutParams(-1,-1));
-        splash.bringToFront();
-        logo.setPivotX(logoSize/2f);
-        logo.setPivotY(logoSize/2f);
-        logo.setScaleX(0.025f);
-        logo.setScaleY(0.025f);
-        logo.setRotation(-90f);
-        logo.setAlpha(1f);
-
-        splash.post(()->{
-            if(isFinishing() || splash.getParent()==null)return;
-            // Small-to-large, three full wheel turns, deliberately slow enough to see.
-            logo.animate()
-                .scaleX(1f).scaleY(1f).rotationBy(1080f)
-                .setDuration(3800L)
-                .setInterpolator(new android.view.animation.LinearInterpolator())
-                .withEndAction(()->new Handler(Looper.getMainLooper()).postDelayed(()->{
-                    if(isFinishing() || splash.getParent()==null)return;
-                    splash.animate().alpha(0f).setDuration(650L)
-                        .withEndAction(()->{if(splash.getParent()==appRoot)appRoot.removeView(splash);})
-                        .start();
-                },750L))
-                .start();
-        });
     }
 
     LinearLayout nav(){

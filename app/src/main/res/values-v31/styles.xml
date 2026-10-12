@@ -1,6 +1,6 @@
 <resources>
     <style name="LaunchTheme" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:windowSplashScreenBackground">#041C32</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/edirne_sun_logo</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/edirne_launcher_foreground</item>
     </style>
 </resources>
