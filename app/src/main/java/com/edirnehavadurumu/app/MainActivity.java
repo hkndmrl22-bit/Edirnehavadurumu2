@@ -1024,7 +1024,40 @@ android.content.SharedPreferences settingsPrefs(){return getSharedPreferences("a
         fmt.setTimeZone(TimeZone.getTimeZone("Europe/Istanbul"));
         return date!=null && date.equals(fmt.format(new Date()));
     }
-    String apiGet(String u)throws Exception{return Jsoup.connect(u).ignoreContentType(true).timeout(20000).userAgent("Mozilla/5.0 (Android) EdirneHavaDurumu").header("Accept","application/json, text/plain, */*").header("Origin","https://www.mgm.gov.tr").header("Referer","https://www.mgm.gov.tr/").execute().body();}
+    String apiGet(String u)throws Exception{
+        // MGM servisinde anlık ağ/TLS gecikmelerinde tek başarısız isteğin tüm ekranı boş bırakmasını önle.
+        Exception last=null;
+        for(int attempt=1;attempt<=3;attempt++){
+            try{
+                org.jsoup.Connection.Response response=Jsoup.connect(u)
+                    .ignoreContentType(true)
+                    .ignoreHttpErrors(true)
+                    .timeout(25000)
+                    .maxBodySize(2*1024*1024)
+                    .userAgent("Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 EdirneHavaDurumu")
+                    .header("Accept","application/json, text/plain, */*")
+                    .header("Cache-Control","no-cache")
+                    .header("Origin","https://www.mgm.gov.tr")
+                    .header("Referer","https://www.mgm.gov.tr/")
+                    .method(org.jsoup.Connection.Method.GET)
+                    .execute();
+                int status=response.statusCode();
+                String body=response.body();
+                if(status>=200&&status<300&&!body.trim().isEmpty()){
+                    String trimmed=body.trim();
+                    if(trimmed.startsWith("[")||trimmed.startsWith("{"))return body;
+                    throw new java.io.IOException("MGM JSON yerine beklenmeyen yanıt verdi (HTTP "+status+")");
+                }
+                throw new java.io.IOException("MGM servis HTTP "+status+(body.trim().isEmpty()?"":" yanıtı"));
+            }catch(Exception e){
+                last=e;
+                if(attempt<3){
+                    try{Thread.sleep(700L*attempt);}catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw interrupted;}
+                }
+            }
+        }
+        throw new java.io.IOException("MGM servisine 3 deneme başarısız: "+(last==null?"bilinmeyen hata":last.getMessage()),last);
+    }
     String num(JSONObject j,String k){if(!j.has(k)||j.isNull(k))return "";String s=String.valueOf(j.opt(k));try{double d=Double.parseDouble(s.replace(",","."));if(d==-9999d)return "";return d==Math.rint(d)?String.valueOf((int)d):String.format(Locale.US,"%.1f",d);}catch(Exception e){java.util.regex.Matcher m=java.util.regex.Pattern.compile("-?\\d+(?:[.,]\\d+)?").matcher(s);return m.find()?m.group().replace(",","."):"";}}
     String pressure(JSONObject j){
         String[] keys={"denizeIndirgenmisBasinc","denizSeviyesiBasinc","seaLevelPressure","aktuelBasinc","basinc","basincHpa","basincDegeri","istasyonBasinc","pressure","pressureHpa"};
