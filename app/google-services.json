@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "35487848022",
+    "project_id": "edirne-hava-durumu",
+    "storage_bucket": "edirne-hava-durumu.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:35487848022:android:ee270bdb33f1b4f41c4df7",
+        "android_client_info": {
+          "package_name": "com.edirnehavadurumu.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvDE2D2GPeDTWVl6BG-eYIYybjNGsSmkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
