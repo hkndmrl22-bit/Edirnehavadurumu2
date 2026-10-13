@@ -47,6 +47,16 @@ public class MainActivity extends Activity {
     LinearLayout.LayoutParams w(int width){return new LinearLayout.LayoutParams(dp(width),-1);}
     @Override public void onCreate(Bundle b){super.onCreate(b); autoRefreshEnabled=settingsPrefs().getBoolean("auto_refresh",true); selectedDistrictName=settingsPrefs().getString("selected_district","Enez"); getWindow().setStatusBarColor(NAVY); getWindow().setNavigationBarColor(Color.rgb(5,20,34)); getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{ int nav=0,top=0; if(Build.VERSION.SDK_INT>=30){ nav=insets.getInsets(WindowInsets.Type.navigationBars()).bottom; top=insets.getInsets(WindowInsets.Type.statusBars()).top; } else if(Build.VERSION.SDK_INT>=23){ nav=insets.getSystemWindowInsetBottom(); top=insets.getSystemWindowInsetTop(); } if(page!=null) page.setPadding(0,top,0,0); if(bottomNav!=null){ LinearLayout.LayoutParams np=(LinearLayout.LayoutParams)bottomNav.getLayoutParams(); np.bottomMargin=nav; bottomNav.setLayoutParams(np); } return insets; }); refresh5m=()->{if(autoRefreshEnabled)load();timer.postDelayed(refresh5m,300000);};buildShell();showHome();load();timer.postDelayed(refresh5m,300000);checkForUpdate();requestNotificationPermissionIfNeeded();}
 
+
+    static final int REQUEST_POST_NOTIFICATIONS = 7401;
+
+    void requestNotificationPermissionIfNeeded(){
+        if(Build.VERSION.SDK_INT>=33 &&
+                checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS},REQUEST_POST_NOTIFICATIONS);
+        }
+    }
+
     void buildShell(){
         page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setBackgroundColor(NAVY);
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(false);scroll.setClipToPadding(false);
